@@ -1,4 +1,5 @@
 function is_dirty() {
+  command -v chezmoi >/dev/null 2>&1 || return 1
   test -n "$(chezmoi git -- status --porcelain)"
 }
 
@@ -9,8 +10,6 @@ function warn_dirty() {
     echo -e "\e[1;33m    -> Commit your local changes in dotfiles\e[m"
   fi
 }
-
-warn_dirty
 
 # apt / mise / dotfiles をまとめて更新する
 function update() {
@@ -36,6 +35,9 @@ function update() {
 
 eval "$(mise activate zsh)"
 eval "$(sheldon source)"
+
+# mise 有効化後に chezmoi が PATH 上に来てから dotfiles の状態を確認する
+warn_dirty
 
 ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval $(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519 ~/.ssh/signing-key)
 
