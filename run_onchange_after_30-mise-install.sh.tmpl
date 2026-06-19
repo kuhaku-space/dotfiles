@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# mise の設定が変わると再実行される。
+# 下記ハッシュは config.toml の内容に連動し、変更を検知するためのもの。
+# config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+set -eu
+
+MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
+if [ ! -x "$MISE" ]; then
+  printf "mise is not installed. Skipping...\n"
+  exit 0
+fi
+
+printf "\e[1;36mInstall tools via mise\e[m\n"
+"$MISE" install
+"$MISE" prune

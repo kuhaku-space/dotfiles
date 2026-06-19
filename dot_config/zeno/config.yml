@@ -1,4 +1,7 @@
 snippets:
+  - name: update apt / mise / dotfiles
+    keyword: up
+    snippet: update
   - name: update and upgrade packages
     keyword: apt-up
     snippet: sudo apt update && sudo apt upgrade -y
@@ -68,29 +71,34 @@ snippets:
     snippet: commit -m '{{commit_message}}'
     context:
       lbuffer: ^git\s
-  - name: yadm
-    keyword: y
-    snippet: yadm
-  - name: yadm bootstrap
-    keyword: b
-    snippet: bootstrap
+  - name: chezmoi
+    keyword: cz
+    snippet: chezmoi
+  - name: chezmoi apply
+    keyword: a
+    snippet: apply
     context:
-      lbuffer: ^yadm\s
-  - name: yadm status
+      lbuffer: ^chezmoi\s
+  - name: chezmoi update
+    keyword: up
+    snippet: update
+    context:
+      lbuffer: ^chezmoi\s
+  - name: chezmoi status
     keyword: st
-    snippet: status
+    snippet: git -- status
     context:
-      lbuffer: ^yadm\s
-  - name: yadm commit message
+      lbuffer: ^chezmoi\s
+  - name: chezmoi commit message
     keyword: cm
-    snippet: commit -m '{{commit_message}}'
+    snippet: git -- commit -m '{{commit_message}}'
     context:
-      lbuffer: ^yadm\s
-  - name: yadm add and commit message
+      lbuffer: ^chezmoi\s
+  - name: chezmoi add and commit message
     keyword: cma
-    snippet: commit -a -m '{{commit_message}}'
+    snippet: git -- commit -a -m '{{commit_message}}'
     context:
-      lbuffer: ^yadm\s
+      lbuffer: ^chezmoi\s
   - name: pnpm
     keyword: p
     snippet: pnpm

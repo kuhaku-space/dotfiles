@@ -1,5 +1,5 @@
 function is_dirty() {
-  test -n "$(yadm status --porcelain)"
+  test -n "$(chezmoi git -- status --porcelain)"
 }
 
 function warn_dirty() {
@@ -11,6 +11,28 @@ function warn_dirty() {
 }
 
 warn_dirty
+
+# apt / mise / dotfiles をまとめて更新する
+function update() {
+  if command -v apt >/dev/null 2>&1; then
+    echo -e "\e[1;36m[update] apt\e[m"
+    sudo apt update -qq &&
+      sudo apt upgrade -qq -y &&
+      sudo apt autoremove -qq -y &&
+      sudo apt autoclean -qq -y &&
+      sudo apt clean -qq -y
+  fi
+
+  if command -v mise >/dev/null 2>&1; then
+    echo -e "\e[1;36m[update] mise\e[m"
+    mise self-update -y && mise upgrade && mise prune
+  fi
+
+  if command -v chezmoi >/dev/null 2>&1; then
+    echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"
+    chezmoi update
+  fi
+}
 
 eval "$(mise activate zsh)"
 eval "$(sheldon source)"
