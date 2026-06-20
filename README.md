@@ -8,31 +8,30 @@
 
 ## セットアップ
 
-このリポジトリは [ghq](https://github.com/x-motemen/ghq) 配下に置き、それを chezmoi のソースディレクトリとして使う。
+新しいマシンでは、次のワンライナーだけで導入が完結する（chezmoi 本体の導入 → リポジトリの取得 → `$HOME` への展開 → セットアップスクリプトの実行まで）。
 
 ```sh
-# chezmoi を入れる（未インストールの場合）
-sh -c "$(curl -fsLS get.chezmoi.io)"  # もしくは mise u -g chezmoi
-
-# リポジトリを取得
-ghq get ssh://git@github.com/kuhaku-space/dotfiles.git
-
-# このリポジトリをソースに指定して初期化＆展開
-#   --apply で展開と同時にセットアップスクリプト（run_once_/run_onchange_）が走る
-chezmoi init --source "$(ghq root)/github.com/kuhaku-space/dotfiles" --apply
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-space/dotfiles.git
 ```
 
-`--source` は `~/.config/chezmoi/chezmoi.toml` に記録されるので、以降は単に `chezmoi apply` / `chezmoi update` でよい。
+- `get.chezmoi.io` が chezmoi 本体を一時的に取得し、`--` 以降をそのまま `chezmoi` に渡す。
+- リポジトリは **HTTPS**（public）で `~/.local/share/chezmoi`（chezmoi のデフォルトソース）に clone される。SSH 鍵が無い新規マシンでも clone できる。
+  - `kuhaku-space/dotfiles` という短縮形ではなく URL を明示しているのは、短縮形だと chezmoi が `https://kuhaku-space@github.com/...` とユーザー名付き URL を生成し、public リポジトリでも認証を要求してしまうため。
+- `--apply` で展開と同時にセットアップスクリプト（`run_once_` / `run_onchange_`）が走る。`run_once_` 内で SSH 鍵生成・apt・mise 導入まで行い、最後に push 用 remote を SSH へ切り替える。
+
+以降は単に `chezmoi apply` / `chezmoi update` でよい。chezmoi 本体は mise でも管理しているため、初回セットアップ後は mise 管理版が使われる。
+
+> このマシンのように既にソースを別の場所（例: ghq 配下）へ clone 済みで、そこをソースにしたい場合は `chezmoi init --source <path> --apply` で初期化する。`--source` は `~/.config/chezmoi/chezmoi.toml` に記録される。
 
 `chezmoi apply` 時に走るスクリプトは、実行頻度ごとに分割している（ファイル名のソート順で実行される）:
 
 | スクリプト | タイミング | 内容 |
 | --- | --- | --- |
-| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / SSH 鍵（`id_ed25519`・`signing-key`）の生成 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 |
-| [run_once_after_15-apt-packages.sh](run_once_after_15-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh など）の不足分を install |
+| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh など）の不足分を install |
+| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / SSH 鍵（`id_ed25519`・`signing-key`）の生成 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
 
-`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_15-apt-packages.sh` を手動実行するか直接 `apt install` する。
+apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
 
 `README.md` は [.chezmoiignore](.chezmoiignore) でリポジトリには置くが `$HOME` には展開しない。
 

@@ -10,7 +10,15 @@ check_command() {
 cd "$HOME"
 
 printf "\e[1;36mChange default shell to zsh\e[m\n"
-[ "$SHELL" = "/bin/zsh" ] || chsh -s /bin/zsh
+# zsh の実パスはディストリで異なる（/bin/zsh, /usr/bin/zsh など）ので command -v で検出する。
+ZSH_PATH="$(command -v zsh || true)"
+if [ -z "$ZSH_PATH" ]; then
+  printf "zsh is not installed yet; skipping chsh (run after zsh is installed).\n"
+elif [ "$SHELL" != "$ZSH_PATH" ]; then
+  # chsh は /etc/shells に載っているシェルしか受け付けないので、未登録なら追記する。
+  grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+  chsh -s "$ZSH_PATH"
+fi
 
 printf "\e[1;36mGenerate SSH keys\e[m\n"
 [ -e "$HOME/.ssh/id_ed25519" ] || ssh-keygen -a 128 -f "$HOME/.ssh/id_ed25519" -C "kuhakuspace2000@gmail.com"
@@ -32,3 +40,17 @@ check_command mise || curl https://mise.run | sh
 # 新規インストール時はまだ mise が PATH 外なので明示的に呼ぶ
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 "$MISE" self-update -y
+
+printf "\e[1;36mSwitch dotfiles remote to SSH for push\e[m\n"
+# ワンライナー導入では HTTPS で clone される（鍵が無くても clone できるように）。
+# 以降 push できるよう、ソースリポジトリの origin を SSH に張り替える。
+SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi")"
+if [ -d "$SOURCE_DIR/.git" ]; then
+  ORIGIN_URL="$(git -C "$SOURCE_DIR" remote get-url origin 2>/dev/null || true)"
+  case "$ORIGIN_URL" in
+    https://*github.com/*)
+      git -C "$SOURCE_DIR" remote set-url origin \
+        ssh://git@github.com/kuhaku-space/dotfiles.git
+      ;;
+  esac
+fi
