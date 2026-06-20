@@ -1,0 +1,2 @@
+{{- /* 認証用 SSH 秘密鍵。Bitwarden の SSH Key item から取得する（リポジトリには鍵を置かない）。 */ -}}
+{{- (bitwarden "item" "ssh-id_ed25519").sshKey.privateKey -}}

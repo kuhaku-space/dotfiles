@@ -20,6 +20,7 @@ PACKAGES=(
   "jq"
   "keychain"
   "zsh"
+  "unzip"
 )
 MISSING_PACKAGES=()
 for pkg in "${PACKAGES[@]}"; do

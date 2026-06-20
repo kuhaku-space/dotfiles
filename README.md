@@ -27,13 +27,39 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-s
 
 | スクリプト | タイミング | 内容 |
 | --- | --- | --- |
-| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh など）の不足分を install |
-| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / SSH 鍵（`id_ed25519`・`signing-key`）の生成 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え |
+| [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) | 初回1回だけ（ファイル展開**前**） | `bw` CLI が無ければ公式ネイティブバイナリで先行導入。SSH 鍵テンプレート（後述）が `bw` を使うため、テンプレート評価前に保証する必要がある |
+| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh, unzip など）の不足分を install |
+| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え（SSH 鍵は Bitwarden 連携で取得。後述） |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
 
 apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
 
 `README.md` は [.chezmoiignore](.chezmoiignore) でリポジトリには置くが `$HOME` には展開しない。
+
+## SSH 鍵（Bitwarden 連携）
+
+SSH 鍵は Bitwarden に **SSH Key item** 1件として保存し、`chezmoi apply` 時に取得して `~/.ssh/` へ展開する。1つの鍵を認証と git 署名の両方に使う。リポジトリには鍵そのものも暗号化済みの鍵も置かず、取得テンプレートだけが入る。全マシンで同じ鍵を共有する（マシンごとの鍵生成はしない）。
+
+| ファイル | 展開先 | パーミッション | 用途 |
+| --- | --- | --- | --- |
+| [private_dot_ssh/private_id_ed25519.tmpl](private_dot_ssh/private_id_ed25519.tmpl) | `~/.ssh/id_ed25519` | 0600 | 秘密鍵（認証 + 署名） |
+| [private_dot_ssh/id_ed25519.pub.tmpl](private_dot_ssh/id_ed25519.pub.tmpl) | `~/.ssh/id_ed25519.pub` | 0644 | 公開鍵（git の `signingKey` が参照） |
+
+Bitwarden の item 名は `ssh-id_ed25519`。テンプレートは `{{ (bitwarden "item" "ssh-id_ed25519").sshKey.privateKey }}` / `.sshKey.publicKey` で鍵本体を取り出す。git の署名鍵は [git config](dot_config/git/config) で `~/.ssh/id_ed25519.pub` を指している。`bw` CLI は初回は [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`npm:@bitwarden/cli`）で管理する。
+
+> ファイル展開（テンプレート評価）は `run_after_` スクリプトより前に走るため、`bw` の導入を `run_before_` に置いている。これにより初回ワンライナーでも鍵テンプレートが解決できる。
+
+### 初回マシンでの取得手順
+
+`bw` の導入は自動だが、ログインとアンロックは手動。`BW_SESSION` 無しで apply すると Bitwarden 取得に失敗するため、apply 前にアンロックしておく:
+
+```sh
+bw login                                # 初回のみ
+export BW_SESSION="$(bw unlock --raw)"  # apply のたびにアンロックが必要
+chezmoi apply                           # SSH 鍵を含めて展開
+```
+
+ワンライナー初回導入では、`run_before` で `bw` が入った後にテンプレート評価へ進む。事前に `bw login` 済み・`BW_SESSION` を export 済みの状態で走らせること（未ログインだと鍵取得のみ失敗するので、後から上記手順で `chezmoi apply` し直せばよい）。鍵を新しいマシンに増やしたいときは、Bitwarden の Web/アプリで対応する SSH Key item を作っておけばよい。
 
 ## 日常の操作
 

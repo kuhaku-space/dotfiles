@@ -20,9 +20,11 @@ elif [ "$SHELL" != "$ZSH_PATH" ]; then
   chsh -s "$ZSH_PATH"
 fi
 
-printf "\e[1;36mGenerate SSH keys\e[m\n"
-[ -e "$HOME/.ssh/id_ed25519" ] || ssh-keygen -a 128 -f "$HOME/.ssh/id_ed25519" -C "kuhakuspace2000@gmail.com"
-[ -e "$HOME/.ssh/signing-key" ] || ssh-keygen -a 128 -f "$HOME/.ssh/signing-key" -C "kuhakuspace2000@gmail.com"
+# SSH 鍵は Bitwarden から取得する（private_dot_ssh/*.tmpl が bitwarden 関数で展開する）。
+# apply 前に bw でアンロックしておくこと:
+#   bw login            # 初回のみ
+#   export BW_SESSION="$(bw unlock --raw)"
+# 鍵生成（ssh-keygen）は廃止。全マシンで同じ鍵を共有する。
 
 printf "\e[1;36mAppend ZDOTDIR to zshenv\e[m\n"
 grep -q "export ZDOTDIR" /etc/zsh/zshenv ||
