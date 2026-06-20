@@ -45,7 +45,7 @@ SSH 鍵は Bitwarden に **SSH Key item** 1件として保存し、`chezmoi appl
 | [private_dot_ssh/private_id_ed25519.tmpl](private_dot_ssh/private_id_ed25519.tmpl) | `~/.ssh/id_ed25519` | 0600 | 秘密鍵（認証 + 署名） |
 | [private_dot_ssh/id_ed25519.pub.tmpl](private_dot_ssh/id_ed25519.pub.tmpl) | `~/.ssh/id_ed25519.pub` | 0644 | 公開鍵（git の `signingKey` が参照） |
 
-Bitwarden の item 名は `ssh-id_ed25519`。テンプレートは `{{ (bitwarden "item" "ssh-id_ed25519").sshKey.privateKey }}` / `.sshKey.publicKey` で鍵本体を取り出す。git の署名鍵は [git config](dot_config/git/config) で `~/.ssh/id_ed25519.pub` を指している。`bw` CLI は初回は [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`npm:@bitwarden/cli`）で管理する。
+Bitwarden の SSH Key item（名前 `github`）を **item ID で**指定して取得する（`github` という名前の item が複数あり、名前指定だと曖昧になるため）。テンプレートは `{{ (bitwarden "item" "<item-id>").sshKey.privateKey }}` / `.sshKey.publicKey` で鍵本体を取り出す。git の署名鍵は [git config](dot_config/git/config) で `~/.ssh/id_ed25519.pub` を指している。`bw` CLI は初回は [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`npm:@bitwarden/cli`）で管理する。
 
 > ファイル展開（テンプレート評価）は `run_after_` スクリプトより前に走るため、`bw` の導入を `run_before_` に置いている。これにより初回ワンライナーでも鍵テンプレートが解決できる。
 

@@ -31,7 +31,11 @@ grep -q "export ZDOTDIR" /etc/zsh/zshenv ||
   printf '\nexport ZDOTDIR=%s\n' "$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
 
 printf "\e[1;36mSource zshenv configuration file\e[m\n"
+# .zshenv は zsh 前提（$ZSH_VERSION 等を参照）なので、bash の set -u 下で
+# source すると未定義変数で落ちる。この source の間だけ -u を外す。
+set +u
 . "$HOME/.config/zsh/.zshenv"
+set -u
 
 printf "\e[1;36mMake directories\e[m\n"
 mkdir -p "$HOME/.local/state/zsh" "$HOME/.cache/zsh"
