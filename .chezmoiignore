@@ -1,2 +1,23 @@
 README.md
 docs/
+
+{{/*
+  SSH 鍵は Bitwarden から取得するため、テンプレート評価のたびに bw の
+  アンロック（マスターパスワード入力）を要求してしまう。鍵は一度正しく
+  配置すれば変わらないので、ローカルの ~/.ssh/id_ed25519 の公開鍵
+  フィンガープリントが下記の期待値と一致する場合は鍵を管理対象から外し、
+  bw を呼ばない（＝パスワードを求められない）ようにする。
+
+  鍵が未配置・古い・壊れている場合のみ管理対象に含め、bw から取り直す。
+  期待値（公開鍵 SHA256 フィンガープリント。公開情報なので平文で持つ）:
+*/ -}}
+{{- $expectedFp := "SHA256:XpYFK7UnRY1p5mcnFMHQzfCmUPPs+7WwHYDad4LT7gg" -}}
+{{- $keyPath := joinPath .chezmoi.homeDir ".ssh/id_ed25519" -}}
+{{- $localFp := "" -}}
+{{- if stat $keyPath -}}
+{{-   $localFp = (output "ssh-keygen" "-lf" $keyPath | regexFind "SHA256:[^ ]+") -}}
+{{- end -}}
+{{- if and (not (env "BW_SESSION")) (eq $localFp $expectedFp) }}
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+{{- end }}
