@@ -1,0 +1,18 @@
+{{/*
+  chezmoi 本体の設定。`chezmoi init` 時に評価され
+  ~/.config/chezmoi/chezmoi.toml を生成する。
+
+  このリポジトリは ghq 配下（~/ghq/github.com/kuhaku-space/dotfiles）に
+  置いて運用するため sourceDir を明示する必要がある。init 実行時点の
+  ソース場所を .chezmoi.sourceDir から取るので、ghq 配下でも標準の
+  ~/.local/share/chezmoi でも、その時の実際の場所が入る。
+*/ -}}
+sourceDir = {{ .chezmoi.sourceDir | quote }}
+
+[bitwarden]
+    # bitwarden 関数を呼ぶ際、chezmoi が自動で `bw unlock` を実行する。
+    # これにより、鍵を取得する必要があるとき（新規マシン・鍵更新時）だけ
+    # マスターパスワードを聞かれ、`export BW_SESSION=...` を手で打つ必要がない。
+    # 鍵が既に正しく配置済みのときは .chezmoiignore 側で bw 呼び出し自体を
+    # 抑止しているので、通常の apply ではアンロックも走らない。
+    unlock = true
