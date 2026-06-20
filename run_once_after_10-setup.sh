@@ -12,12 +12,20 @@ cd "$HOME"
 printf "\e[1;36mChange default shell to zsh\e[m\n"
 # zsh の実パスはディストリで異なる（/bin/zsh, /usr/bin/zsh など）ので command -v で検出する。
 ZSH_PATH="$(command -v zsh || true)"
+# 現在のログインシェルは $SHELL ではなく /etc/passwd を見る。
+# $SHELL はプロセスを起動したシェルを指すだけで、設定済みのログインシェルとは限らない
+# （例: ログインシェルは /usr/bin/zsh なのに $SHELL は /bin/zsh のことがある）。
+CURRENT_SHELL="$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f7)"
+# /bin/zsh と /usr/bin/zsh のような symlink 差で誤検知しないよう実パスで比較する。
+resolve() { readlink -f "$1" 2>/dev/null || echo "$1"; }
 if [ -z "$ZSH_PATH" ]; then
   printf "zsh is not installed yet; skipping chsh (run after zsh is installed).\n"
-elif [ "$SHELL" != "$ZSH_PATH" ]; then
+elif [ "$(resolve "$CURRENT_SHELL")" != "$(resolve "$ZSH_PATH")" ]; then
   # chsh は /etc/shells に載っているシェルしか受け付けないので、未登録なら追記する。
   grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
   chsh -s "$ZSH_PATH"
+else
+  printf "Default shell is already zsh; skipping chsh.\n"
 fi
 
 # SSH 鍵は Bitwarden から取得する（private_dot_ssh/*.tmpl が bitwarden 関数で展開する）。
