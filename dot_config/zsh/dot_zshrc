@@ -39,7 +39,7 @@ eval "$(sheldon source)"
 # mise 有効化後に chezmoi が PATH 上に来てから dotfiles の状態を確認する
 warn_dirty
 
-ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval $(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519 ~/.ssh/signing-key)
+ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval $(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519)
 
 setopt auto_cd
 setopt hist_ignore_all_dups
