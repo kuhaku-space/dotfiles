@@ -16,3 +16,7 @@ sourceDir = {{ .chezmoi.sourceDir | quote }}
     # 鍵が既に正しく配置済みのときは .chezmoiignore 側で bw 呼び出し自体を
     # 抑止しているので、通常の apply ではアンロックも走らない。
     unlock = true
+
+[git]
+    autoCommit = true
+    autoPush = true
