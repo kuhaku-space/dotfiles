@@ -37,7 +37,7 @@ skip_global_compinit=1
 # bootstrap 等から bash で source される場合は zsh 専用構文を避ける
 if [ -n "$ZSH_VERSION" ]; then
   typeset -U path  # PATH の重複エントリを自動で除去
-  path+=("$HOME/.local/bin" "$CARGO_HOME/bin")
+  path+=("$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$CARGO_HOME/bin")
 else
-  export PATH="$PATH:$HOME/.local/bin:$CARGO_HOME/bin"
+  export PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.local/bin:$CARGO_HOME/bin"
 fi
