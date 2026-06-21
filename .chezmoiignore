@@ -23,7 +23,7 @@ docs/
 {{- if stat $keyPath -}}
 {{-   $localFp = (output "ssh-keygen" "-lf" $keyPath | regexFind "SHA256:[^ ]+") -}}
 {{- end -}}
-{{- if and (not (env "BW_SESSION")) (eq $localFp $expectedFp) }}
+{{- if eq $localFp $expectedFp }}
 .ssh/id_ed25519
 .ssh/id_ed25519.pub
 {{- end }}

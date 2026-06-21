@@ -29,9 +29,8 @@ else
 fi
 
 # SSH 鍵は Bitwarden から取得する（private_dot_ssh/*.tmpl が bitwarden 関数で展開する）。
-# chezmoi.toml の bitwarden.unlock=true により、鍵取得が必要なときは apply が
-# 自動でアンロックを促すので、事前の export BW_SESSION は不要。bw login だけ済ませておく:
-#   bw login            # 初回のみ
+# ログイン（run_once_before_02）とアンロック（chezmoi.toml の bitwarden.unlock=true）は
+# 鍵取得が必要なときに apply が自動で促すので、事前準備は不要。export BW_SESSION も bw login も手で打たなくてよい。
 # 鍵生成（ssh-keygen）は廃止。全マシンで同じ鍵を共有する。
 
 printf "\e[1;36mAppend ZDOTDIR to zshenv\e[m\n"
