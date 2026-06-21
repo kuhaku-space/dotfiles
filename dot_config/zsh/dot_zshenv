@@ -28,6 +28,9 @@ export OPENSSL_INCLUDE_DIR="/usr/include/openssl/"
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
 export NPM_CONFIG_USERCONFIG="$XDG_CONFIG_HOME/npm/npmrc"
 
+# Claude Code
+export CLAUDE_CONFIG_DIR="$XDG_CONFIG_HOME/claude"
+
 # compinit
 skip_global_compinit=1
 
