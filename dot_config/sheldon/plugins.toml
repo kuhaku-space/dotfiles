@@ -50,3 +50,6 @@ inline = 'eval "$(zoxide init zsh)"'
 
 [plugins.mise-completion]
 inline = 'eval "$(mise completion zsh)"'
+
+[plugins.typst-completion]
+inline = 'eval "$(typst completions zsh)"'
