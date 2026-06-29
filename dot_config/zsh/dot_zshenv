@@ -38,6 +38,8 @@ skip_global_compinit=1
 if [ -n "$ZSH_VERSION" ]; then
   typeset -U path  # PATH の重複エントリを自動で除去
   path+=("$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$CARGO_HOME/bin")
+  typeset -U fpath  # fpath の重複エントリを自動で除去
+  fpath=("$XDG_DATA_HOME/zsh/completions" $fpath)  # 静的に生成した補完を compinit より前に登録
 else
   export PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.local/bin:$CARGO_HOME/bin"
 fi
