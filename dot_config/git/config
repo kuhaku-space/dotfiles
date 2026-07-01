@@ -4,6 +4,7 @@
 	signingKey = ~/.ssh/id_ed25519.pub
 [core]
 	editor = code --wait
+	quotepath = false
 [gpg]
 	format = ssh
 [commit]
