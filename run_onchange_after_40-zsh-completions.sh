@@ -7,12 +7,6 @@ set -eu
 COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
 mkdir -p "$COMP_DIR"
 
-MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
-if [ ! -x "$MISE" ]; then
-  printf "mise is not installed. Skipping completions...\n"
-  exit 0
-fi
-
 # gen <name> <補完を zsh 用に出力するコマンド...>
 # グローバルに置きたくないツールは `mise exec <tool>@<ver> --` 経由で呼ぶ。
 gen() {
@@ -28,6 +22,14 @@ gen() {
 
 printf "\e[1;36mGenerate zsh completions\e[m\n"
 
-gen typst "$MISE" exec typst@latest -- typst completions zsh
+CHEZMOI="$(command -v chezmoi || echo "$HOME/.local/bin/chezmoi")"
+gen chezmoi "$CHEZMOI" completion zsh
+
+MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
+if [ -x "$MISE" ]; then
+  gen typst "$MISE" exec typst@latest -- typst completions zsh
+else
+  printf "mise is not installed. Skipping mise-managed completions...\n"
+fi
 # 追加例:
 # gen ripgrep "$MISE" exec ripgrep@latest -- rg --generate complete-zsh
