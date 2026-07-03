@@ -32,8 +32,9 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-s
 | [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh, unzip など）の不足分を install |
 | [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え（SSH 鍵は Bitwarden 連携で取得。後述） |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
+| [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) | スクリプト内容が変わったとき | zsh 補完を `~/.local/share/zsh/completions` に生成（chezmoi, gh, deno, jj, zellij, bw, bat, typst） |
 
-apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
+apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ、補完生成はスクリプト内容のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
 
 `README.md` は [.chezmoiignore](.chezmoiignore) でリポジトリには置くが `$HOME` には展開しない。
 
@@ -67,15 +68,23 @@ Bitwarden の SSH Key item（名前 `github`）を **item ID で**指定して�
 ## 日常の操作
 
 ```sh
-chezmoi edit ~/.config/zsh/.zshrc   # ソースを編集
+$EDITOR ~/.config/zsh/.zshrc        # $HOME 側の実ファイルを編集
+chezmoi re-add ~/.config/zsh/.zshrc # 変更をソースへ取り込む
+chezmoi diff                        # 反映差分を確認
 chezmoi apply                       # $HOME に反映
-chezmoi git -- status               # ソースリポジトリの状態を確認
-chezmoi git -- commit -am "..."     # コミット
-chezmoi git -- push                 # push
 chezmoi update                      # pull + apply
 ```
 
-リポジトリ（ソース）に未コミットの変更があると、zsh 起動時に `[warn] DIRTY DOTFILES` が表示される（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc) の `warn_dirty`）。
+基本は `$HOME` 側の実ファイルを編集して `chezmoi re-add` でソースへ取り込む。`README.md` や `docs/` は [.chezmoiignore](.chezmoiignore) で `$HOME` に展開しないため、リポジトリ上のファイルを直接編集する。リポジトリ（ソース）に未コミットの変更があると、zsh 起動時に `[warn] DIRTY DOTFILES` が表示される（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc) の `warn_dirty`）。
+
+変更を保存・同期するときだけ、ソースリポジトリで Git 操作を行う:
+
+```sh
+chezmoi git -- status
+chezmoi git -- add .
+chezmoi git -- commit -m "..."
+chezmoi git -- push
+```
 
 ## 構成
 
@@ -97,3 +106,5 @@ chezmoi update                      # pull + apply
 mise use -g <tool>   # config.toml に追記してインストール
 mise upgrade         # 更新
 ```
+
+zsh 補完を静的生成したい CLI は [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) に `gen <name> <command...>` を追加する。生成先は `~/.local/share/zsh/completions` で、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録している。`mise` と `zoxide` は sheldon 側で動的に初期化しているため、このスクリプトでは生成しない。
