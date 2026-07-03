@@ -24,6 +24,12 @@ printf "\e[1;36mGenerate zsh completions\e[m\n"
 
 CHEZMOI="$(command -v chezmoi || echo "$HOME/.local/bin/chezmoi")"
 gen chezmoi "$CHEZMOI" completion zsh
+gen gh gh completion -s zsh
+gen deno deno completions zsh
+gen jj jj util completion zsh
+gen zellij zellij setup --generate-completion zsh
+gen bw env BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" bw completion --shell zsh
+gen bat bat --completion zsh
 
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 if [ -x "$MISE" ]; then
