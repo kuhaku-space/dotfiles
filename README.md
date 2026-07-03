@@ -86,6 +86,10 @@ chezmoi git -- commit -m "..."
 chezmoi git -- push
 ```
 
+## CI/CD
+
+GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `main`・`master` への push / 手動実行時に dotfiles を検証する。内容は shell script lint、chezmoi テンプレート展開、TOML/YAML 構文チェック。秘密鍵テンプレートは Bitwarden 認証が必要なため、CI では直接 `chezmoi apply` せず、認証不要なテンプレートだけを検証する。
+
 ## 構成
 
 | パス | 内容 |
