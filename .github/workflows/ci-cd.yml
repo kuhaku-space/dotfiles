@@ -39,14 +39,14 @@ jobs:
           fi
 
           tmp="$(mktemp)"
-          chezmoi execute-template <run_onchange_after_30-mise-install.sh.tmpl >"$tmp"
+          chezmoi --source . execute-template <run_onchange_after_30-mise-install.sh.tmpl >"$tmp"
           bash -n "$tmp"
 
       - name: Validate chezmoi templates
         run: |
-          chezmoi execute-template <.chezmoiignore >/dev/null
-          chezmoi execute-template <.chezmoi.toml.tmpl >/dev/null
-          chezmoi execute-template <run_onchange_after_30-mise-install.sh.tmpl >/dev/null
+          chezmoi --source . execute-template <.chezmoiignore >/dev/null
+          chezmoi --source . execute-template <.chezmoi.toml.tmpl >/dev/null
+          chezmoi --source . execute-template <run_onchange_after_30-mise-install.sh.tmpl >/dev/null
 
       - name: Validate TOML
         run: |
@@ -62,7 +62,7 @@ jobs:
           rendered = Path("/tmp/chezmoi.toml")
           rendered.write_bytes(
               subprocess.check_output(
-                  ["chezmoi", "execute-template"],
+                  ["chezmoi", "--source", ".", "execute-template"],
                   input=Path(".chezmoi.toml.tmpl").read_bytes(),
               )
           )
