@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # テンプレート評価（private_dot_ssh/*.tmpl の bitwarden 関数）より前に bw CLI を保証する。
 # run_before_ は全ファイル展開の前に走るため、ここで bw を入れておけば SSH 鍵テンプレートが解決できる。
-# 継続的なバージョン管理は mise（npm:@bitwarden/cli）に任せ、ここは初回ブートストラップ専用。
+# 継続的なバージョン管理は mise（bitwarden）に任せ、ここは初回ブートストラップ専用。
 set -eu
 
 if command -v bw >/dev/null 2>&1; then
