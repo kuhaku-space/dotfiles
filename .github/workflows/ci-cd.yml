@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install validation tools
         run: |
@@ -33,20 +33,26 @@ jobs:
 
       - name: Lint shell scripts
         run: |
-          mapfile -t scripts < <(find . -type f \( -name '*.sh' -o -name '*.sh.tmpl' \) | sort)
+          mapfile -t scripts < <(
+            find . -type f \( -name '*.sh' -o -name '*.sh.tmpl' \) | sort
+          )
           if ((${#scripts[@]})); then
             shellcheck -e SC1091 "${scripts[@]}"
           fi
 
           tmp="$(mktemp)"
-          chezmoi --source . execute-template <run_onchange_after_30-mise-install.sh.tmpl >"$tmp"
+          chezmoi --source . execute-template \
+            <run_onchange_after_30-mise-install.sh.tmpl \
+            >"$tmp"
           bash -n "$tmp"
 
       - name: Validate chezmoi templates
         run: |
           chezmoi --source . execute-template <.chezmoiignore >/dev/null
           chezmoi --source . execute-template <.chezmoi.toml.tmpl >/dev/null
-          chezmoi --source . execute-template <run_onchange_after_30-mise-install.sh.tmpl >/dev/null
+          chezmoi --source . execute-template \
+            <run_onchange_after_30-mise-install.sh.tmpl \
+            >/dev/null
 
       - name: Validate TOML
         run: |
@@ -71,4 +77,7 @@ jobs:
           '
 
       - name: Validate YAML
-        run: yamllint -d relaxed dot_config/zeno/config.yml .github/workflows/ci-cd.yml
+        run: |
+          yamllint -d relaxed \
+            dot_config/zeno/config.yml \
+            .github/workflows/ci-cd.yml
