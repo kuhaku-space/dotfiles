@@ -24,7 +24,6 @@ claude = "latest"
 usage = "latest"
 jujutsu = "latest"
 sheldon = "latest"
-typst = "latest"
 zellij = "latest"
 bitwarden = "latest"  # aqua:bitwarden/clients。公式ネイティブバイナリ（node 不要）で、
                       # run_once_before_01 が先行導入するものと同一
@@ -32,8 +31,8 @@ bitwarden = "latest"  # aqua:bitwarden/clients。公式ネイティブバイナ�
 shellcheck = "latest"
 actionlint = "latest"
 
-# rust と node は意図的にここに置かない。言語ランタイムは版を固定したいのが
-# プロジェクト側なので、各リポジトリの mise 設定（または rustup）に任せる。
+# rust と node と typst は意図的にここに置かない。版を固定したいのがプロジェクト側
+# なので、各リポジトリの mise 設定（または rustup）に任せる。
 #
 # rust: mise の core:rust は rustup を検出すると installs/rust を
 #   $CARGO_HOME/bin への symlink にするだけで、実体は rustup が管理する。
@@ -43,3 +42,9 @@ actionlint = "latest"
 #   このファイル冒頭の再現性の話も rust には効いていなかった。
 # node: dotfiles 側に node 依存は無い（bw は aqua のネイティブバイナリ、
 #   claude は aqua:anthropics/claude-code、nvim の設定は未管理）。
+# typst: 2度足して2度外している（a1bbe35 → 800e007、および後の再発）。足したくなる
+#   動機は毎回「zsh 補完が欲しい」だが、dotfiles 側の typst 依存はその補完生成だけで、
+#   補完のためにグローバルへ版を固定するのは関係が逆立ちしている。文書のビルドは
+#   プロジェクトごとに版を決めたいので、ここに置くと 800e007 で避けたはずの
+#   「グローバルの版がプロジェクトより強い」状態に戻る。補完が欲しいときは
+#   run_onchange_after_40-zsh-completions.sh 冒頭のコメントの手順で置く。

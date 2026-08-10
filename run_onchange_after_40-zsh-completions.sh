@@ -8,10 +8,18 @@ COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
 mkdir -p "$COMP_DIR"
 
 # gen <name> <補完を zsh 用に出力するコマンド...>
-# 対象は mise 管理のツール（PATH 上の shim を呼ぶ）。`mise exec <tool>@latest --` は
-# 使わない。lock を素通りして未固定の版を毎回ダウンロードするうえ、config.toml に
-# 無いツールは 30-mise-install の `mise prune` が消すので、消しては落とし直す往復に
-# なる。補完が欲しいツールは config.toml に入れて lock に載せること。
+#
+# 対象は config.toml に載っている mise 管理ツールだけにする（PATH 上の shim を呼ぶ）。
+# `mise exec <tool>@latest --` で呼ぶのは駄目で、@latest は実行時にレジストリへ
+# 解決しにいくので mise.lock の管理外になり、そのツールだけマシンごとに違う版が
+# 入りうる（config.toml 冒頭の再現性の話が効かない）。
+#
+# 逆に「補完が欲しいから config.toml に足す」のもしない。それはグローバルに版を
+# 固定することになり、プロジェクト側で版を決めたいツール（typst など）には合わない。
+# 補完のためだけにツールを常時インストールする関係が逆立ちしている。
+# プロジェクトローカルなツールの補完が欲しいときは、そのプロジェクトで
+#   typst completions zsh >~/.local/share/zsh/completions/_typst
+# のように手で置く。
 gen() {
   name="$1"
   shift
@@ -33,7 +41,6 @@ gen jj jj util completion zsh
 gen zellij zellij setup --generate-completion zsh
 gen bw env BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" bw completion --shell zsh
 gen bat bat --completion zsh
-gen typst typst completions zsh
 
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 if [ -x "$MISE" ]; then
