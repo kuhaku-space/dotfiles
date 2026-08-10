@@ -12,6 +12,11 @@
 #      補完が無い状態（新規マシンの2回目以降の apply、ファイルを消した後）を
 #      こちらで拾う。
 #
+# 補完を置くのは**そのツールが実際にインストールされているときだけ**。入っていない
+# ものは（前に生成した分があれば）消す。置いたままにすると、存在しないコマンドで
+# TAB が候補を出してしまう。判定は mise ls --current で、shim の有無では見ない
+# （shim は config から外した後も残る）。
+#
 # 版ごとの記録（$STAMP）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと
 # 約1.9秒かかり、その 88% は bw（141MB のバイナリで単体 1.7 秒）が占める。hook は
 # 無関係なプロジェクトでの mise install でも発火するので、1ツールの更新に毎回
@@ -82,9 +87,22 @@ comp_files() {
 mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
 
 # 版一覧は mise を1回だけ叩いて使い回す（約20ms）。
-MISE_LS="$("$MISE" ls --current 2>/dev/null || true)"
+#
+# mise が使えないときは何も触らずに抜ける。この後の判定は「mise が知らないツールは
+# 未インストール」とみなすので、mise が壊れている状態で走らせると全部の補完を
+# 消してしまう。
+if ! MISE_LS="$("$MISE" ls --current 2>/dev/null)"; then
+  printf 'mise is not usable; leaving existing completions untouched.\n' >&2
+  exit 0
+fi
 MISE_OWN="$("$MISE" --version 2>/dev/null | awk '{ print $1 }' || true)"
 
+# version_of <name>: インストール済みならその版、そうでなければ空を返す。
+#
+# 判定に command -v は使えない。mise の shim は対象ツールを config から外した後も
+# 残るので（実測: shim 101 個に対し現在のツールは 20 個）、shim の存在は
+# インストール済みを意味しない。mise ls --current は未インストールを 3列目の
+# "(missing)" で示すので、そこを見る。
 version_of() {
   local tool
   tool="$(mise_tool "$1")"
@@ -92,13 +110,15 @@ version_of() {
     printf '%s\n' "${MISE_OWN:-unknown}"
     return
   fi
-  printf '%s\n' "$MISE_LS" | awk -v t="$tool" '$1 == t { print $2; exit }'
+  printf '%s\n' "$MISE_LS" |
+    awk -v t="$tool" '$1 == t { if ($3 != "(missing)") print $2; exit }'
 }
 
-# $STAMP の各行は "<name>\t<version>\t<ok|skip>"。
-# ok  = その版で生成に成功した
-# skip = その版で生成に失敗した（そのマシンに無いツール等）。版が変わるまで再試行しない。
-#        こうしないと、生成できないツールが1つでもあるたびに毎回走ることになる。
+# $STAMP の各行は "<name>\t<version>\t<ok|skip>"。インストール済みのツールだけが載る。
+# ok   = その版で生成に成功した
+# skip = インストール済みなのに生成に失敗した（補完サブコマンドが変わった等）。
+#        版が変わるまで再試行しない。こうしないと、失敗するツールが1つあるだけで
+#        毎回生成を走らせることになる。
 stamp_field() {
   [ -r "$STAMP" ] || return 0
   awk -F'\t' -v n="$1" -v f="$2" '$1 == n { print $f; exit }' "$STAMP"
@@ -118,7 +138,20 @@ announce() {
 
 for name in "${NAMES[@]}"; do
   version="$(version_of "$name")"
-  version="${version:-unknown}"
+
+  # インストールされていないツールの補完は有効にしない。置いたままにすると、
+  # 存在しないコマンドで TAB が候補を出す（config.toml から外した後、まだ
+  # そのマシンに入っていない段階、そのツールを使わないマシン）。
+  # stamp に行を残さないので、後で入れ直したら作り直される。
+  if [ -z "$version" ]; then
+    if [ -e "$COMP_DIR/_$name" ]; then
+      announce
+      rm -f "$COMP_DIR/_$name"
+      printf "  removed _%s (not installed)\n" "$name"
+    fi
+    continue
+  fi
+
   prev_version="$(stamp_field "$name" 2)"
   prev_state="$(stamp_field "$name" 3)"
 

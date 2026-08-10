@@ -166,7 +166,11 @@ bash scripts/check-mise-lock.sh bat eza  # 指定したものだけ
 
 生成するのは [dot_local/bin/refresh-zsh-completions](dot_local/bin/executable_refresh-zsh-completions) で、**mise の `postinstall` hook**（[config.toml](dot_config/mise/config.toml)）が呼ぶ。ツールが入った／上がった瞬間に走るので、実行ファイルだけ新しくて補完が古いという状態にならない。全ツールが既に入っていて `mise install` が何もしないと hook は発火しないため、[run_onchange_after_40](run_onchange_after_40-zsh-completions.sh.tmpl) が apply 時にも呼んで担保する。
 
+補完を置くのは**そのツールが実際にインストールされているときだけ**で、入っていないものは（前に生成した分があれば）消す。置いたままにすると存在しないコマンドで TAB が候補を出してしまう。判定は `mise ls --current`（3列目の `(missing)`）で行い、shim の有無では見ない — shim は `config.toml` から外した後も残るため。`mise` 自体が使えないときは何も触らずに抜ける。
+
 版ごとの記録（`~/.local/state/zsh/completions.stamp`）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと約1.9秒かかり、その大半は `bw`（141MB のバイナリで単体1.7秒）なので、1ツールの更新でそれを払わない。変化が無ければ約20msで抜ける。
+
+`NAMES` に無いファイル（手で置いた補完など）は触らない。
 
 対象を増やすときは `refresh-zsh-completions` の `NAMES` / `emit()` / `mise_tool()` に足す。ファイルを編集すると 40 のハッシュが変わって再実行され、生成まで走る。**補完が欲しいからといって `config.toml` にツールを足さないこと**（理由は config.toml 末尾の typst のくだり）。`zoxide` は sheldon 側で動的に初期化しているため生成しない。
 
