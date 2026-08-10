@@ -1,0 +1,19 @@
+# jujutsu (jj) の設定。jj は git の設定を読まないので、user 情報はここにも要る
+# （未設定だと commit 時に "Name and email not configured" で止まる）。
+[user]
+name = "kuhaku-space"
+email = "67200331+kuhaku-space@users.noreply.github.com"
+
+[ui]
+# 引数なしの `jj` を log にする（jj 側の推奨。将来デフォルトが変わっても固定される）。
+default-command = "log"
+
+[signing]
+# git 側（commit.gpgsign = true）と揃えて、自分の commit は常に ssh 鍵で署名する。
+behavior = "own"
+backend = "ssh"
+key = "~/.ssh/id_ed25519.pub"
+
+[signing.backends.ssh]
+# 署名の検証にも git と同じ許可署名者リストを使う。
+allowed-signers = "~/.config/git/allowed_signers"
