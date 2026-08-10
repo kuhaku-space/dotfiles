@@ -7,6 +7,10 @@ check_command() {
   command -v "$1" >/dev/null 2>&1
 }
 
+warn() {
+  printf "\e[1;33m%s\e[m\n" "$1" >&2
+}
+
 cd "$HOME"
 
 printf "\e[1;36mChange default shell to zsh\e[m\n"
@@ -21,9 +25,22 @@ resolve() { readlink -f "$1" 2>/dev/null || echo "$1"; }
 if [ -z "$ZSH_PATH" ]; then
   printf "zsh is not installed yet; skipping chsh (run after zsh is installed).\n"
 elif [ "$(resolve "$CURRENT_SHELL")" != "$(resolve "$ZSH_PATH")" ]; then
+  # ここから先の失敗で apply を止めない。実機では chsh が通らない状況が普通にある
+  # （LDAP/SSSD 管理のアカウントは拒否される、sudo が無いと /etc/shells も書けない）。
+  # ログインシェルが変わらないだけの話で、後続の mise install や補完生成まで
+  # 巻き添えにする理由がない。手で直せるよう、失敗時はコマンドを提示する。
+  #
   # chsh は /etc/shells に載っているシェルしか受け付けないので、未登録なら追記する。
-  grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null || echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
-  chsh -s "$ZSH_PATH"
+  if ! grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null ||
+      warn "Failed to register $ZSH_PATH in /etc/shells (needs sudo)."
+  fi
+  if grep -qxF "$ZSH_PATH" /etc/shells 2>/dev/null; then
+    chsh -s "$ZSH_PATH" ||
+      warn "chsh failed. Set the login shell manually: chsh -s $ZSH_PATH"
+  else
+    warn "Skipping chsh: $ZSH_PATH is not listed in /etc/shells."
+  fi
 else
   printf "Default shell is already zsh; skipping chsh.\n"
 fi
@@ -53,10 +70,15 @@ chmod 700 "$HOME/.ssh/control" "$HOME/.ssh/config.d"
 
 printf "\e[1;36mInstall mise\e[m\n"
 # .zshenv は既に source 済みなので $HOME/.local/bin は PATH 上にある
-check_command mise || curl https://mise.run | sh
+# -f が無いと HTTP エラーの本文をそのまま sh に流してしまうので付ける。
+check_command mise || curl -fsSL https://mise.run | sh
 # 新規インストール時はまだ mise が PATH 外なので明示的に呼ぶ
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
-"$MISE" self-update -y
+# self-update は standalone インストール専用で、ディストリのパッケージや nix/brew で
+# 入れた mise では失敗する。更新できないだけなので apply は止めない
+# （止めると後続の 30-mise-install / 40-zsh-completions がまるごと走らなくなる）。
+"$MISE" self-update -y ||
+  warn "mise self-update failed (not a standalone install?). Update it with your package manager."
 
 printf "\e[1;36mSwitch dotfiles remote to SSH for push\e[m\n"
 # ワンライナー導入では HTTPS で clone される（鍵が無くても clone できるように）。
