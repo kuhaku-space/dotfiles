@@ -14,8 +14,10 @@ if [ ! -x "$MISE" ]; then
 fi
 
 # CI（bootstrap smoke test）で検証したいのは bootstrap の経路が通ること。
-# rust / node / neovim まで入れると 30分近くかかるので、シェル起動と補完生成に
-# 必要な分だけに絞る。**CI では以下のツール以外はインストールされない**。
+# 全ツールを入れる必要はないので、シェル起動と補完生成に必要な分だけに絞る。
+# （rust / node をここで入れていた頃は 30分近くかかっていた。今は残り全部が
+# ビルド済みバイナリなので支配的なのは本数ぶんのダウンロード時間）
+# **CI では以下のツール以外はインストールされない**。
 if [ -n "${CI:-}" ]; then
   printf "\e[1;36mInstall tools via mise (CI: shell-startup subset only)\e[m\n"
   "$MISE" install sheldon starship zoxide fzf deno bat eza usage

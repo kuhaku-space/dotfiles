@@ -17,13 +17,11 @@ ghq = "latest"
 glow = "latest"
 hyperfine = "latest"
 neovim = "latest"
-rust = "latest"  # 1.x のみなので "latest" が実質メジャー固定
 starship = "latest"
 chezmoi = "latest"
 zoxide = "latest"
 claude = "latest"
 usage = "latest"
-node = "26"
 jujutsu = "latest"
 sheldon = "latest"
 zellij = "latest"
@@ -32,3 +30,15 @@ bitwarden = "latest"  # aqua:bitwarden/clients。公式ネイティブバイナ�
 # CI と同じ lint をローカルでも回せるようにする（.github/workflows/ci-cd.yml 参照）
 shellcheck = "latest"
 actionlint = "latest"
+
+# rust と node は意図的にここに置かない。言語ランタイムは版を固定したいのが
+# プロジェクト側なので、各リポジトリの mise 設定（または rustup）に任せる。
+#
+# rust: mise の core:rust は rustup を検出すると installs/rust を
+#   $CARGO_HOME/bin への symlink にするだけで、実体は rustup が管理する。
+#   その上で RUSTUP_TOOLCHAIN を export するため、rustup の選択順で最強のこれが
+#   プロジェクトの rust-toolchain.toml を黙って上書きしてしまう。
+#   lock にも url/checksum が入らず（symlink なので記録するものが無い）、
+#   このファイル冒頭の再現性の話も rust には効いていなかった。
+# node: dotfiles 側に node 依存は無い（bw は aqua のネイティブバイナリ、
+#   claude は aqua:anthropics/claude-code、nvim の設定は未管理）。
