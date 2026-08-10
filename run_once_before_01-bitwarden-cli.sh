@@ -4,6 +4,13 @@
 # 継続的なバージョン管理は mise（bitwarden）に任せ、ここは初回ブートストラップ専用。
 set -eu
 
+# 鍵が既に正しく置かれている（＝bw を呼ぶ必要がない）なら、導入もしない。
+# CI もここで抜ける。判定は .chezmoiignore と同じ条件。
+if ! bash "${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}/scripts/needs-bitwarden.sh"; then
+  printf "SSH key already matches the repository's public key; skipping bw bootstrap.\n"
+  exit 0
+fi
+
 if command -v bw >/dev/null 2>&1; then
   exit 0
 fi

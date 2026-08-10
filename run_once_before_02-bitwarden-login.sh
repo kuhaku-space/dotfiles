@@ -6,6 +6,14 @@
 # run_once のため初回セットアップ時に一度だけ走る。後からログアウトした場合は、apply 失敗後に手で bw login すればよい。
 set -eu
 
+# 鍵が既に正しく置かれているなら鍵の取得自体が起きないので、ログインも求めない。
+# （ここを見ないと「ログアウト状態 + 鍵は正しい」マシンで無用な bw login を促す）
+# CI もここで抜ける。判定は .chezmoiignore と同じ条件。
+if ! bash "${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}/scripts/needs-bitwarden.sh"; then
+  printf "SSH key already matches the repository's public key; skipping bw login.\n"
+  exit 0
+fi
+
 # run_once_before_01 で ~/.local/bin に入れた直後はまだ PATH 外のことがあるので bw を明示的に解決する。
 BW="$(command -v bw || true)"
 if [ -z "$BW" ] && command -v mise >/dev/null 2>&1; then
