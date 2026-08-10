@@ -14,6 +14,14 @@ Host github.com
 	# 他の鍵を順に試して "Too many authentication failures" になるのを防ぐ。
 	IdentitiesOnly yes
 
+# ControlPath は Unix socket なので、$HOME が NFS だと作れない
+# （unix_listener: cannot bind to path ... Operation not supported）。研究室や社内の
+# 実機はホームがネットワークマウントのことがあるので、tmpfs である /run/user/$UID を
+# 優先し、無い環境（logind の無いコンテナや systemd 無効の WSL）だけ ~/.ssh/control に
+# 落とす。ssh は最初に見つかった値を採用するので、この Match は Host * より前に置く。
+Match exec "test -d /run/user/%i"
+	ControlPath /run/user/%i/ssh-%C
+
 Host *
 	# ssh-agent に鍵を自動で登録する（keychain と併用しても害はない）。
 	AddKeysToAgent yes
