@@ -21,6 +21,8 @@ PACKAGES=(
   "keychain"
   "zsh"
   "unzip"
+  # zeno の clip スニペット（xclip -selection clipboard）が依存する。
+  "xclip"
 )
 MISSING_PACKAGES=()
 for pkg in "${PACKAGES[@]}"; do
