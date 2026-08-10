@@ -1,5 +1,6 @@
 README.md
 docs/
+scripts/
 
 {{/*
   SSH 鍵は Bitwarden から取得するため、テンプレート評価のたびに bw の

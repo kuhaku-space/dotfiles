@@ -4,7 +4,7 @@
 
 ファイルは chezmoi のソース命名規則で保存している（`dot_config/` → `~/.config/`、`dot_zshrc` → `.zshrc` など）。`chezmoi apply` で `$HOME` に展開される。
 
-> yadm からの移行記録は [docs/migration-yadm-to-chezmoi.md](docs/migration-yadm-to-chezmoi.md) を参照。
+> 移行記録は `docs/` 配下に置いている。yadm → chezmoi は [docs/migration-yadm-to-chezmoi.md](docs/migration-yadm-to-chezmoi.md)、`ZDOTDIR` の宣言場所を `/etc/zsh/zshenv` から `~/.zshenv` へ移した件（既存マシンで `/etc` を元に戻す手順を含む）は [docs/migration-etc-zshenv-to-home-zshenv.md](docs/migration-etc-zshenv-to-home-zshenv.md) を参照。
 
 ## セットアップ
 
@@ -102,6 +102,7 @@ GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `ma
 | [dot_config/git/](dot_config/git/) | git 設定 |
 | [dot_config/npm/](dot_config/npm/), [dot_config/pnpm/](dot_config/pnpm/) | Node パッケージマネージャ設定 |
 | `run_once_after_*` / `run_onchange_after_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
+| [scripts/](scripts/) | `apply` の経路に載せない手動実行用スクリプト（sudo が必要な一度きりの移行など）。`docs/` と同様 `$HOME` には展開しない |
 
 ### ZDOTDIR を `~/.zshenv` で宣言する理由
 
@@ -109,11 +110,7 @@ zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/
 
 以前は `/etc/zsh/zshenv` に `ZDOTDIR` を追記していたが、やめた。あのファイルは root を含む全ユーザーの全 zsh 起動（非対話スクリプトも）で読まれ、`zsh -f` 以外では読み込みを止められない（`NO_GLOBAL_RCS` が効くのは `zprofile` 以降）。そこに個人の `$HOME` を絶対パスで焼き込むと `sudo zsh` した root が他人の設定を読む。加えて sudo が必要で chezmoi の管理外（`chezmoi diff` に出ない）になり、zsh 更新時に conffile の競合を起こす。
 
-**既存マシンの移行**: 以前の追記が残っていると `/etc` 側が先に `ZDOTDIR` を設定するので `~/.zshenv` は読まれない（挙動は変わらないが root への影響も消えない）。次で1度だけ消す:
-
-```sh
-sudo sed -i '/^export ZDOTDIR=/d' /etc/zsh/zshenv
-```
+**既存マシンの移行**: 以前の追記が残っていると `/etc` 側が先に `ZDOTDIR` を設定するので `~/.zshenv` は読まれない（挙動は変わらないが root への影響も消えない）。1度だけ `/etc/zsh/zshenv` を元に戻す必要がある。[scripts/revert-etc-zshenv.sh](scripts/revert-etc-zshenv.sh) を実行すれば一括で済む（`--dry-run` で差分確認可、何度実行しても安全）。背景・手動手順・復元方法は [docs/migration-etc-zshenv-to-home-zshenv.md](docs/migration-etc-zshenv-to-home-zshenv.md)。新規マシンでは不要。
 
 ## ツールの追加・更新
 
