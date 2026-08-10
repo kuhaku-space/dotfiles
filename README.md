@@ -30,7 +30,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-s
 | [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) | 初回1回だけ（ファイル展開**前**） | `bw` CLI が無ければ公式ネイティブバイナリで先行導入。SSH 鍵テンプレート（後述）が `bw` を使うため、テンプレート評価前に保証する必要がある |
 | [run_once_before_02-bitwarden-login.sh](run_once_before_02-bitwarden-login.sh) | 初回1回だけ（ファイル展開**前**） | 未ログインなら対話的に `bw login` を起動。鍵テンプレートの取得前にログインを保証する（アンロックは `bitwarden.unlock=true` が自動で実行） |
 | [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh, unzip など）の不足分を install |
-| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / `/etc/zsh/zshenv` への `ZDOTDIR` 追記 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え（SSH 鍵は Bitwarden 連携で取得。後述） |
+| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え（SSH 鍵は Bitwarden 連携で取得。後述） |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
 | [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) | スクリプト内容が変わったとき | zsh 補完を `~/.local/share/zsh/completions` に生成（chezmoi, gh, deno, jj, zellij, bw, bat, typst） |
 
@@ -94,13 +94,26 @@ GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `ma
 
 | パス | 内容 |
 | --- | --- |
-| [dot_config/zsh/](dot_config/zsh/) | zsh 設定（`.zshenv` / `.zshrc`） |
+| [dot_zshenv](dot_zshenv) | `ZDOTDIR` を宣言して `$ZDOTDIR/.zshenv` を source するだけの stub（`$HOME` に置く必要がある唯一の zsh ファイル） |
+| [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`） |
 | [dot_config/mise/config.toml](dot_config/mise/config.toml) | mise が管理する開発ツール一覧 |
 | [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)） |
 | [dot_config/zeno/config.yml](dot_config/zeno/config.yml) | [zeno.zsh](https://github.com/yuki-yano/zeno.zsh) のスニペット |
 | [dot_config/git/](dot_config/git/) | git 設定 |
 | [dot_config/npm/](dot_config/npm/), [dot_config/pnpm/](dot_config/pnpm/) | Node パッケージマネージャ設定 |
 | `run_once_after_*` / `run_onchange_after_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
+
+### ZDOTDIR を `~/.zshenv` で宣言する理由
+
+zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/.zshenv` だけは `$HOME` 直下に置くしかない。ここで `ZDOTDIR` を設定しても読むファイルは既に確定しているので、本体（`$ZDOTDIR/.zshenv`）は明示的に source する。`.zprofile` / `.zshrc` / `.zlogin` は `ZDOTDIR` 確定後に読まれるため転送は不要。
+
+以前は `/etc/zsh/zshenv` に `ZDOTDIR` を追記していたが、やめた。あのファイルは root を含む全ユーザーの全 zsh 起動（非対話スクリプトも）で読まれ、`zsh -f` 以外では読み込みを止められない（`NO_GLOBAL_RCS` が効くのは `zprofile` 以降）。そこに個人の `$HOME` を絶対パスで焼き込むと `sudo zsh` した root が他人の設定を読む。加えて sudo が必要で chezmoi の管理外（`chezmoi diff` に出ない）になり、zsh 更新時に conffile の競合を起こす。
+
+**既存マシンの移行**: 以前の追記が残っていると `/etc` 側が先に `ZDOTDIR` を設定するので `~/.zshenv` は読まれない（挙動は変わらないが root への影響も消えない）。次で1度だけ消す:
+
+```sh
+sudo sed -i '/^export ZDOTDIR=/d' /etc/zsh/zshenv
+```
 
 ## ツールの追加・更新
 

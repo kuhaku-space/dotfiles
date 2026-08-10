@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 初回 apply 時に一度だけ実行されるセットアップ。
-# シェル変更・SSH 鍵生成・ZDOTDIR 追記・ディレクトリ作成・mise 本体の導入。
+# シェル変更・ディレクトリ作成・mise 本体の導入・push 用 remote の切り替え。
 set -eu
 
 check_command() {
@@ -33,9 +33,9 @@ fi
 # 鍵取得が必要なときに apply が自動で促すので、事前準備は不要。export BW_SESSION も bw login も手で打たなくてよい。
 # 鍵生成（ssh-keygen）は廃止。全マシンで同じ鍵を共有する。
 
-printf "\e[1;36mAppend ZDOTDIR to zshenv\e[m\n"
-grep -q "export ZDOTDIR" /etc/zsh/zshenv ||
-  printf '\nexport ZDOTDIR=%s\n' "$HOME/.config/zsh" | sudo tee -a /etc/zsh/zshenv
+# ZDOTDIR は chezmoi が展開する ~/.zshenv（dot_zshenv）が宣言する。
+# /etc/zsh/zshenv への追記はしない（root や他ユーザーまで巻き込み、sudo が必要で
+# chezmoi の管理外になるため）。
 
 printf "\e[1;36mSource zshenv configuration file\e[m\n"
 # .zshenv は zsh 前提（$ZSH_VERSION 等を参照）なので、bash の set -u 下で

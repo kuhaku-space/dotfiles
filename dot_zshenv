@@ -1,0 +1,15 @@
+# ZDOTDIR を宣言するためだけの stub。設定本体は $ZDOTDIR/.zshenv 側にある。
+#
+# zsh は ZDOTDIR 未設定のとき $HOME を ZDOTDIR とみなすため、ユーザー側で最初に
+# 読まれるのはこの ~/.zshenv になる。ここで ZDOTDIR を設定しても本体は自動では
+# 読まれない（読むファイルは既に確定している）ので、明示的に source する。
+# .zprofile / .zshrc / .zlogin は ZDOTDIR 確定後に読まれるので転送は不要。
+#
+# ZDOTDIR を /etc/zsh/zshenv に書く方法は使わない。あれは root や他ユーザーの
+# zsh 起動まで巻き込み、sudo が必要で chezmoi の管理外になり、zsh の更新時に
+# conffile の競合を起こす。
+export ZDOTDIR="$HOME/.config/zsh"
+
+if [ -f "$ZDOTDIR/.zshenv" ]; then
+  . "$ZDOTDIR/.zshenv"
+fi
