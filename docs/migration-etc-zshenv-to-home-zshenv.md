@@ -13,7 +13,7 @@
 | chezmoi の管理外 | sudo が必要で、`chezmoi diff` / `chezmoi status` に出ず、`chezmoi apply` で再現もされない |
 | conffile 競合 | dpkg の conffile なので、追記があると `zsh-common` 更新時に「設定ファイルが変更されています」と競合を聞かれる |
 
-`~/.zshenv` に置く方式は `$HOME` 直下にファイルが1枚増えるが、zsh は `ZDOTDIR` 未設定時に `$HOME` を `ZDOTDIR` とみなす仕様なので、これは避けられない最小コスト。詳細は [README の該当節](../README.md#zdotdir-を-zshenv-で宣言する理由)。
+`~/.zshenv` に置く方式は `$HOME` 直下にファイルが1枚増えるが、zsh は `ZDOTDIR` 未設定時に `$HOME` を `ZDOTDIR` とみなす仕様なので、これは避けられない最小コスト。詳細は [dot_zshenv](../dot_zshenv) 冒頭のコメント。
 
 ## 一括実行
 
