@@ -29,16 +29,19 @@ jobs:
           fetch-depth: 0
 
       - name: Install validation tools
+        env:
+          # 素の curl で api.github.com を叩くと runner からは 403 になるので、
+          # gh 経由（GITHUB_TOKEN 付き）でリリース資産を取る。
+          GH_TOKEN: ${{ github.token }}
         run: |
           sudo apt-get update
           sudo apt-get install -y shellcheck yamllint zsh
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
-          # actionlint はリリースを固定せず最新を取る（URL のバージョン推測を避ける）。
-          url="$(
-            curl -fsSL https://api.github.com/repos/rhysd/actionlint/releases/latest |
-              jq -r '.assets[] | select(.name | endswith("linux_amd64.tar.gz")) | .browser_download_url'
-          )"
-          curl -fsSL "$url" | tar -xz -C "$HOME/.local/bin" actionlint
+          # actionlint はバージョンを固定せず最新のリリースを取る。
+          tmp="$(mktemp -d)"
+          gh release download --repo rhysd/actionlint \
+            --pattern '*_linux_amd64.tar.gz' --dir "$tmp"
+          tar -xzf "$tmp"/*_linux_amd64.tar.gz -C "$HOME/.local/bin" actionlint
           echo "$HOME/.local/bin" >>"$GITHUB_PATH"
 
       - name: Lint shell scripts
@@ -176,7 +179,11 @@ jobs:
                 curl ca-certificates git sudo locales >/dev/null
 
               # 読み取り専用マウントのままでは apply 中の remote 差し替えができない。
+              # 所有者も runner (uid 1001) のままだと、root から見て git が
+              # 「dubious ownership」でリポジトリと認識せず、remote 差し替えや
+              # hook 設定が静かに失敗する。実機と同じく所有者を揃える。
               cp -a /src /root/dotfiles
+              chown -R root:root /root/dotfiles
               cd /root
 
               sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /root/.local/bin \
@@ -195,6 +202,10 @@ jobs:
               test ! -e /root/bin/chezmoi
               # ログインシェルが zsh になっている
               getent passwd root | grep -q "zsh$"
+              # push 用に remote が SSH へ張り替わっている（10-setup.sh）
+              git -C /root/dotfiles remote get-url origin | grep -q "^ssh://git@github.com/"
+              # pre-commit hook が有効になっている（20-git-hooks.sh）
+              test "$(git -C /root/dotfiles config core.hooksPath)" = /root/dotfiles/.githooks
 
               # 対話シェルが実際に起動するか（sheldon のプラグイン取得も含む）
               export PATH="/root/.local/share/mise/shims:/root/.local/bin:$PATH"

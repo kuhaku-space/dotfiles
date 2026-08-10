@@ -10,8 +10,13 @@ set -eu
 SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
 HOOKS_DIR="$SOURCE_DIR/.githooks"
 
-if [ ! -d "$SOURCE_DIR/.git" ]; then
-  printf "Source directory is not a git repository. Skipping hooks setup...\n"
+# .git の存在だけでは足りない。所有者が違う（dubious ownership）などで git が
+# リポジトリとして扱わないことがあり、その場合 git config は exit 128 で落ちて
+# apply 全体を止めてしまう。hook の設定失敗で apply を落とす価値はないので、
+# git 自身に確認させて、駄目なら理由を出して抜ける。
+if ! git -C "$SOURCE_DIR" rev-parse --git-dir >/dev/null 2>&1; then
+  printf "git does not recognize %s as a repository. Skipping hooks setup...\n" "$SOURCE_DIR"
+  git -C "$SOURCE_DIR" rev-parse --git-dir 2>&1 | sed "s/^/  /" || true
   exit 0
 fi
 
