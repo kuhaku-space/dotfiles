@@ -203,7 +203,11 @@ jobs:
               # ログインシェルが zsh になっている
               getent passwd root | grep -q "zsh$"
               # push 用に remote が SSH へ張り替わっている（10-setup.sh）
-              git -C /root/dotfiles remote get-url origin | grep -q "^ssh://git@github.com/"
+              origin_url="$(git -C /root/dotfiles remote get-url origin)"
+              test "$origin_url" = "ssh://git@github.com/kuhaku-space/dotfiles.git" || {
+                printf "origin is %s\n" "$origin_url"
+                exit 1
+              }
               # pre-commit hook が有効になっている（20-git-hooks.sh）
               test "$(git -C /root/dotfiles config core.hooksPath)" = /root/dotfiles/.githooks
 

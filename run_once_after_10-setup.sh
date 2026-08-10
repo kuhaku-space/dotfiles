@@ -61,7 +61,13 @@ MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 printf "\e[1;36mSwitch dotfiles remote to SSH for push\e[m\n"
 # ワンライナー導入では HTTPS で clone される（鍵が無くても clone できるように）。
 # 以降 push できるよう、ソースリポジトリの origin を SSH に張り替える。
-SOURCE_DIR="$(chezmoi source-path 2>/dev/null || echo "$HOME/.local/share/chezmoi")"
+#
+# ソースの場所は chezmoi がスクリプトに渡す CHEZMOI_SOURCE_DIR から取る。
+# `chezmoi source-path` は使わない。初回のワンライナー導入では chezmoi 本体が
+# まだ PATH に無く（インストーラが絶対パスで呼ぶ）、コマンドが見つからないまま
+# フォールバックの既定パスに落ちて .git が無いと判定され、この差し替えが黙って
+# 行われなかった。
+SOURCE_DIR="${CHEZMOI_SOURCE_DIR:-$HOME/.local/share/chezmoi}"
 if [ -d "$SOURCE_DIR/.git" ]; then
   ORIGIN_URL="$(git -C "$SOURCE_DIR" remote get-url origin 2>/dev/null || true)"
   case "$ORIGIN_URL" in
