@@ -11,7 +11,7 @@ function warn_dirty() {
   fi
 }
 
-# apt / mise / dotfiles をまとめて更新する
+# apt / mise / sheldon / dotfiles をまとめて更新する
 function update() {
   if command -v apt >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] apt\e[m"
@@ -27,6 +27,19 @@ function update() {
     mise self-update -y && mise upgrade && mise prune
   fi
 
+  # sheldon のプラグインは plugins.lock に固定されるので、明示的に更新しないと
+  # 一度 lock された版のまま古くなり続ける。
+  if command -v sheldon >/dev/null 2>&1; then
+    echo -e "\e[1;36m[update] sheldon\e[m"
+    sheldon lock --update
+  fi
+
+  # ツールが入れ替わると、そこから生成したキャッシュ（starship の init 出力・
+  # 補完ダンプ）が古くなる。捨てておけば次のシェル起動で作り直される。
+  echo -e "\e[1;36m[update] drop generated zsh caches\e[m"
+  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh" \
+    "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
+
   if command -v chezmoi >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"
     chezmoi update
@@ -36,18 +49,26 @@ function update() {
 eval "$(mise activate zsh)"
 eval "$(sheldon source)"
 
-# mise 有効化後に chezmoi が PATH 上に来てから dotfiles の状態を確認する
-warn_dirty
+# 以下 zsh-defer するものは「最初のプロンプト表示に間に合わなくてよい」もの。
+# zsh-defer は登録順に実行するので、sheldon が登録した compinit / zeno /
+# zsh-autosuggestions の読み込みは、ここで登録する処理より先に完了する。
 
-ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval $(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519)
+# dotfiles の未コミット検査は chezmoi + git の2プロセスを起こす（実測 約60ms）。
+zsh-defer warn_dirty
+
+# ssh-agent の起動もプロンプト表示には不要。
+zsh-defer -c "ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval \$(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519)"
 
 setopt auto_cd
 setopt hist_ignore_all_dups
+setopt hist_ignore_space   # 先頭にスペースを付けたコマンドは履歴に残さない
+setopt hist_reduce_blanks  # 余分な空白を詰めて履歴に入れる
+setopt extended_history    # 実行時刻と所要時間も記録する
+setopt inc_append_history  # シェル終了時ではなく実行ごとに履歴を書き出す
 setopt nonomatch
 
-bindkey '^ ' autosuggest-accept
-
-bindkey ' ' zeno-auto-snippet
-bindkey '^]' zeno-ghq-cd
-bindkey '^r' zeno-history-selection
-bindkey '^x' zeno-insert-snippet
+# widget を提供するプラグイン（zsh-autosuggestions / zeno）は defer で読まれるので、
+# bindkey も同じく defer する。即時に張ると、プラグインが読まれるまでの短い間だけ
+# `No such widget` になり、そのキー入力（特にスペース）が捨てられる。
+zsh-defer -c "bindkey '^ ' autosuggest-accept"
+zsh-defer -c "bindkey ' ' zeno-auto-snippet; bindkey '^]' zeno-ghq-cd; bindkey '^r' zeno-history-selection; bindkey '^x' zeno-insert-snippet"

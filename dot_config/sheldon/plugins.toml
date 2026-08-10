@@ -9,6 +9,14 @@
 # - `sheldon remove` to remove a plugin from the config file
 #
 # See the documentation for more https://github.com/rossmacarthur/sheldon#readme
+#
+# 読み込み順の約束（ここを崩すと静かに壊れる）:
+#   1. zsh-defer  … 以降の defer / zsh-defer 呼び出しに必要なので最初に source
+#   2. fpath を広げるもの（zsh-completions）… compinit より前に **同期で** 読む
+#   3. compinit   … fpath 確定後に defer で実行
+#   4. 残り（補完を必要としないプラグイン）… defer
+# inline プラグインには [templates] の defer が適用されない（テンプレートは files
+# を展開するためのもの）。inline を遅延したいときは自分で zsh-defer を書く。
 
 shell = "zsh"
 
@@ -27,11 +35,26 @@ apply = ["source"]
 github = "romkatv/zsh-defer"
 apply = ["source"]
 
-[plugins.compinit]
-inline = 'autoload -Uz compinit && compinit -d "$XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION" && zcompile $XDG_CACHE_HOME/zsh/zcompdump-$ZSH_VERSION'
-
+# compinit より前に fpath へ入れる必要があるため defer せず source する。
+# defer だと compinit が先に走り、このプラグインの補完はダンプに載らない（＝無効）。
 [plugins.zsh-completions]
 github = 'zsh-users/zsh-completions'
+apply = ["source"]
+
+# fpath が確定した後に compinit を defer 実行する（プロンプト表示を約30ms 早める）。
+# zcompile は .zwc がダンプより古い/無いときだけ実行する。無条件だと毎起動で
+# 120KB の .zwc を書き直すことになる。
+[plugins.compinit]
+inline = '''
+_init_compinit() {
+  local zdump="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-$ZSH_VERSION"
+  autoload -Uz compinit
+  compinit -d "$zdump"
+  [[ -s "$zdump.zwc" && "$zdump.zwc" -nt "$zdump" ]] || zcompile "$zdump"
+  unset -f _init_compinit
+}
+zsh-defer _init_compinit
+'''
 
 [plugins.zsh-autosuggestions]
 github = "zsh-users/zsh-autosuggestions"
@@ -42,11 +65,25 @@ github = "zdharma-continuum/fast-syntax-highlighting"
 [plugins.zeno]
 github = "yuki-yano/zeno.zsh"
 
+# プロンプトは最初の表示に間に合わせる必要があるので defer できない。
+# 代わりに init 出力をキャッシュして毎起動の subprocess（約30ms）を避ける。
+# キャッシュは `update` 関数がツール更新時に破棄する（.zshrc 参照）。
 [plugins.starship]
-inline = 'eval "$(starship init zsh)"'
+inline = '''
+_starship_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
+if [[ ! -s $_starship_cache ]] && (( $+commands[starship] )); then
+  starship init zsh >| $_starship_cache
+fi
+[[ -s $_starship_cache ]] && source $_starship_cache
+unset _starship_cache
+'''
 
+# zoxide は `z` を打つまでに用意できていればよいので defer する（約30ms）。
 [plugins.zoxide]
-inline = 'eval "$(zoxide init zsh)"'
+inline = '''
+_init_zoxide() { eval "$(zoxide init zsh)"; unset -f _init_zoxide }
+zsh-defer _init_zoxide
+'''
 
-[plugins.mise-completion]
-inline = 'eval "$(mise completion zsh)"'
+# mise の補完は run_onchange_after_40-zsh-completions.sh が静的に生成して
+# fpath に置くので、ここで毎起動 `mise completion zsh` を呼ぶ必要はない。

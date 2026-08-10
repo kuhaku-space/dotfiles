@@ -33,9 +33,17 @@ gen bat bat --completion zsh
 
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 if [ -x "$MISE" ]; then
+  # mise 自身の補完は静的に置く。毎起動 `mise completion zsh` を eval すると
+  # subprocess 1回分（実測 約30ms）が起動時間に乗る。
+  gen mise "$MISE" completion zsh
   gen typst "$MISE" exec typst@latest -- typst completions zsh
 else
   printf "mise is not installed. Skipping mise-managed completions...\n"
 fi
 # 追加例:
 # gen ripgrep "$MISE" exec ripgrep@latest -- rg --generate complete-zsh
+
+# 補完ファイルが増減した後も compinit はキャッシュ済みのダンプを再利用しうるので、
+# ここで捨てて次のシェル起動で作り直させる。
+rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
+printf "  dropped stale zcompdump\n"
