@@ -1,6 +1,12 @@
+# mise の lockfile（mise.lock）はプロジェクト設定用で、グローバル設定
+# (~/.config/mise/config.toml) の [tools] は対象外（mise 2026.8.3 で確認:
+# `mise lock` が "No tools configured to lock" を返す）。
+# そのため再現性は「壊れると痛いものだけメジャー固定」で担保する。
 [tools]
 bat = "latest"
-deno = "latest"
+# 言語ランタイムだけメジャーを固定する。CLI が壊れるのは安くて気付けるが、
+# ランタイムの無言メジャー更新はプロジェクト側を壊す。上げるときは明示的に上げる。
+deno = "2"
 eza = "latest"
 fzf = "latest"
 gh = "latest"
@@ -8,14 +14,17 @@ ghq = "latest"
 glow = "latest"
 hyperfine = "latest"
 neovim = "latest"
-rust = "latest"
+rust = "latest"  # 1.x のみなので "latest" が実質メジャー固定
 starship = "latest"
 chezmoi = "latest"
 zoxide = "latest"
 claude = "latest"
 usage = "latest"
-node = "latest"
+node = "26"
 jujutsu = "latest"
 sheldon = "latest"
 zellij = "latest"
 "npm:@bitwarden/cli" = "latest"
+# CI と同じ lint をローカルでも回せるようにする（.github/workflows/ci-cd.yml 参照）
+shellcheck = "latest"
+actionlint = "latest"
