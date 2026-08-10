@@ -1,13 +1,30 @@
-function is_dirty() {
-  command -v chezmoi >/dev/null 2>&1 || return 1
-  test -n "$(chezmoi git -- status --porcelain)"
-}
+# dotfiles の同期状態をまとめて見る。
+#
+# 以前はこれをシェル起動ごとに走らせて「未コミット」を警告していたが、やめた。
+# 見ていたのはソースの作業ツリーだけで、一番危ないズレ（$HOME 側の実ファイルを
+# 直接編集して re-add を忘れる＝次の apply で消える）は検知できていなかった。
+# しかも chezmoi の autoCommit / autoPush が commit と push を自動でやるので、
+# 警告すべき対象がほとんど残っていない。消せない警告を全シェルで鳴らすより、
+# 必要なときに呼ぶ方がよい。
+function dotfiles-status() {
+  command -v chezmoi >/dev/null 2>&1 || {
+    echo "chezmoi not found" >&2
+    return 1
+  }
 
-function warn_dirty() {
-  if is_dirty; then
-    echo -e "\e[1;36m[[dotfiles]]\e[m"
-    echo -e "\e[1;33m[warn] DIRTY DOTFILES\e[m"
-    echo -e "\e[1;33m    -> Commit your local changes in dotfiles\e[m"
+  # zsh では $status が $? の別名（読み取り専用）なので、変数名に使わない。
+  local src drift
+  src="$(chezmoi source-path)" || return 1
+
+  echo -e "\e[1;36m[dotfiles] $src\e[m"
+  # 未コミットの変更と ahead/behind（未 push もここに出る）
+  git -C "$src" status --short --branch
+
+  # $HOME とソースの差分（re-add 忘れ / apply 忘れ）
+  drift="$(chezmoi status)"
+  if [ -n "$drift" ]; then
+    echo -e '\e[1;33m[dotfiles] $HOME とソースの差分 (M: 内容が違う / A: 未展開 / D: 削除予定)\e[m'
+    echo "$drift"
   fi
 }
 
@@ -61,10 +78,7 @@ eval "$(sheldon source)"
 # zsh-defer は登録順に実行するので、sheldon が登録した compinit / zeno /
 # zsh-autosuggestions の読み込みは、ここで登録する処理より先に完了する。
 
-# dotfiles の未コミット検査は chezmoi + git の2プロセスを起こす（実測 約60ms）。
-zsh-defer warn_dirty
-
-# ssh-agent の起動もプロンプト表示には不要。
+# ssh-agent の起動はプロンプト表示に不要。
 zsh-defer -c "ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval \$(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519)"
 
 setopt auto_cd

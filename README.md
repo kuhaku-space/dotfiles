@@ -97,7 +97,11 @@ chezmoi apply                       # $HOME に反映
 chezmoi update                      # pull + apply
 ```
 
-基本は `$HOME` 側の実ファイルを編集して `chezmoi re-add` でソースへ取り込む。`README.md` や `docs/` は [.chezmoiignore](.chezmoiignore) で `$HOME` に展開しないため、リポジトリ上のファイルを直接編集する。リポジトリ（ソース）に未コミットの変更があると、zsh 起動時に `[warn] DIRTY DOTFILES` が表示される（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc) の `warn_dirty`）。
+基本は `$HOME` 側の実ファイルを編集して `chezmoi re-add` でソースへ取り込む。`README.md` や `docs/` は [.chezmoiignore](.chezmoiignore) で `$HOME` に展開しないため、リポジトリ上のファイルを直接編集する。
+
+同期状態は `dotfiles-status`（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc)）でまとめて見る。未コミット・未 push（`git status --short --branch`）と、`$HOME` とソースの差分（`chezmoi status`）の両方を出す。
+
+> 以前はシェル起動ごとに未コミットを警告していた（`warn_dirty`）が、やめた。見ていたのはソースの作業ツリーだけで、**一番危ないズレ（`$HOME` の実ファイルを直接編集して `re-add` を忘れる＝次の `apply` で消える）を検知できていなかった**。未 push も見ていない。加えて `autoCommit` / `autoPush` が commit と push を自動で行うので警告すべき対象がほとんど残らない。消せない警告を全シェルで鳴らす価値はないと判断した。
 
 変更を保存・同期するときだけ、ソースリポジトリで Git 操作を行う:
 
@@ -170,11 +174,10 @@ zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/
 
 `update` 関数（[.zshrc](dot_config/zsh/dot_zshrc)）で apt / mise / sheldon / dotfiles をまとめて更新する。sheldon のプラグインは `plugins.lock` に固定されるので、`sheldon lock --update` を通さないと古いままになる。ツールが入れ替わると生成物（starship の init 出力・補完ダンプ）が古くなるため、`update` はそれらのキャッシュも捨てる。
 
-起動時間は `hyperfine -w 5 -r 50 'zsh -i -c exit'`（zeno スニペット `benchmark`）で測る。現状は約 **104ms**。プロンプト表示に間に合わせる必要のない処理は [zsh-defer](https://github.com/romkatv/zsh-defer) に回している:
+起動時間は `hyperfine -w 5 -r 50 'zsh -i -c exit'`（zeno スニペット `benchmark`）で測る。現状は約 **100ms**（改善前は 210ms）。プロンプト表示に間に合わせる必要のない処理は [zsh-defer](https://github.com/romkatv/zsh-defer) に回している。defer した処理はプロンプトを待たせないだけで消えるわけではないので、**そもそも要らない処理は消す**方が先:
 
 | 処理 | 扱い | 理由 |
 | --- | --- | --- |
-| `warn_dirty` | defer | chezmoi + git の2プロセスで約 60ms |
 | keychain / ssh-agent | defer | プロンプト表示に不要 |
 | `compinit` | defer | 約 30ms。**fpath を広げるプラグインより後**に走らせる必要がある |
 | `zoxide init` | defer | `z` を打つまでに間に合えばよい |
