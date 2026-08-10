@@ -3,6 +3,14 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_STATE_HOME="$HOME/.local/state"
 export XDG_CACHE_HOME="$HOME/.cache"
 
+# ロケール。WSL のイメージは最初から UTF-8 だが、実機の最小構成インストールでは
+# LANG が未設定（＝C）のことがあり、日本語のファイル名・git log・starship や eza の
+# 記号が化ける。C.UTF-8 は glibc 2.35+ と musl に常にあるので、未設定のときだけ倒す
+# （ja_JP.UTF-8 は locale-gen 済みとは限らないので既定にはしない）。
+if [ -z "${LANG:-}" ]; then
+  export LANG="C.UTF-8"
+fi
+
 export HISTFILE="$XDG_STATE_HOME/zsh/history"
 export HISTSIZE=10000
 export SAVEHIST=10000
@@ -20,9 +28,29 @@ export ZENO_GIT_TREE="eza --tree"
 # fzf
 export FZF_DEFAULT_OPTS="--reverse"
 
-# OpenSSL
-export OPENSSL_LIB_DIR="/usr/lib/x86_64-linux-gnu/"
-export OPENSSL_INCLUDE_DIR="/usr/include/openssl/"
+# OpenSSL（Rust の openssl-sys 向け）
+#
+# openssl-sys の build script は OPENSSL_LIB_DIR と OPENSSL_INCLUDE_DIR が両方
+# 設定されていると pkg-config を一切見ずにこの値を信じる。つまり実在しないパスを
+# 渡すと、原因の見えないリンクエラー（cannot find -lssl）になる。
+# 以前は /usr/lib/x86_64-linux-gnu 決め打ちだったので、Debian 系の x86_64 以外
+# （Fedora/Arch の lib64、arm64 の multiarch）では全部それを踏んでいた。
+#
+# libssl.so が実際にある場所だけを export し、見つからなければ何も設定せず
+# pkg-config に任せる（libssl-dev さえ入っていればそちらが本来の経路）。
+# CPUTYPE は zsh の組み込み変数なので、通常の起動では uname を fork しない。
+#
+# INCLUDE_DIR は <openssl/ssl.h> を解決する側、つまり openssl/ の親を指す。
+# 以前の /usr/include/openssl は1段深く、/usr/include が cc の既定の探索パスに
+# 入っているおかげで偶然通っていただけだった。
+for _openssl_libdir in "/usr/lib/${CPUTYPE:-$(uname -m)}-linux-gnu" /usr/lib64 /usr/lib; do
+  if [ -e "$_openssl_libdir/libssl.so" ] && [ -e /usr/include/openssl/ssl.h ]; then
+    export OPENSSL_LIB_DIR="$_openssl_libdir"
+    export OPENSSL_INCLUDE_DIR="/usr/include"
+    break
+  fi
+done
+unset _openssl_libdir
 
 # Node.js
 export NODE_REPL_HISTORY="$XDG_DATA_HOME/node_repl_history"
