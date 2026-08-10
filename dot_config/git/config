@@ -3,22 +3,44 @@
 	email = 67200331+kuhaku-space@users.noreply.github.com
 	signingKey = ~/.ssh/id_ed25519.pub
 [core]
-	editor = code --wait
+	# editor は指定しない。git は core.editor > $VISUAL > $EDITOR の順に見るので、
+	# ここに `code --wait` を焼き込むと VS Code の無いマシン（サーバへ ssh した先）で
+	# commit できなくなる。定義は ~/.config/zsh/.zshenv の EDITOR / VISUAL 一箇所。
 	quotepath = false
 [gpg]
 	format = ssh
+[gpg "ssh"]
+	# 自分の署名を `git log --show-signature` / `git verify-commit` で検証できるように
+	# 許可署名者リストを渡す。無いと "No principal matched" になる。
+	allowedSignersFile = ~/.config/git/allowed_signers
 [commit]
 	gpgsign = true
+	verbose = true
 [tag]
 	gpgsign = true
 [merge]
 	ff = false
+	conflictStyle = zdiff3
+[rerere]
+	# 同じコンフリクトを2度手で解かないよう、解決内容を記録して再利用する。
+	enabled = true
+	autoUpdate = true
 [fetch]
 	prune = true
+	pruneTags = true
 [pull]
 	ff = only
 [push]
 	default = current
+	# 初回 push で --set-upstream を打たなくてよくする。
+	autoSetupRemote = true
+[diff]
+	algorithm = histogram
+	colorMoved = zebra
+[branch]
+	sort = -committerdate
+[column]
+	ui = auto
 [init]
 	defaultBranch = main
 [alias]
@@ -30,3 +52,8 @@
 	helper = !gh auth git-credential
 [credential "https://gist.github.com"]
 	helper = !gh auth git-credential
+[include]
+	# マシン固有・公開したくない設定（仕事用の user.email など）はここに置く。
+	# 存在しなくてもエラーにならない。このリポジトリは public なので、
+	# 個人／組織を特定する設定はこちらへ。
+	path = config.local

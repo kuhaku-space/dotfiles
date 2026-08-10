@@ -1,0 +1,6 @@
+{{/*
+  ssh 署名の許可署名者リスト（gpg.ssh.allowedSignersFile が参照する）。
+  鍵はリポジトリ内の公開鍵を唯一の出典として埋め込む。鍵をローテーションしても
+  private_dot_ssh/id_ed25519.pub を差し替えるだけでよい。
+*/ -}}
+67200331+kuhaku-space@users.noreply.github.com {{ include "private_dot_ssh/id_ed25519.pub" | trim }}

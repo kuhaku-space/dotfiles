@@ -43,3 +43,17 @@ if [ -n "$ZSH_VERSION" ]; then
 else
   export PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.local/bin:$CARGO_HOME/bin"
 fi
+
+# エディタ（PATH 確定後に判定する）。
+# git 側は core.editor を持たず $VISUAL / $EDITOR に委ねているので、ここが唯一の
+# 定義点になる。VS Code の無いマシン（サーバへ ssh した先など）でも commit できる。
+if command -v nvim >/dev/null 2>&1; then
+  export EDITOR="nvim"
+else
+  export EDITOR="vi"
+fi
+if command -v code >/dev/null 2>&1; then
+  export VISUAL="code --wait"
+else
+  export VISUAL="$EDITOR"
+fi
