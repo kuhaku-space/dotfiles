@@ -9,7 +9,7 @@
 | [private_dot_ssh/private_config](../private_dot_ssh/private_config) | `~/.ssh/config` | 0600 | ssh クライアント設定 |
 | [private_dot_ssh/private_known_hosts.chezmoi](../private_dot_ssh/private_known_hosts.chezmoi) | `~/.ssh/known_hosts.chezmoi` | 0600 | GitHub のホスト鍵（初回 push の TOFU 確認を出さないため） |
 
-`bw` CLI は初回だけ [run_once_before_01-bitwarden-cli.sh](../run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`npm:@bitwarden/cli`）で管理する。
+`bw` CLI は初回だけ [run_once_before_01-bitwarden-cli.sh](../run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`bitwarden`）で管理する。mise 側も aqua 経由で同じ公式ネイティブバイナリを入れるので、先行導入と実体が一致し、node ランタイムにも依存しない（npm 版 `@bitwarden/cli` は node を要求し、mise.lock に URL とチェックサムが残らない）。
 
 ## 公開鍵を平文で持つ理由
 

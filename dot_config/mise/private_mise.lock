@@ -50,6 +50,45 @@ provenance = "github-attestations"
 version = "0.26.1"
 backend = "ubi:sharkdp/bat"
 
+[[tools.bitwarden]]
+version = "2026.7.0"
+backend = "aqua:bitwarden/clients"
+
+[tools.bitwarden."platforms.linux-arm64"]
+checksum = "sha256:e33ed05ca0fada9bd51b8bce76a230369bf0eefd5796a0a8e60699c977327fb5"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-linux-arm64-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644422"
+
+[tools.bitwarden."platforms.linux-arm64-musl"]
+checksum = "sha256:e33ed05ca0fada9bd51b8bce76a230369bf0eefd5796a0a8e60699c977327fb5"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-linux-arm64-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644422"
+
+[tools.bitwarden."platforms.linux-x64"]
+checksum = "sha256:7a35145e205952f7434d2370da359543145ae0c45ba1af0fe9bdd99d40a00180"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-linux-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644388"
+
+[tools.bitwarden."platforms.linux-x64-musl"]
+checksum = "sha256:7a35145e205952f7434d2370da359543145ae0c45ba1af0fe9bdd99d40a00180"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-linux-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644388"
+
+[tools.bitwarden."platforms.macos-arm64"]
+checksum = "sha256:61d5de8a279a9faf3637216f4fb02b506a1e4bb2817d1c64be0bd474466dd85a"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-macos-arm64-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644300"
+
+[tools.bitwarden."platforms.macos-x64"]
+checksum = "sha256:b37836d539798f5adeb8a907619ee8a55b6322549bb68669aa4b3a03d5bc0452"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-macos-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644269"
+
+[tools.bitwarden."platforms.windows-x64"]
+checksum = "sha256:b0c22438607b789c6452dbd37ffd6be0e8a61e7a5c4e9ac57804d7ae5ed01b5b"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.7.0/bw-windows-2026.7.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/487644184"
+
 [[tools.chezmoi]]
 version = "2.72.0"
 backend = "aqua:twpayne/chezmoi"
@@ -487,10 +526,6 @@ url = "https://nodejs.org/dist/v26.7.0/node-v26.7.0-darwin-x64.tar.gz"
 [tools.node."platforms.windows-x64"]
 checksum = "sha256:d3bd72755141ed32bbcd841228ee81897c8a98d50dfa7dae2179399a0a7c90f8"
 url = "https://nodejs.org/dist/v26.7.0/node-v26.7.0-win-x64.zip"
-
-[[tools."npm:@bitwarden/cli"]]
-version = "2026.7.0"
-backend = "npm:@bitwarden/cli"
 
 [[tools.rust]]
 version = "1.97.1"

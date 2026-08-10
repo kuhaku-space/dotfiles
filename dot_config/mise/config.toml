@@ -27,7 +27,8 @@ node = "26"
 jujutsu = "latest"
 sheldon = "latest"
 zellij = "latest"
-"npm:@bitwarden/cli" = "latest"
+bitwarden = "latest"  # aqua:bitwarden/clients。公式ネイティブバイナリ（node 不要）で、
+                      # run_once_before_01 が先行導入するものと同一
 # CI と同じ lint をローカルでも回せるようにする（.github/workflows/ci-cd.yml 参照）
 shellcheck = "latest"
 actionlint = "latest"

@@ -25,7 +25,7 @@ if [ ! -x "$MISE" ]; then
 fi
 
 # lock 内の [[tools.<name>]] 直後の version を取り出す。
-# "npm:@bitwarden/cli" のように TOML のキーが引用される名前があるので、
+# `npm:foo` のように記号を含む名前は TOML のキーが引用されるので、
 # 引用符を落としてから比較する。
 locked_version() {
   awk -v name="$1" '
