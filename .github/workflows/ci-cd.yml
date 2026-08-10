@@ -19,32 +19,81 @@ jobs:
   validate:
     name: Validate dotfiles
     runs-on: ubuntu-latest
+    timeout-minutes: 10
 
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+        with:
+          # secret scan で全 blob を見るため、履歴ごと取得する。
+          fetch-depth: 0
 
       - name: Install validation tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y shellcheck yamllint
+          sudo apt-get install -y shellcheck yamllint zsh
           sh -c "$(curl -fsLS get.chezmoi.io)" -- -b "$HOME/.local/bin"
+          # actionlint はリリースを固定せず最新を取る（URL のバージョン推測を避ける）。
+          url="$(
+            curl -fsSL https://api.github.com/repos/rhysd/actionlint/releases/latest |
+              jq -r '.assets[] | select(.name | endswith("linux_amd64.tar.gz")) | .browser_download_url'
+          )"
+          curl -fsSL "$url" | tar -xz -C "$HOME/.local/bin" actionlint
           echo "$HOME/.local/bin" >>"$GITHUB_PATH"
 
       - name: Lint shell scripts
         run: |
           mapfile -t scripts < <(
-            find . -type f \( -name '*.sh' -o -name '*.sh.tmpl' \) | sort
+            find . -path ./.git -prune -o -type f \
+              \( -name '*.sh' -o -name '*.sh.tmpl' \) -print | sort
           )
           if ((${#scripts[@]})); then
             shellcheck -e SC1091 "${scripts[@]}"
           fi
+          shellcheck -e SC1091 .githooks/*
 
           tmp="$(mktemp)"
           chezmoi --source . execute-template \
             <run_onchange_after_30-mise-install.sh.tmpl \
             >"$tmp"
           bash -n "$tmp"
+
+      - name: Lint zsh files
+        run: |
+          # zsh の設定は *.sh ではないので shellcheck の対象外。構文だけでも見る。
+          # （zsh 専用構文が多く shellcheck では検証できない）
+          zsh -n dot_zshenv
+          zsh -n dot_config/zsh/dot_zshenv
+          zsh -n dot_config/zsh/dot_zshrc
+          # sheldon の inline プラグインは eval されるので、そこも構文検査する。
+          python3 -c '
+          import subprocess
+          import sys
+          import tomllib
+          from pathlib import Path
+
+          config = tomllib.loads(Path("dot_config/sheldon/plugins.toml").read_text())
+          failed = False
+          for name, plugin in config.get("plugins", {}).items():
+              code = plugin.get("inline")
+              if not code:
+                  continue
+              result = subprocess.run(
+                  ["zsh", "-n"], input=code, text=True, capture_output=True
+              )
+              if result.returncode != 0:
+                  failed = True
+                  print(f"inline plugin {name}: {result.stderr}", file=sys.stderr)
+          sys.exit(1 if failed else 0)
+          '
+
+      - name: Lint GitHub Actions workflows
+        run: actionlint
+
+      - name: Scan for secrets
+        run: |
+          bash scripts/check-secrets.sh --tracked
+          bash scripts/check-secrets.sh --history
 
       - name: Validate chezmoi templates
         run: |
@@ -53,6 +102,12 @@ jobs:
           chezmoi --source . execute-template \
             <run_onchange_after_30-mise-install.sh.tmpl \
             >/dev/null
+          chezmoi --source . execute-template \
+            <dot_config/git/allowed_signers.tmpl \
+            >/dev/null
+          # CI では鍵を無視する分岐（bootstrap ジョブが依存している）を確認する。
+          CI=true chezmoi --source . execute-template <.chezmoiignore |
+            grep -qx '.ssh/id_ed25519'
 
       - name: Validate TOML
         run: |
@@ -76,8 +131,73 @@ jobs:
               tomllib.load(f)
           '
 
+      - name: Validate git config
+        run: |
+          git config --file dot_config/git/config --list >/dev/null
+          # 許可署名者リストの各行が "principal keytype key" になっていて、
+          # 鍵として実際に解釈できることを確認する。
+          chezmoi --source . execute-template \
+            <dot_config/git/allowed_signers.tmpl >/tmp/allowed_signers
+          test -s /tmp/allowed_signers
+          grep -vE '^\s*(#|$)' /tmp/allowed_signers | while read -r principal keytype key _; do
+            test -n "$principal" && test -n "$keytype" && test -n "$key"
+            printf '%s %s\n' "$keytype" "$key" >/tmp/signer.pub
+            ssh-keygen -lf /tmp/signer.pub >/dev/null
+          done
+
       - name: Validate YAML
         run: |
           yamllint -d relaxed \
             dot_config/zeno/config.yml \
             .github/workflows/ci-cd.yml
+
+  bootstrap:
+    name: Bootstrap on clean Ubuntu
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      # README のワンライナーと同じ経路（chezmoi init --apply → run_once_* →
+      # run_onchange_*）を、素の Ubuntu で実際に流す。lint やテンプレート展開では
+      # 拾えない「スクリプトの実行順」「apt の不足」「zsh が起動するか」を検証する。
+      # 秘密情報は CI=true が .chezmoiignore と needs-bitwarden.sh で無効化するので不要。
+      - name: Run chezmoi init --apply in a clean container
+        run: |
+          docker run --rm -e CI=true -v "$PWD:/src:ro" ubuntu:24.04 \
+            bash -euxo pipefail -c '
+              apt-get update -qq
+              DEBIAN_FRONTEND=noninteractive apt-get install -y -qq \
+                curl ca-certificates git sudo locales >/dev/null
+
+              # 読み取り専用マウントのままでは apply 中の remote 差し替えができない。
+              cp -a /src /root/dotfiles
+              cd /root
+
+              sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /root/.local/bin \
+                init --apply --source /root/dotfiles
+
+              # 展開結果
+              test -f /root/.zshenv
+              grep -q "ZDOTDIR" /root/.zshenv
+              test -f /root/.config/zsh/.zshrc
+              test -f /root/.config/git/allowed_signers
+              test -f /root/.ssh/known_hosts.chezmoi
+              test -f /root/.config/jj/config.toml
+              # 鍵は CI では展開されない
+              test ! -e /root/.ssh/id_ed25519
+              # bin/ は無視されるので、インストーラの -b 以外に chezmoi が増えない
+              test ! -e /root/bin/chezmoi
+              # ログインシェルが zsh になっている
+              getent passwd root | grep -q "zsh$"
+
+              # 対話シェルが実際に起動するか（sheldon のプラグイン取得も含む）
+              export PATH="/root/.local/share/mise/shims:/root/.local/bin:$PATH"
+              timeout 300 zsh -ic "print -r -- BOOTSTRAP_OK" | grep -q BOOTSTRAP_OK
+
+              # 生成物
+              test -s /root/.local/share/zsh/completions/_mise
+              test -s /root/.cache/zsh/starship-init.zsh
+            '
