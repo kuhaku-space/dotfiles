@@ -50,6 +50,9 @@ provenance = "github-attestations"
 version = "0.26.1"
 backend = "ubi:sharkdp/bat"
 
+[tools.bat."platforms.linux-x64-bat"]
+checksum = "blake3:01e893ea953ea1cf8a2e618d55b37ee2ce8a1a982435c490d5ef318a32b4f26e"
+
 [[tools.bitwarden]]
 version = "2026.7.0"
 backend = "aqua:bitwarden/clients"
