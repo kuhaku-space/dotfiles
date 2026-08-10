@@ -101,7 +101,16 @@ chezmoi update                      # pull + apply
 
 同期状態は `dotfiles-status`（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc)）でまとめて見る。未コミット・未 push（`git status --short --branch`）と、`$HOME` とソースの差分（`chezmoi status`）の両方を出す。
 
-> 以前はシェル起動ごとに未コミットを警告していた（`warn_dirty`）が、やめた。見ていたのはソースの作業ツリーだけで、**一番危ないズレ（`$HOME` の実ファイルを直接編集して `re-add` を忘れる＝次の `apply` で消える）を検知できていなかった**。未 push も見ていない。加えて `autoCommit` / `autoPush` が commit と push を自動で行うので警告すべき対象がほとんど残らない。消せない警告を全シェルで鳴らす価値はないと判断した。
+> 以前はシェル起動ごとに未コミットを警告していた（`warn_dirty`）が、やめた。見ていたのはソースの作業ツリーだけで、**`$HOME` の実ファイルを直接編集して `re-add` を忘れるズレを検知できていなかった**。未 push も見ていない。加えて `autoCommit` / `autoPush` が commit と push を自動で行うので警告すべき対象がほとんど残らない。消せない警告を全シェルで鳴らす価値はないと判断した。
+
+`re-add` を忘れても `apply` が黙って上書きするわけではない。chezmoi が最後に書いた後にターゲットが変わっていれば `apply` は止まって聞いてくる:
+
+```
+.zshrc has changed since chezmoi last wrote it?
+> diff/overwrite/all-overwrite/skip/quit
+```
+
+ただし聞かれるのは `apply` の途中なので事前には見えず、**chezmoi が一度も書いていないファイル（新規マシンに既存ファイルがある、state DB を消した等）は聞かれずに上書きされる**。ズレは `apply` を打つ前に `dotfiles-status` で見る。
 
 変更を保存・同期するときだけ、ソースリポジトリで Git 操作を行う:
 
@@ -172,7 +181,7 @@ zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/
 
 ## zsh の起動
 
-`update` 関数（[.zshrc](dot_config/zsh/dot_zshrc)）で apt / mise / sheldon / dotfiles をまとめて更新する。sheldon のプラグインは `plugins.lock` に固定されるので、`sheldon lock --update` を通さないと古いままになる。ツールが入れ替わると生成物（starship の init 出力・補完ダンプ）が古くなるため、`update` はそれらのキャッシュも捨てる。
+`update` 関数（[.zshrc](dot_config/zsh/dot_zshrc)）で dotfiles / apt / mise / sheldon をまとめて更新する。**dotfiles（`chezmoi update`）を最初に走らせる**のは順番に意味があるからで、後段の `chezmoi re-add ~/.config/mise/mise.lock` が `autoCommit` でソースにローカルコミットを作るため。先に pull していないと、そのコミットが `chezmoi update` の `git pull --rebase` で他マシンの lock 更新の上に replay され、同じ version / checksum 行を両方が書き換えているのでコンフリクトする。しかも pull が失敗した時点で apply は走らないので、`$HOME` に何も反映されないままソースが rebase 途中で残る。sheldon のプラグインは `plugins.lock` に固定されるので、`sheldon lock --update` を通さないと古いままになる。ツールが入れ替わると生成物（starship の init 出力・補完ダンプ）が古くなるため、`update` はそれらのキャッシュも捨てる。
 
 起動時間は `hyperfine -w 5 -r 50 'zsh -i -c exit'`（zeno スニペット `benchmark`）で測る。現状は約 **100ms**（改善前は 210ms）。プロンプト表示に間に合わせる必要のない処理は [zsh-defer](https://github.com/romkatv/zsh-defer) に回している。defer した処理はプロンプトを待たせないだけで消えるわけではないので、**そもそも要らない処理は消す**方が先:
 
@@ -207,10 +216,18 @@ mise lock -g --bump  # latest 等を再解決して lock を進める（イン�
 
 > `-g` を付けないとプロジェクトの config root しか見ないため、`No tools configured to lock` になる。
 
-`mise.lock` は `$HOME` 側で書き換わる生成物なので、更新したらソースへ取り込む必要がある。取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。`update` 関数はこれを自動でやる（`mise upgrade` → `chezmoi re-add ~/.config/mise/mise.lock`。chezmoi の `autoCommit` / `autoPush` が commit と push まで行う）。手で `mise upgrade` したときは:
+`mise.lock` は `$HOME` 側で書き換わる生成物なので、更新したらソースへ取り込む必要がある。取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。`update` 関数はこれを自動でやる（`chezmoi update` → `mise upgrade` → `chezmoi re-add ~/.config/mise/mise.lock`。chezmoi の `autoCommit` / `autoPush` が commit と push まで行う）。手で `mise upgrade` したときは:
 
 ```sh
 chezmoi re-add ~/.config/mise/mise.lock
+```
+
+pull より先に lock を re-add してしまい `mise.lock` で rebase コンフリクトしたときは、生成物なので手でマージせず捨てて作り直す:
+
+```sh
+chezmoi git -- rebase --abort
+chezmoi update                                        # remote の lock に揃える
+mise upgrade && chezmoi re-add ~/.config/mise/mise.lock
 ```
 
 lock と実際に入っている版がずれていないかは次で確認できる（CI の `bootstrap` ジョブも実行する）:

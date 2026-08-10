@@ -1,11 +1,16 @@
 # dotfiles の同期状態をまとめて見る。
 #
 # 以前はこれをシェル起動ごとに走らせて「未コミット」を警告していたが、やめた。
-# 見ていたのはソースの作業ツリーだけで、一番危ないズレ（$HOME 側の実ファイルを
-# 直接編集して re-add を忘れる＝次の apply で消える）は検知できていなかった。
-# しかも chezmoi の autoCommit / autoPush が commit と push を自動でやるので、
-# 警告すべき対象がほとんど残っていない。消せない警告を全シェルで鳴らすより、
-# 必要なときに呼ぶ方がよい。
+# 見ていたのはソースの作業ツリーだけで、$HOME 側の実ファイルを直接編集して
+# re-add を忘れるズレも、未 push も検知できていなかった。しかも chezmoi の
+# autoCommit / autoPush が commit と push を自動でやるので、警告すべき対象が
+# ほとんど残っていない。消せない警告を全シェルで鳴らすより、必要なときに呼ぶ方がよい。
+#
+# re-add 忘れは apply で即座に消えるわけではない。chezmoi が最後に書いた後に
+# ターゲットが変わっていれば apply は diff/overwrite/skip を聞いてくる。ただし
+# 聞かれるのは apply の途中なので事前には見えず、chezmoi が一度も書いていない
+# ファイル（新規マシンに既存ファイルがある等）は聞かれずに上書きされる。
+# だからズレは apply を打つ前にこの関数で見る。
 function dotfiles-status() {
   command -v chezmoi >/dev/null 2>&1 || {
     echo "chezmoi not found" >&2
@@ -28,8 +33,20 @@ function dotfiles-status() {
   fi
 }
 
-# apt / mise / sheldon / dotfiles をまとめて更新する
+# dotfiles / apt / mise / sheldon をまとめて更新する
 function update() {
+  # dotfiles を最初に更新する。順番には意味がある。この後の mise ブロックは
+  # mise.lock を re-add し、autoCommit がソースにローカルコミットを作る。先に
+  # pull していないと、そのコミットが chezmoi update の `git pull --rebase` で
+  # 他マシンの lock 更新の上に replay され、同じ version / checksum 行を両方が
+  # 書き換えているのでコンフリクトする。pull が失敗した時点で apply は走らないため、
+  # $HOME には何も反映されないままソースが rebase 途中で残る。先に pull しておけば
+  # re-add のコミットは fast-forward で push でき、rebase する対象が残らない。
+  if command -v chezmoi >/dev/null 2>&1; then
+    echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"
+    chezmoi update
+  fi
+
   if command -v apt >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] apt\e[m"
     sudo apt update -qq &&
@@ -64,11 +81,6 @@ function update() {
   echo -e "\e[1;36m[update] drop generated zsh caches\e[m"
   rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh" \
     "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
-
-  if command -v chezmoi >/dev/null 2>&1; then
-    echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"
-    chezmoi update
-  fi
 }
 
 eval "$(mise activate zsh)"
