@@ -37,7 +37,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-s
 | [run_once_after_15-nerd-font.sh](run_once_after_15-nerd-font.sh) | 初回1回だけ | JetBrainsMono Nerd Font を `~/.local/share/fonts` に導入（starship / eza --icons / zellij が Nerd Font のグリフを使う）。WSL では Windows 側の端末が描画するので何もしない |
 | [run_onchange_after_20-git-hooks.sh](run_onchange_after_20-git-hooks.sh) | スクリプト内容が変わったとき | ソースリポジトリの `core.hooksPath` を `.githooks/` に設定（秘密情報の pre-commit 検査。後述） |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
-| [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) | スクリプト内容が変わったとき | zsh 補完を `~/.local/share/zsh/completions` に生成（chezmoi, gh, deno, jj, zellij, bw, bat, mise, typst）。生成後に `zcompdump` を捨てて次回起動で作り直させる |
+| [run_onchange_after_40-zsh-completions.sh.tmpl](run_onchange_after_40-zsh-completions.sh.tmpl) | `refresh-zsh-completions` が変わったとき | zsh 補完が揃っていることを保証する（生成本体は後述の `refresh-zsh-completions`）。普段の更新は mise の `postinstall` hook が行うので、ここは apply 時の担保 |
 
 apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。後から apt パッケージを追加したいときは、05 を手動実行するか直接 `apt install` する。なお `before_` の 01 は 05 より**前**に走るので、apt に頼れない。必要な `unzip` は 01 が自分で確保する。
 
@@ -107,7 +107,8 @@ actionlint
 | --- | --- |
 | [dot_zshenv](dot_zshenv) | `ZDOTDIR` を宣言して `$ZDOTDIR/.zshenv` を source するだけの stub（`$HOME` に置く必要がある唯一の zsh ファイル）。zsh の探索順と `/etc/zsh/zshenv` を使わない理由はファイル冒頭のコメント参照 |
 | [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`）。`EDITOR` / `VISUAL` / `LANG` / OpenSSL のパス、`clip` 関数と ssh-agent の用意もここ |
-| [dot_config/mise/](dot_config/mise/) | mise が管理する開発ツール一覧（`config.toml`）と、版・URL・チェックサムを固定する `mise.lock` |
+| [dot_config/mise/](dot_config/mise/) | mise が管理する開発ツール一覧（`config.toml`）と、版・URL・チェックサムを固定する `mise.lock`。ツール導入後に zsh 補完を作り直す `postinstall` hook もここ |
+| [dot_local/bin/](dot_local/bin/) | `$HOME` に置くコマンド（`~/.local/bin`）。`refresh-zsh-completions` は mise 管理ツールの zsh 補完を生成する |
 | [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)）。読み込み順の約束はファイル冒頭のコメント参照 |
 | [dot_config/zeno/config.yml](dot_config/zeno/config.yml) | [zeno.zsh](https://github.com/yuki-yano/zeno.zsh) のスニペット |
 | [dot_config/git/](dot_config/git/) | git 設定（`config` / `ignore` / ssh 署名の `allowed_signers`） |
@@ -159,4 +160,19 @@ bash scripts/check-mise-lock.sh          # lock の全ツール
 bash scripts/check-mise-lock.sh bat eza  # 指定したものだけ
 ```
 
-zsh 補完を静的生成したい CLI は [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) に `gen <name> <command...>` を追加する。生成先は `~/.local/share/zsh/completions` で、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録している。`zoxide` は sheldon 側で動的に初期化しているため、このスクリプトでは生成しない。
+### zsh 補完
+
+補完は静的ファイルとして `~/.local/share/zsh/completions` に置き、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録する。シェル起動時に CLI を実行しないので起動時間に乗らない。
+
+生成するのは [dot_local/bin/refresh-zsh-completions](dot_local/bin/executable_refresh-zsh-completions) で、**mise の `postinstall` hook**（[config.toml](dot_config/mise/config.toml)）が呼ぶ。ツールが入った／上がった瞬間に走るので、実行ファイルだけ新しくて補完が古いという状態にならない。全ツールが既に入っていて `mise install` が何もしないと hook は発火しないため、[run_onchange_after_40](run_onchange_after_40-zsh-completions.sh.tmpl) が apply 時にも呼んで担保する。
+
+版ごとの記録（`~/.local/state/zsh/completions.stamp`）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと約1.9秒かかり、その大半は `bw`（141MB のバイナリで単体1.7秒）なので、1ツールの更新でそれを払わない。変化が無ければ約20msで抜ける。
+
+対象を増やすときは `refresh-zsh-completions` の `NAMES` / `emit()` / `mise_tool()` に足す。ファイルを編集すると 40 のハッシュが変わって再実行され、生成まで走る。**補完が欲しいからといって `config.toml` にツールを足さないこと**（理由は config.toml 末尾の typst のくだり）。`zoxide` は sheldon 側で動的に初期化しているため生成しない。
+
+`zcompdump` は補完ファイルの集合が変わったときだけ捨てる。あれが持つのは command → 補完関数の対応表だけで、関数本体は `fpath` から遅延 autoload されるため、ツールの版が上がっても古くならない。無用に捨てると次の `compinit` が 36ms → 216ms に伸びる。
+
+```sh
+refresh-zsh-completions            # 変化のあったものだけ
+refresh-zsh-completions --force    # 全部作り直す
+```

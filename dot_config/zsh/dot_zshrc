@@ -76,11 +76,20 @@ function update() {
     sheldon lock --update
   fi
 
-  # ツールが入れ替わると、そこから生成したキャッシュ（starship の init 出力・
-  # 補完ダンプ）が古くなる。捨てておけば次のシェル起動で作り直される。
+  # starship が入れ替わると init 出力のキャッシュが古くなる。捨てておけば次の
+  # シェル起動で作り直される。
+  #
+  # zcompdump はここで捨てない。あれが持つのは command → 補完関数の対応表だけで、
+  # 関数本体は fpath から遅延 autoload されるため、ツールの版が上がっても古く
+  # ならない。補完ファイルが増減した場合も compinit がダンプ1行目の #files と
+  # 実際の数を照合して自分で作り直す。捨てると次の compinit が 36ms → 216ms に
+  # 伸びるだけだった（実測）。
+  #
+  # 補完そのものの更新は mise の postinstall hook が refresh-zsh-completions を
+  # 呼んで面倒を見る（上の mise ブロックで発火する）。増減を伴う場合はそちらが
+  # zcompdump を捨てる。
   echo -e "\e[1;36m[update] drop generated zsh caches\e[m"
-  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh" \
-    "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
+  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
 }
 
 # 標準入力をクリップボードへ送る。使える手段が環境で違うので実行時に選ぶ。

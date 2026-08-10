@@ -1,0 +1,164 @@
+#!/usr/bin/env bash
+# mise 管理ツールの zsh 補完を生成して fpath 配下（~/.local/share/zsh/completions）に置く。
+#
+# 呼ばれ方は2つある。
+#   1. mise の postinstall hook（dot_config/mise/config.toml）
+#      ツールが入った／上がった瞬間に走る。これが本命で、これがあるので補完が
+#      実行ファイルより古くなることがない。以前は補完の再生成が
+#      run_onchange_after_40 の内容ハッシュでしか起きず、mise upgrade したあと
+#      「実行ファイルは新しいのに補完は古い」状態が次の編集まで残っていた。
+#   2. run_onchange_after_40-zsh-completions.sh.tmpl（apply 時の保証）
+#      全ツールが既に入っていると mise install は何もせず hook も発火しないので、
+#      補完が無い状態（新規マシンの2回目以降の apply、ファイルを消した後）を
+#      こちらで拾う。
+#
+# 版ごとの記録（$STAMP）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと
+# 約1.9秒かかり、その 88% は bw（141MB のバイナリで単体 1.7 秒）が占める。hook は
+# 無関係なプロジェクトでの mise install でも発火するので、1ツールの更新に毎回
+# 1.9秒払うのは重すぎる。
+#
+# 補完を追加したいときは NAMES / emit() / mise_tool() に足す。対象は config.toml に
+# 載っている mise 管理ツールだけにすること（理由は 40 のコメント）。
+#
+# 手で叩いてもよい:
+#   refresh-zsh-completions          変化のあったものだけ作り直す
+#   refresh-zsh-completions --force  全部作り直す
+set -eu
+
+COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
+STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/completions.stamp"
+MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
+
+# hook から呼ばれるので、この中の mise 呼び出しで hook が再帰しないようにする。
+# shim 経由のツール呼び出しは、未インストールなら mise が自動インストールしうる。
+export MISE_NO_HOOKS=1
+
+FORCE=0
+case "${1:-}" in
+  -f | --force) FORCE=1 ;;
+  "") ;;
+  *)
+    printf 'usage: %s [-f|--force]\n' "${0##*/}" >&2
+    exit 2
+    ;;
+esac
+
+# 生成対象。ファイル名は _<name> になる。
+NAMES=(chezmoi gh deno jj zellij bw bat mise)
+
+# emit <name>: 補完スクリプトを stdout へ出す。
+# ツールごとにサブコマンドが違うだけなので case で持つ（eval は使わない）。
+emit() {
+  case "$1" in
+    chezmoi) "$(command -v chezmoi || echo "$HOME/.local/bin/chezmoi")" completion zsh ;;
+    gh) gh completion -s zsh ;;
+    deno) deno completions zsh ;;
+    jj) jj util completion zsh ;;
+    zellij) zellij setup --generate-completion zsh ;;
+    # bw は appdata の場所を明示しないと既定の場所を作ってしまう。
+    bw) env BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" bw completion --shell zsh ;;
+    bat) bat --completion zsh ;;
+    mise) "$MISE" completion zsh ;;
+    *) return 1 ;;
+  esac
+}
+
+# mise_tool <name>: 補完名に対応する mise のツール名。
+# 空を返すものは mise 自身（mise ls には出ない）。
+mise_tool() {
+  case "$1" in
+    jj) printf 'jujutsu\n' ;;
+    bw) printf 'bitwarden\n' ;;
+    mise) printf '\n' ;;
+    *) printf '%s\n' "$1" ;;
+  esac
+}
+
+# 補完ディレクトリに今あるファイル名の一覧（ソート済み）。
+comp_files() {
+  find "$COMP_DIR" -maxdepth 1 -type f -printf '%f\n' 2>/dev/null | LC_ALL=C sort || true
+}
+
+mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
+
+# 版一覧は mise を1回だけ叩いて使い回す（約20ms）。
+MISE_LS="$("$MISE" ls --current 2>/dev/null || true)"
+MISE_OWN="$("$MISE" --version 2>/dev/null | awk '{ print $1 }' || true)"
+
+version_of() {
+  local tool
+  tool="$(mise_tool "$1")"
+  if [ -z "$tool" ]; then
+    printf '%s\n' "${MISE_OWN:-unknown}"
+    return
+  fi
+  printf '%s\n' "$MISE_LS" | awk -v t="$tool" '$1 == t { print $2; exit }'
+}
+
+# $STAMP の各行は "<name>\t<version>\t<ok|skip>"。
+# ok  = その版で生成に成功した
+# skip = その版で生成に失敗した（そのマシンに無いツール等）。版が変わるまで再試行しない。
+#        こうしないと、生成できないツールが1つでもあるたびに毎回走ることになる。
+stamp_field() {
+  [ -r "$STAMP" ] || return 0
+  awk -F'\t' -v n="$1" -v f="$2" '$1 == n { print $f; exit }' "$STAMP"
+}
+
+BEFORE="$(comp_files)"
+NEW_STAMP="$(mktemp)"
+# shellcheck disable=SC2064  # 展開は trap 設定時に済ませたい
+trap "rm -f '$NEW_STAMP'" EXIT
+
+announced=0
+announce() {
+  [ "$announced" -eq 0 ] || return 0
+  printf "\e[1;36mGenerate zsh completions\e[m\n"
+  announced=1
+}
+
+for name in "${NAMES[@]}"; do
+  version="$(version_of "$name")"
+  version="${version:-unknown}"
+  prev_version="$(stamp_field "$name" 2)"
+  prev_state="$(stamp_field "$name" 3)"
+
+  # 作り直す条件: 強制 / 記録が無い / 版が変わった / 成功記録があるのにファイルが無い
+  need=0
+  if [ "$FORCE" -eq 1 ]; then
+    need=1
+  elif [ -z "$prev_version" ] || [ "$prev_version" != "$version" ]; then
+    need=1
+  elif [ "$prev_state" = "ok" ] && [ ! -s "$COMP_DIR/_$name" ]; then
+    need=1
+  fi
+
+  if [ "$need" -eq 0 ]; then
+    printf '%s\t%s\t%s\n' "$name" "$version" "$prev_state" >>"$NEW_STAMP"
+    continue
+  fi
+
+  announce
+  if out="$(emit "$name" 2>/dev/null)" && [ -n "$out" ]; then
+    printf '%s' "$out" >"$COMP_DIR/_$name"
+    printf "  generated _%s (%s)\n" "$name" "$version"
+    printf '%s\t%s\tok\n' "$name" "$version" >>"$NEW_STAMP"
+  else
+    printf "  skip _%s (generation failed)\n" "$name"
+    printf '%s\t%s\tskip\n' "$name" "$version" >>"$NEW_STAMP"
+  fi
+done
+
+mv "$NEW_STAMP" "$STAMP"
+trap - EXIT
+
+# 補完ファイルの集合が変わったときだけ zcompdump を捨てる。
+#
+# 内容だけが変わった場合は捨てない。zcompdump が持つのは command → 補完関数の
+# 対応表で、関数本体は fpath から遅延 autoload されるため古くならない。捨てると
+# 次の compinit が 36ms → 216ms に伸びるだけ（実測）。
+# 集合が変わった場合、compinit はダンプ1行目の #files と実際の数を照合して自分で
+# 作り直すが、同数のまま入れ替わると気付けないので、ここで確実に捨てる。
+if [ "$BEFORE" != "$(comp_files)" ]; then
+  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
+  printf "  completion files changed; dropped stale zcompdump\n"
+fi

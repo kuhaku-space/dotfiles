@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+# zsh 補完が揃っていることを apply 時に保証する。
+#
+# 生成の本体は ~/.local/bin/refresh-zsh-completions（ソースは
+# dot_local/bin/executable_refresh-zsh-completions）にあり、普段は mise の
+# postinstall hook（dot_config/mise/config.toml）が呼ぶ。
+#
+# それでもここから呼ぶ理由は、全ツールが既に入っていると `mise install` が何もせず
+# hook も発火しないため。新規マシンの2回目以降の apply や、補完ファイルを消した
+# あとを拾う。変化が無ければ本体が約20msで抜けるので、毎回呼んで害はない。
+#
+# 下のハッシュは本体の内容に連動する。対象ツールを足すのは本体側の NAMES と
+# emit() で、そこを編集するとこのスクリプトが再実行されて生成まで走る。
+# 補完が欲しいからといって config.toml にツールを足さないこと（理由は config.toml
+# 末尾の typst のくだり）。
+# refresh-zsh-completions hash: {{ include "dot_local/bin/executable_refresh-zsh-completions" | sha256sum }}
+set -eu
+
+REFRESH="$HOME/.local/bin/refresh-zsh-completions"
+if [ ! -x "$REFRESH" ]; then
+  printf "%s is not present yet. Skipping...\n" "$REFRESH"
+  exit 0
+fi
+
+# このスクリプトが再実行されるのは本体が変わったときなので、対象ツールが増減した
+# 可能性がある。指紋の早期脱出に頼らず作り直す。
+"$REFRESH" --force

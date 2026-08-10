@@ -1,1 +1,8 @@
-bin/
+# get.chezmoi.io のインストーラは -b を付けないとソースディレクトリ直下の ./bin に
+# chezmoi 本体を置く。それを commit しないための無視（.chezmoiignore にも同じものがある）。
+#
+# 先頭の / は必須。付けないと gitignore は任意の階層の bin/ に当たるので、
+# dot_local/bin/ 配下（＝$HOME/.local/bin に置くコマンド）まで巻き込む。
+# 実際にそれで refresh-zsh-completions が commit から静かに漏れた。
+# chezmoi 側は apply するのに git には入らないので、他のマシンに配られない。
+/bin/

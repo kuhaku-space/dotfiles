@@ -46,20 +46,31 @@ jobs:
 
       - name: Lint shell scripts
         run: |
+          # dot_local/bin/ 配下は $HOME に置くコマンドなので拡張子を持たない。
+          # 名前で拾えないため、パスで明示的に含める。
           mapfile -t scripts < <(
             find . -path ./.git -prune -o -type f \
-              \( -name '*.sh' -o -name '*.sh.tmpl' \) -print | sort
+              \( -name '*.sh' -o -name '*.sh.tmpl' -o -path './dot_local/bin/*' \) \
+              -print | sort
           )
           if ((${#scripts[@]})); then
             shellcheck -e SC1091 "${scripts[@]}"
           fi
           shellcheck -e SC1091 .githooks/*
 
-          tmp="$(mktemp)"
-          chezmoi --source . execute-template \
-            <run_onchange_after_30-mise-install.sh.tmpl \
-            >"$tmp"
-          bash -n "$tmp"
+          # テンプレートは展開後の中身が実際に走るので、展開してから構文検査する。
+          mapfile -t templates < <(
+            find . -path ./.git -prune -o -type f -name '*.sh.tmpl' -print | sort
+          )
+          for template in "${templates[@]}"; do
+            tmp="$(mktemp)"
+            chezmoi --source . execute-template <"$template" >"$tmp"
+            bash -n "$tmp" || {
+              printf 'rendered %s failed bash -n\n' "$template"
+              exit 1
+            }
+            rm -f "$tmp"
+          done
 
       - name: Lint zsh files
         run: |
@@ -101,13 +112,18 @@ jobs:
       - name: Validate chezmoi templates
         run: |
           chezmoi --source . execute-template <.chezmoiignore >/dev/null
-          chezmoi --source . execute-template <.chezmoi.toml.tmpl >/dev/null
-          chezmoi --source . execute-template \
-            <run_onchange_after_30-mise-install.sh.tmpl \
-            >/dev/null
-          chezmoi --source . execute-template \
-            <dot_config/git/allowed_signers.tmpl \
-            >/dev/null
+          # *.tmpl が展開できること（include の参照先が消えると落ちる）。
+          # private_dot_ssh/ は除く。あそこは bitwarden 関数を呼ぶので、展開すると
+          # マスターパスワードを要求し、認証情報の無い CI では必ず失敗する。
+          while IFS= read -r template; do
+            chezmoi --source . execute-template <"$template" >/dev/null || {
+              printf 'failed to render %s\n' "$template"
+              exit 1
+            }
+          done < <(
+            find . -path ./.git -prune -o -path ./private_dot_ssh -prune -o \
+              -type f -name '*.tmpl' -print | sort
+          )
           # CI では鍵を無視する分岐（bootstrap ジョブが依存している）を確認する。
           CI=true chezmoi --source . execute-template <.chezmoiignore |
             grep -qx '.ssh/id_ed25519'

@@ -7,6 +7,19 @@
 # 更新は `mise upgrade`（.zshrc の update 関数が lock の取り込みまで面倒を見る）。
 lockfile = true
 
+[hooks]
+# ツールが入った／上がった直後に zsh 補完を作り直す。
+#
+# これが無いと補完の再生成は run_onchange_after_40 の内容ハッシュでしか起きず、
+# `mise upgrade` したあと「実行ファイルは新しいのに補完は古い」状態が次にその
+# スクリプトを編集するまで残る。バージョンマネージャとシェル補完の間に空く隙間を、
+# mise 側のフックで閉じる。
+#
+# postinstall は実際に何かが入ったときだけ発火する（更新が無ければ走らない）ので、
+# 無駄打ちしない。スクリプト側も版が変わっていなければ約20msで抜ける。
+# フックのコマンドが無い場合は mise が WARN を出すだけで install は成功する。
+postinstall = "~/.local/bin/refresh-zsh-completions"
+
 [tools]
 bat = "latest"
 deno = "latest"
