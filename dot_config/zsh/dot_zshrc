@@ -84,6 +84,14 @@ function update() {
 }
 
 eval "$(mise activate zsh)"
+
+# VS Code / Copilot 等は、mise が有効な親プロセスの PATH 先頭へ helper を追加して
+# zsh を起動することがある。その場合、mise は既存の挿入位置を引き継ぐため、helper
+# が mise 管理ツールより前に残る。activate 後に管理ツールだけを先頭へ戻し、最初の
+# precmd hook がこの並びを元へ戻さないよう snapshot も更新する。
+path=(${(M)path:#${XDG_DATA_HOME}/mise/installs/*} ${path:#${XDG_DATA_HOME}/mise/installs/*})
+export __MISE_ZSH_ACTIVATE_PATH="$PATH"
+
 eval "$(sheldon source)"
 
 # 以下 zsh-defer するものは「最初のプロンプト表示に間に合わなくてよい」もの。

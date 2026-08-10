@@ -570,6 +570,9 @@ url_api = "https://api.github.com/repos/koalaman/shellcheck/releases/assets/2790
 version = "1.26.0"
 backend = "ubi:starship/starship"
 
+[tools.starship."platforms.linux-x64-starship"]
+checksum = "blake3:f51fc09bf8c4d2366627752a253fd26563d67d98ad356f55f3a7a49683b9e74e"
+
 [[tools.usage]]
 version = "5.1.0"
 backend = "aqua:jdx/usage"
@@ -651,3 +654,6 @@ url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/419114
 [[tools.zoxide]]
 version = "0.10.0"
 backend = "ubi:ajeetdsouza/zoxide"
+
+[tools.zoxide."platforms.linux-x64-zoxide"]
+checksum = "blake3:195ff105df73e3af20825bd02af64cccc801f837716b536d54a7c94b8d7c083c"
