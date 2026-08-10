@@ -26,21 +26,19 @@ bin/
 
   鍵が未配置・古い・壊れている場合のみ管理対象に含め、bw から取り直す。
 
-  期待値はリポジトリ内の公開鍵 private_dot_ssh/id_ed25519.pub から都度導出する。
-  公開鍵は秘密ではないので平文で持てる。こうしておくと鍵をローテーションしたときに
-  更新する場所が公開鍵1ファイルだけになる（フィンガープリントを別途書かない）。
+  判定は scripts/needs-bitwarden.sh に委ねる（run_once_before_01/02 と同じ経路）。
+  以前はここで ssh-keygen を直接 output していたが、それだと ~/.ssh/id_ed25519 が
+  鍵として読めないとき（別形式・破損・空ファイル）に ssh-keygen が非ゼロで終了し、
+  chezmoi の output がテンプレート評価ごとエラーにして apply 全体を落としていた。
+  しかも落ちる原因のファイルを手で消すまで apply が一切通らず、dotfiles 側から
+  復旧できなくなる。実機を後から管理下に入れるとき（既に自分の鍵がある）に踏む。
+
+  スクリプト側は同じ状況を「判定できない → 取り直しが必要」に倒すので、終了コードを
+  シェルで文字列へ変換して受け取る（output は非ゼロ終了を許さないため）。
 */ -}}
-{{- $pubPath := joinPath .chezmoi.sourceDir "private_dot_ssh/id_ed25519.pub" -}}
-{{- $expectedFp := "" -}}
-{{- if stat $pubPath -}}
-{{-   $expectedFp = (output "ssh-keygen" "-lf" $pubPath | regexFind "SHA256:[^ ]+") -}}
-{{- end -}}
-{{- $keyPath := joinPath .chezmoi.homeDir ".ssh/id_ed25519" -}}
-{{- $localFp := "" -}}
-{{- if stat $keyPath -}}
-{{-   $localFp = (output "ssh-keygen" "-lf" $keyPath | regexFind "SHA256:[^ ]+") -}}
-{{- end -}}
-{{- if and $expectedFp (eq $localFp $expectedFp) }}
+{{- $script := joinPath .chezmoi.sourceDir "scripts/needs-bitwarden.sh" -}}
+{{- $probe := printf "CHEZMOI_SOURCE_DIR=%s bash %s >/dev/null 2>&1 && echo fetch || echo keep" (.chezmoi.sourceDir | squote) ($script | squote) -}}
+{{- if eq (output "bash" "-c" $probe | trim) "keep" }}
 .ssh/id_ed25519
 {{- end }}
 {{- end }}
