@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 # mise の設定が変わると再実行される。
-# 下記ハッシュは config.toml の内容に連動し、変更を検知するためのもの。
+# 下記ハッシュは config.toml と mise.lock の内容に連動し、変更を検知するためのもの。
+# lock 側も見るのは、他のマシンで `mise upgrade` した結果を pull しただけで
+# インストールが走るようにするため。
 # config.toml hash: {{ include "dot_config/mise/config.toml" | sha256sum }}
+# mise.lock hash: {{ include "dot_config/mise/private_mise.lock" | sha256sum }}
 set -eu
 
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"

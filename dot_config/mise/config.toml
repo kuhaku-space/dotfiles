@@ -1,12 +1,15 @@
-# mise の lockfile（mise.lock）はプロジェクト設定用で、グローバル設定
-# (~/.config/mise/config.toml) の [tools] は対象外（mise 2026.8.3 で確認:
-# `mise lock` が "No tools configured to lock" を返す）。
-# そのため再現性は「壊れると痛いものだけメジャー固定」で担保する。
+[settings]
+# バージョン・URL・チェックサムを mise.lock に記録する。
+# 版指定は "latest" のままでよく、実際に入る版は lock が決めるので他のマシンでも
+# 同じ構成が再現する（チェックサム検証も付く）。
+# lock はグローバル設定にも作れる: `mise lock --global`（-g を付けないと
+# プロジェクトの config root しか見ないので "No tools configured to lock" になる）。
+# 更新は `mise upgrade`（.zshrc の update 関数が lock の取り込みまで面倒を見る）。
+lockfile = true
+
 [tools]
 bat = "latest"
-# 言語ランタイムだけメジャーを固定する。CLI が壊れるのは安くて気付けるが、
-# ランタイムの無言メジャー更新はプロジェクト側を壊す。上げるときは明示的に上げる。
-deno = "2"
+deno = "latest"
 eza = "latest"
 fzf = "latest"
 gh = "latest"

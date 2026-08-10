@@ -25,6 +25,14 @@ function update() {
   if command -v mise >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] mise\e[m"
     mise self-update -y && mise upgrade && mise prune
+
+    # mise.lock は $HOME 側で書き換わる生成物なので、更新後にソースへ取り込む。
+    # 取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。
+    # （chezmoi の autoCommit / autoPush が commit と push まで行う）
+    local mise_lock="${XDG_CONFIG_HOME:-$HOME/.config}/mise/mise.lock"
+    if [ -f "$mise_lock" ] && command -v chezmoi >/dev/null 2>&1; then
+      chezmoi re-add "$mise_lock"
+    fi
   fi
 
   # sheldon のプラグインは plugins.lock に固定されるので、明示的に更新しないと

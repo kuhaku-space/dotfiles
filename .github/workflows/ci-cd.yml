@@ -116,7 +116,10 @@ jobs:
           import subprocess
           import tomllib
 
-          for path in sorted(Path(".").rglob("*.toml")):
+          # mise.lock も TOML だが *.toml に一致しないので明示的に含める。
+          paths = sorted(Path(".").rglob("*.toml"))
+          paths += sorted(Path(".").rglob("*mise.lock"))
+          for path in paths:
               with path.open("rb") as f:
                   tomllib.load(f)
 
@@ -200,4 +203,11 @@ jobs:
               # 生成物
               test -s /root/.local/share/zsh/completions/_mise
               test -s /root/.cache/zsh/starship-init.zsh
+
+              # リポジトリが配布した mise.lock の版が実際に入っているか。
+              # config.toml の指定は "latest" なので、lock が効いていないと
+              # マシンごとに違う版が入る。CI は subset しか入れないので列挙する。
+              test -f /root/.config/mise/mise.lock
+              bash /root/dotfiles/scripts/check-mise-lock.sh \
+                sheldon starship zoxide fzf deno bat eza usage
             '

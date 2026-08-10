@@ -129,7 +129,7 @@ GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `ma
 | ジョブ | 内容 |
 | --- | --- |
 | `validate` | shellcheck（`*.sh` と hook）、`zsh -n`（zsh 設定と sheldon の inline スニペット）、actionlint、秘密情報スキャン、chezmoi テンプレート展開、TOML/YAML 構文、git config と allowed_signers の検証 |
-| `bootstrap` | 素の `ubuntu:24.04` コンテナで README のワンライナーと同じ経路（`chezmoi init --apply` → `run_once_*` → `run_onchange_*`）を実際に流し、展開結果・ログインシェル・対話 zsh の起動・生成物を検証する |
+| `bootstrap` | 素の `ubuntu:24.04` コンテナで README のワンライナーと同じ経路（`chezmoi init --apply` → `run_once_*` → `run_onchange_*`）を実際に流し、展開結果・ログインシェル・対話 zsh の起動・生成物・**mise.lock 通りの版が入ったか**を検証する |
 
 `bootstrap` が秘密情報なしで通るのは `CI=true` のとき [.chezmoiignore](.chezmoiignore) が鍵を無視し、[scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) が bw 関連スクリプトを空振りさせるため。**CI では mise はシェル起動に必要なツールだけを入れる**（rust / node / neovim まで入れると 30 分を超えるため。対象は [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) 参照）。
 
@@ -147,7 +147,7 @@ actionlint
 | --- | --- |
 | [dot_zshenv](dot_zshenv) | `ZDOTDIR` を宣言して `$ZDOTDIR/.zshenv` を source するだけの stub（`$HOME` に置く必要がある唯一の zsh ファイル） |
 | [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`）。`EDITOR` / `VISUAL` の定義もここ |
-| [dot_config/mise/config.toml](dot_config/mise/config.toml) | mise が管理する開発ツール一覧 |
+| [dot_config/mise/](dot_config/mise/) | mise が管理する開発ツール一覧（`config.toml`）と、版・URL・チェックサムを固定する `mise.lock` |
 | [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)）。読み込み順の約束はファイル冒頭のコメント参照 |
 | [dot_config/zeno/config.yml](dot_config/zeno/config.yml) | [zeno.zsh](https://github.com/yuki-yano/zeno.zsh) のスニペット |
 | [dot_config/git/](dot_config/git/) | git 設定（`config` / `ignore` / ssh 署名の `allowed_signers`） |
@@ -155,7 +155,7 @@ actionlint
 | [dot_config/npm/](dot_config/npm/), [dot_config/pnpm/](dot_config/pnpm/) | Node パッケージマネージャ設定 |
 | [private_dot_ssh/](private_dot_ssh/) | ssh 鍵・クライアント設定・GitHub のホスト鍵（[SSH 鍵](#ssh-鍵bitwarden-連携)参照） |
 | `run_once_*` / `run_onchange_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
-| [scripts/](scripts/) | `$HOME` に展開しないスクリプト。手動実行用（`revert-etc-zshenv.sh`）と、`apply` や CI・hook から呼ぶ共有ヘルパー（`needs-bitwarden.sh` / `check-secrets.sh`） |
+| [scripts/](scripts/) | `$HOME` に展開しないスクリプト。手動実行用（`revert-etc-zshenv.sh`）と、`apply` や CI・hook から呼ぶ共有ヘルパー（`needs-bitwarden.sh` / `check-secrets.sh` / `check-mise-lock.sh`） |
 | [.githooks/](.githooks/) | ソースリポジトリの git hook。`.` 始まりなので chezmoi は `$HOME` に展開しない |
 
 ### ZDOTDIR を `~/.zshenv` で宣言する理由
@@ -190,9 +190,31 @@ zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/
 
 ```sh
 mise use -g <tool>   # config.toml に追記してインストール
-mise upgrade         # 更新
+mise upgrade         # 更新（lock も進む）
 ```
 
-バージョンは基本 `latest` だが、**言語ランタイム（node / deno）はメジャーを固定**している。無言のメジャー更新で壊れるのはプロジェクト側なので、上げるときは明示的に上げる。CLI が壊れるのは安くて気付けるので `latest` のままにしている。mise の lockfile（`mise.lock`）はプロジェクト設定用で、グローバル設定の `[tools]` は対象外（mise 2026.8.3 で `mise lock` が `No tools configured to lock` を返す）。
+### バージョンの固定（mise.lock）
+
+版指定は `latest` のままだが、**実際に入る版は [mise.lock](dot_config/mise/private_mise.lock) が決める**（`[settings] lockfile = true`）。lock には版に加えて URL とチェックサムが入るので、他のマシンでも同じ版が入り、ダウンロード内容も検証される。
+
+```sh
+mise lock --global   # グローバル設定の lock を作る／更新する（-g が必要）
+mise lock -g --bump  # latest 等を再解決して lock を進める（インストールはしない）
+```
+
+> `-g` を付けないとプロジェクトの config root しか見ないため、`No tools configured to lock` になる。
+
+`mise.lock` は `$HOME` 側で書き換わる生成物なので、更新したらソースへ取り込む必要がある。取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。`update` 関数はこれを自動でやる（`mise upgrade` → `chezmoi re-add ~/.config/mise/mise.lock`。chezmoi の `autoCommit` / `autoPush` が commit と push まで行う）。手で `mise upgrade` したときは:
+
+```sh
+chezmoi re-add ~/.config/mise/mise.lock
+```
+
+lock と実際に入っている版がずれていないかは次で確認できる（CI の `bootstrap` ジョブも実行する）:
+
+```sh
+bash scripts/check-mise-lock.sh          # lock の全ツール
+bash scripts/check-mise-lock.sh bat eza  # 指定したものだけ
+```
 
 zsh 補完を静的生成したい CLI は [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) に `gen <name> <command...>` を追加する。生成先は `~/.local/share/zsh/completions` で、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録している。`zoxide` は sheldon 側で動的に初期化しているため、このスクリプトでは生成しない。
