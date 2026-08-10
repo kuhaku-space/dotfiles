@@ -16,6 +16,12 @@ URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${FONT_NAM
 
 warn() { printf "\e[1;33m%s\e[m\n" "$1" >&2; }
 
+# CI（bootstrap の smoke test）に端末は無い。130MB のダウンロードを毎回させない。
+if [ -n "${CI:-}" ]; then
+  printf "CI detected; skipping font installation.\n"
+  exit 0
+fi
+
 # WSL では Windows 側の端末がフォントを描くので、Linux 側に入れても使われない。
 # /proc/sys/kernel/osrelease に microsoft が入るのが WSL1/WSL2 共通の目印。
 if [ -n "${WSL_DISTRO_NAME:-}" ] ||

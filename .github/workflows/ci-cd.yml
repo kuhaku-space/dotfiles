@@ -112,6 +112,40 @@ jobs:
           CI=true chezmoi --source . execute-template <.chezmoiignore |
             grep -qx '.ssh/id_ed25519'
 
+          # 鍵として読めない ~/.ssh/id_ed25519 があってもテンプレート評価が落ちない
+          # こと。以前は ssh-keygen を output で直接呼んでいたため、この状況で
+          # apply が全面停止し、その鍵を消すまで復旧できなかった。
+          # （CI を外さないと上の分岐に入って判定部分を通らない）
+          for key_state in broken empty valid-but-different; do
+            fake_home="$(mktemp -d)"
+            mkdir -p "$fake_home/.ssh"
+            case "$key_state" in
+              broken) printf 'not a key\n' >"$fake_home/.ssh/id_ed25519" ;;
+              empty) : >"$fake_home/.ssh/id_ed25519" ;;
+              valid-but-different)
+                ssh-keygen -q -t ed25519 -N '' -C ci \
+                  -f "$fake_home/.ssh/id_ed25519"
+                ;;
+            esac
+            env -u CI HOME="$fake_home" \
+              chezmoi --source "$PWD" execute-template <.chezmoiignore >/dev/null ||
+              {
+                printf 'template evaluation failed for key state: %s\n' "$key_state"
+                exit 1
+              }
+            rm -rf "$fake_home"
+          done
+
+          # bw のブートストラップ（run_once_before_01）は mise.lock から取得先を引く。
+          # lock の更新でこのエントリが消えると、鍵の取れない新規マシンが詰まる。
+          for platform in linux-x64 linux-arm64; do
+            grep -q "^\[tools.bitwarden.\"platforms.$platform\"\]" \
+              dot_config/mise/private_mise.lock || {
+              printf 'no bitwarden entry for %s in the lockfile\n' "$platform"
+              exit 1
+            }
+          done
+
       - name: Validate TOML
         run: |
           python3 -c '
