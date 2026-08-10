@@ -8,9 +8,6 @@ snippets:
   - name: benchmark
     keyword: benchmark
     snippet: hyperfine -w 5 -r 50 'zsh -i -c exit'
-  - name: clip
-    keyword: clip
-    snippet: xclip -selection clipboard
   - name: relogin
     keyword: relogin
     snippet: exec $SHELL -l

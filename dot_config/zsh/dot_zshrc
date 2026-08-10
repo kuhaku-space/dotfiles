@@ -83,6 +83,22 @@ function update() {
     "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
 }
 
+# 標準入力をクリップボードへ送る。使える手段が環境で違うので実行時に選ぶ。
+#
+# WSL は WSLg 経由で xclip が通るが、実機はそうとは限らない。デスクトップは
+# Wayland が既定のことが多く（xclip は X11 専用）、ssh 越しや TTY には
+# ディスプレイ自体が無い。最後の OSC 52 は端末エスケープなので、対応した端末で
+# ssh していれば手元のクリップボードに入る。
+function clip() {
+  if [[ -n "$WAYLAND_DISPLAY" ]] && (( $+commands[wl-copy] )); then
+    wl-copy
+  elif [[ -n "$DISPLAY" ]] && (( $+commands[xclip] )); then
+    xclip -selection clipboard
+  else
+    printf '\033]52;c;%s\a' "$(base64 | tr -d '\n')"
+  fi
+}
+
 eval "$(mise activate zsh)"
 
 # VS Code / Copilot 等は、mise が有効な親プロセスの PATH 先頭へ helper を追加して
@@ -98,8 +114,34 @@ eval "$(sheldon source)"
 # zsh-defer は登録順に実行するので、sheldon が登録した compinit / zeno /
 # zsh-autosuggestions の読み込みは、ここで登録する処理より先に完了する。
 
-# ssh-agent の起動はプロンプト表示に不要。
-zsh-defer -c "ssh-add -l 2>/dev/null | grep -q 'SHA256' || eval \$(keychain --eval --nogui --quiet --agents ssh ~/.ssh/id_ed25519)"
+# ssh-agent の用意。プロンプト表示に不要なので defer する。
+#
+# 無条件に keychain を起動してはいけない。実機のデスクトップ（GNOME/KDE）では
+# gnome-keyring や systemd の ssh-agent.socket が既に agent を出しており、そこへ
+# 重ねて keychain を立てると SSH_AUTH_SOCK がこのシェルだけ別 agent を指す。
+# GUI の git クライアントや VS Code はそちらを見ないので、鍵が共有されなくなる。
+#
+# ssh-add -l の終了コードで3つの状態を見分けられる:
+#   0 = agent に鍵が載っている        → 何もしない
+#   1 = agent はいるが鍵が無い        → その agent に足す（新しく立てない）
+#   2 = agent に繋がらない            → keychain に立ててもらう
+# 鍵にパスフレーズがある場合、defer 中のプロンプトは ZLE と衝突するので </dev/null で
+# 即座に失敗させる。その場合は ssh 接続時に AddKeysToAgent yes（~/.ssh/config）が拾う。
+function _init_ssh_agent() {
+  local key="$HOME/.ssh/id_ed25519"
+  [[ -r $key ]] || return 0
+  ssh-add -l &>/dev/null
+  case $? in
+    0) ;;
+    1) ssh-add -q "$key" </dev/null &>/dev/null || true ;;
+    # keychain は apt でしか入れていないので、無い環境では黙って諦める
+    # （毎回のシェル起動で command not found を出さない）。
+    *) (( $+commands[keychain] )) &&
+      eval "$(keychain --eval --nogui --quiet --agents ssh "$key")" ;;
+  esac
+  unset -f _init_ssh_agent
+}
+zsh-defer _init_ssh_agent
 
 setopt auto_cd
 setopt hist_ignore_all_dups
