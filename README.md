@@ -166,7 +166,18 @@ bash scripts/check-mise-lock.sh bat eza  # 指定したものだけ
 
 生成するのは [dot_local/bin/refresh-zsh-completions](dot_local/bin/executable_refresh-zsh-completions) で、**mise の `postinstall` hook**（[config.toml](dot_config/mise/config.toml)）が呼ぶ。ツールが入った／上がった瞬間に走るので、実行ファイルだけ新しくて補完が古いという状態にならない。全ツールが既に入っていて `mise install` が何もしないと hook は発火しないため、[run_onchange_after_40](run_onchange_after_40-zsh-completions.sh.tmpl) が apply 時にも呼んで担保する。
 
-補完を置くのは**そのツールが実際にインストールされているときだけ**で、入っていないものは（前に生成した分があれば）消す。置いたままにすると存在しないコマンドで TAB が候補を出してしまう。判定は `mise ls --current`（3列目の `(missing)`）で行い、shim の有無では見ない — shim は `config.toml` から外した後も残るため。`mise` 自体が使えないときは何も触らずに抜ける。
+補完を置くのは**そのツールが実際にインストールされているときだけ**で、入っていないものは（前に生成した分があれば）消す。置いたままにすると存在しないコマンドで TAB が候補を出してしまう。
+
+判定は `mise ls --installed` で行う。`--current` ではないのが要点で、あれは「そのディレクトリで有効なツール」しか返さないため、
+
+- グローバル設定に載せていないツール（プロジェクトの `mise.toml` だけにある `typst` など）を拾えない
+- CWD 依存になる。hook は `mise install` を叩いたディレクトリで走るのに 40 は `$HOME` 相当で走るので、「プロジェクト内で生成 → `$HOME` で削除」を往復し続ける
+
+`--installed` は CWD に依らず実際に入っている版だけを返すので、この両方を回避できる。そのため **`config.toml` に載せていないツールの補完も、インストールされていれば生成される**（`typst` がこれ。グローバルに版を固定したくないが補完は欲しい、という場合に `config.toml` を汚さずに済む）。
+
+ツールの起動は shim ではなく `mise exec <tool>@<version> --` を通す。shim は現在のディレクトリで版が解決できないと失敗するので、プロジェクトローカルのツールを `$HOME` から呼べない。版を明示するのでレジストリ参照も走らず、オーバーヘッドも無い（実測で shim 直と同等）。
+
+判定を mise に依存させているため、`mise` 自体が使えないときは何も触らずに抜ける（でないと「全部未インストール」と誤判定して補完を全消しする）。shim の有無では判定しない — shim は `config.toml` から外した後も残るため。
 
 版ごとの記録（`~/.local/state/zsh/completions.stamp`）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと約1.9秒かかり、その大半は `bw`（141MB のバイナリで単体1.7秒）なので、1ツールの更新でそれを払わない。変化が無ければ約20msで抜ける。
 

@@ -11,8 +11,9 @@
 #
 # 下のハッシュは本体の内容に連動する。対象ツールを足すのは本体側の NAMES と
 # emit() で、そこを編集するとこのスクリプトが再実行されて生成まで走る。
-# 補完が欲しいからといって config.toml にツールを足さないこと（理由は config.toml
-# 末尾の typst のくだり）。
+# 補完が欲しいからといって config.toml にツールを足さないこと。本体は
+# `mise ls --installed` を見るので、プロジェクトの mise.toml で入れたツールでも
+# 補完は生成される（理由は config.toml 末尾の typst のくだり）。
 # refresh-zsh-completions hash: {{ include "dot_local/bin/executable_refresh-zsh-completions" | sha256sum }}
 set -eu
 

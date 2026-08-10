@@ -49,21 +49,36 @@ case "${1:-}" in
 esac
 
 # 生成対象。ファイル名は _<name> になる。
-NAMES=(chezmoi gh deno jj zellij bw bat mise)
+# typst のようにグローバル設定へ載せていないツールも入れてよい。入っていれば補完を
+# 作り、入っていなければ作らない（消す）だけなので、config.toml に足す必要はない。
+NAMES=(chezmoi gh deno jj zellij bw bat typst mise)
 
-# emit <name>: 補完スクリプトを stdout へ出す。
+# emit <name> <version>: 補完スクリプトを stdout へ出す。
 # ツールごとにサブコマンドが違うだけなので case で持つ（eval は使わない）。
+#
+# 呼び出しは shim ではなく `mise exec <tool>@<version> --` を通す。shim は現在の
+# ディレクトリで版が解決できないと "No version is set for shim" で失敗するので、
+# プロジェクトの mise.toml にだけあるツールを $HOME から呼べない。版を明示するので
+# レジストリ参照も走らない（`@latest` は使わない。lock 外のダウンロードになる）。
+# 実測ではオーバーヘッドも無い（bat で shim 直 50ms に対し mise exec 42ms）。
 emit() {
-  case "$1" in
-    chezmoi) "$(command -v chezmoi || echo "$HOME/.local/bin/chezmoi")" completion zsh ;;
-    gh) gh completion -s zsh ;;
-    deno) deno completions zsh ;;
-    jj) jj util completion zsh ;;
-    zellij) zellij setup --generate-completion zsh ;;
+  local name="$1" version="$2" tool
+  tool="$(mise_tool "$name")"
+  if [ -z "$tool" ]; then
+    "$MISE" completion zsh
+    return
+  fi
+  local -a run=("$MISE" exec "$tool@$version" --)
+  case "$name" in
+    chezmoi) "${run[@]}" chezmoi completion zsh ;;
+    gh) "${run[@]}" gh completion -s zsh ;;
+    deno) "${run[@]}" deno completions zsh ;;
+    jj) "${run[@]}" jj util completion zsh ;;
+    zellij) "${run[@]}" zellij setup --generate-completion zsh ;;
     # bw は appdata の場所を明示しないと既定の場所を作ってしまう。
-    bw) env BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" bw completion --shell zsh ;;
-    bat) bat --completion zsh ;;
-    mise) "$MISE" completion zsh ;;
+    bw) BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" "${run[@]}" bw completion --shell zsh ;;
+    bat) "${run[@]}" bat --completion zsh ;;
+    typst) "${run[@]}" typst completions zsh ;;
     *) return 1 ;;
   esac
 }
@@ -88,10 +103,18 @@ mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
 
 # 版一覧は mise を1回だけ叩いて使い回す（約20ms）。
 #
+# --installed を使う。--current だと「そのディレクトリで有効なツール」しか出ないため、
+# プロジェクトの mise.toml だけに書かれたツール（グローバル設定に載せたくないもの。
+# 例: typst）を拾えず、しかも CWD 依存になる。hook は mise install を叩いた
+# ディレクトリで走るのに 40 は $HOME 相当で走るので、--current だと同じマシンで
+# 「プロジェクト内で生成 → $HOME で削除」を往復し続けることになる。
+# --installed は CWD に依らず、実際に入っている版だけを返す（未インストールの
+# "(missing)" 行も出ない）。
+#
 # mise が使えないときは何も触らずに抜ける。この後の判定は「mise が知らないツールは
 # 未インストール」とみなすので、mise が壊れている状態で走らせると全部の補完を
 # 消してしまう。
-if ! MISE_LS="$("$MISE" ls --current 2>/dev/null)"; then
+if ! MISE_LS="$("$MISE" ls --installed --no-header 2>/dev/null)"; then
   printf 'mise is not usable; leaving existing completions untouched.\n' >&2
   exit 0
 fi
@@ -100,9 +123,10 @@ MISE_OWN="$("$MISE" --version 2>/dev/null | awk '{ print $1 }' || true)"
 # version_of <name>: インストール済みならその版、そうでなければ空を返す。
 #
 # 判定に command -v は使えない。mise の shim は対象ツールを config から外した後も
-# 残るので（実測: shim 101 個に対し現在のツールは 20 個）、shim の存在は
-# インストール済みを意味しない。mise ls --current は未インストールを 3列目の
-# "(missing)" で示すので、そこを見る。
+# 残るので（実測: shim 101 個に対し現在のツールは 20 個、外した typst の shim も
+# 残っていた）、shim があってもインストール済みを意味しない。
+#
+# 同じツールの複数版が入っている場合は最後の行＝最新を採る（mise は昇順に並べる）。
 version_of() {
   local tool
   tool="$(mise_tool "$1")"
@@ -111,7 +135,7 @@ version_of() {
     return
   fi
   printf '%s\n' "$MISE_LS" |
-    awk -v t="$tool" '$1 == t { if ($3 != "(missing)") print $2; exit }'
+    awk -v t="$tool" '$1 == t { v = $2 } END { if (v != "") print v }'
 }
 
 # $STAMP の各行は "<name>\t<version>\t<ok|skip>"。インストール済みのツールだけが載る。
@@ -171,7 +195,7 @@ for name in "${NAMES[@]}"; do
   fi
 
   announce
-  if out="$(emit "$name" 2>/dev/null)" && [ -n "$out" ]; then
+  if out="$(emit "$name" "$version" 2>/dev/null)" && [ -n "$out" ]; then
     printf '%s' "$out" >"$COMP_DIR/_$name"
     printf "  generated _%s (%s)\n" "$name" "$version"
     printf '%s\t%s\tok\n' "$name" "$version" >>"$NEW_STAMP"
