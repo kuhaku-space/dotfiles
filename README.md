@@ -29,25 +29,47 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-s
 | --- | --- | --- |
 | [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) | 初回1回だけ（ファイル展開**前**） | `bw` CLI が無ければ公式ネイティブバイナリで先行導入。SSH 鍵テンプレート（後述）が `bw` を使うため、テンプレート評価前に保証する必要がある |
 | [run_once_before_02-bitwarden-login.sh](run_once_before_02-bitwarden-login.sh) | 初回1回だけ（ファイル展開**前**） | 未ログインなら対話的に `bw login` を起動。鍵テンプレートの取得前にログインを保証する（アンロックは `bitwarden.unlock=true` が自動で実行） |
-| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh, unzip など）の不足分を install |
+| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（build-essential, libssl-dev, keychain, zsh, unzip, xclip など）の不足分を install |
 | [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え（SSH 鍵は Bitwarden 連携で取得。後述） |
+| [run_onchange_after_20-git-hooks.sh](run_onchange_after_20-git-hooks.sh) | スクリプト内容が変わったとき | ソースリポジトリの `core.hooksPath` を `.githooks/` に設定（秘密情報の pre-commit 検査。後述） |
 | [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
-| [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) | スクリプト内容が変わったとき | zsh 補完を `~/.local/share/zsh/completions` に生成（chezmoi, gh, deno, jj, zellij, bw, bat, typst） |
+| [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) | スクリプト内容が変わったとき | zsh 補完を `~/.local/share/zsh/completions` に生成（chezmoi, gh, deno, jj, zellij, bw, bat, mise, typst）。生成後に `zcompdump` を捨てて次回起動で作り直させる |
 
-apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ、補完生成はスクリプト内容のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
+apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。`run_once_` はスクリプト内容のハッシュ、`run_onchange_` は変更検知（mise は config.toml のハッシュ、それ以外はスクリプト内容のハッシュ）で実行要否を判定する。後から apt パッケージを追加したいときは、`run_once_after_05-apt-packages.sh` を手動実行するか直接 `apt install` する。
+
+鍵が既に正しく置かれているマシンでは、01/02 は [scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) の判定で何もせず抜ける（bw の導入もログインの催促もしない）。判定条件は [.chezmoiignore](.chezmoiignore) と同じ。
 
 `README.md` は [.chezmoiignore](.chezmoiignore) でリポジトリには置くが `$HOME` には展開しない。
 
 ## SSH 鍵（Bitwarden 連携）
 
-SSH 鍵は Bitwarden に **SSH Key item** 1件として保存し、`chezmoi apply` 時に取得して `~/.ssh/` へ展開する。1つの鍵を認証と git 署名の両方に使う。リポジトリには鍵そのものも暗号化済みの鍵も置かず、取得テンプレートだけが入る。全マシンで同じ鍵を共有する（マシンごとの鍵生成はしない）。
+**秘密鍵**は Bitwarden の **SSH Key item** 1件に保存し、`chezmoi apply` 時に取得して `~/.ssh/` へ展開する。1つの鍵を認証と git 署名の両方に使う。リポジトリには秘密鍵そのものも暗号化済みの秘密鍵も置かず、取得テンプレートだけが入る。全マシンで同じ鍵を共有する（マシンごとの鍵生成はしない）。**公開鍵は秘密ではない**ので平文でリポジトリに置く。
 
 | ファイル | 展開先 | パーミッション | 用途 |
 | --- | --- | --- | --- |
-| [private_dot_ssh/private_id_ed25519.tmpl](private_dot_ssh/private_id_ed25519.tmpl) | `~/.ssh/id_ed25519` | 0600 | 秘密鍵（認証 + 署名） |
-| [private_dot_ssh/id_ed25519.pub.tmpl](private_dot_ssh/id_ed25519.pub.tmpl) | `~/.ssh/id_ed25519.pub` | 0644 | 公開鍵（git の `signingKey` が参照） |
+| [private_dot_ssh/private_id_ed25519.tmpl](private_dot_ssh/private_id_ed25519.tmpl) | `~/.ssh/id_ed25519` | 0600 | 秘密鍵（認証 + 署名）。Bitwarden から取得 |
+| [private_dot_ssh/id_ed25519.pub](private_dot_ssh/id_ed25519.pub) | `~/.ssh/id_ed25519.pub` | 0644 | 公開鍵（git の `signingKey` が参照）。平文 |
+| [private_dot_ssh/private_config](private_dot_ssh/private_config) | `~/.ssh/config` | 0600 | ssh クライアント設定 |
+| [private_dot_ssh/private_known_hosts.chezmoi](private_dot_ssh/private_known_hosts.chezmoi) | `~/.ssh/known_hosts.chezmoi` | 0600 | GitHub のホスト鍵（初回 push の TOFU 確認を出さないため） |
 
-Bitwarden の SSH Key item（名前 `github`）を **item ID で**指定して取得する（`github` という名前の item が複数あり、名前指定だと曖昧になるため）。テンプレートは `{{ (bitwarden "item" "<item-id>").sshKey.privateKey }}` / `.sshKey.publicKey` で鍵本体を取り出す。git の署名鍵は [git config](dot_config/git/config) で `~/.ssh/id_ed25519.pub` を指している。`bw` CLI は初回は [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`bitwarden`）で管理する。
+公開鍵を平文で持つのは、**鍵の期待値の出典を1箇所にする**ため。[.chezmoiignore](.chezmoiignore) はこのファイルからフィンガープリントを都度導出して「ローカルの鍵が期待どおりか」を判定し、[allowed_signers](dot_config/git/allowed_signers.tmpl) もこのファイルを `include` する。鍵をローテーションするときに差し替えるのはこの1ファイルだけでよく、フィンガープリントを別途書き写す必要がない。ついでに公開鍵の取得で `bw` を呼ばなくなる。
+
+Bitwarden の SSH Key item（名前 `github`）を **item ID で**指定して取得する（`github` という名前の item が複数あり、名前指定だと曖昧になるため）。テンプレートは `{{ (bitwarden "item" "<item-id>").sshKey.privateKey }}` で鍵本体を取り出す。git の署名鍵は [git config](dot_config/git/config) で `~/.ssh/id_ed25519.pub` を指している。`bw` CLI は初回は [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) が公式バイナリで先行導入し、以降は mise（`bitwarden`）で管理する。
+
+### ssh クライアント設定
+
+`~/.ssh/config` は管理下にあるが、このリポジトリは public なので**マシン固有・非公開のホスト（研究室や社内のホスト名・IP・ユーザー名）は書かない**。それらは `~/.ssh/config.d/*.conf` に置き、管理下の `config` が先頭で `Include` する（glob なのでファイルが無いマシンでもエラーにならない）。ssh は「最初に見つかった値」を採用するため、上書きしたい定義を先に読ませる必要がある。
+
+`~/.ssh/known_hosts.chezmoi` には GitHub の公開ホスト鍵を入れて、`UserKnownHostsFile` の2番目として渡している（1番目の `~/.ssh/known_hosts` が書き込み先）。これで新規マシンの初回 push でホスト鍵の確認プロンプトが出ない。更新は `curl -fsS https://api.github.com/meta | jq -r .ssh_keys[]`。
+
+> **既存マシンでの注意**: `~/.ssh/config` が管理下に入ったので、`chezmoi apply` は既存の `~/.ssh/config` を**上書きする**。ローカルにホスト定義があるマシンでは、apply する前に退避しておく:
+>
+> ```sh
+> mkdir -p ~/.ssh/config.d && chmod 700 ~/.ssh/config.d
+> cp ~/.ssh/config ~/.ssh/config.d/local.conf && chmod 600 ~/.ssh/config.d/local.conf
+> chezmoi diff ~/.ssh/config   # 上書き内容を確認してから
+> chezmoi apply
+> ```
 
 > ファイル展開（テンプレート評価）は `run_after_` スクリプトより前に走るため、`bw` の導入を `run_before_` に置いている。これにより初回ワンライナーでも鍵テンプレートが解決できる。
 
@@ -63,7 +85,7 @@ Bitwarden の SSH Key item（名前 `github`）を **item ID で**指定して�
 
 > **ログインだけは無人化できない**。`bw login` は認証情報（メール+マスターパスワード、または API キー）を必要とし、それを public リポジトリに置けないため。上記はあくまで「適切なタイミングで自動的に入力を促す」もので、入力そのものは対話になる。非対話で済ませたい場合（CI など）は `BW_CLIENTID` / `BW_CLIENTSECRET` を環境変数に設定して `bw login --apikey` を使う方法があるが、API キーの取り扱いに注意。
 
-鍵が既に正しく配置済み（ローカルの公開鍵フィンガープリントが [.chezmoiignore](.chezmoiignore) の期待値と一致）のときは、鍵を管理対象から外して bw 呼び出し自体を抑止しているので、通常の `chezmoi apply` ではログインもアンロックも走らない。鍵を新しいマシンに増やしたいときは、Bitwarden の Web/アプリで対応する SSH Key item を作っておけばよい。
+鍵が既に正しく配置済み（ローカルの鍵のフィンガープリントがリポジトリの公開鍵と一致）のときは、[.chezmoiignore](.chezmoiignore) が鍵を管理対象から外し、[scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) が 01/02 を空振りさせるので、通常の `chezmoi apply` では bw の導入・ログイン・アンロックのいずれも走らない。鍵を新しいマシンに増やしたいときは、Bitwarden の Web/アプリで対応する SSH Key item を作っておけばよい。
 
 ## 日常の操作
 
@@ -86,23 +108,55 @@ chezmoi git -- commit -m "..."
 chezmoi git -- push
 ```
 
+### 秘密情報を commit しないための歯止め
+
+[chezmoi.toml](.chezmoi.toml.tmpl) で `git.autoCommit` / `autoPush` を有効にしているので、**ソースに入ったものは即座に public リポジトリへ出る**。例えば（鍵がまだ一致していないマシンで）`chezmoi add ~/.ssh/id_ed25519` を打つと、平文の秘密鍵がそのまま push される。
+
+そこで [scripts/check-secrets.sh](scripts/check-secrets.sh) が秘密鍵・トークン類のパターンを検査し、[.githooks/pre-commit](.githooks/pre-commit) が commit を止める。フックは clone しただけでは有効にならないので、[run_onchange_after_20-git-hooks.sh](run_onchange_after_20-git-hooks.sh) が `core.hooksPath` を設定する。CI では追跡中の全ファイルと**全履歴の blob** に対して同じ検査を走らせる。
+
+```sh
+bash scripts/check-secrets.sh --staged    # pre-commit と同じ検査
+bash scripts/check-secrets.sh --tracked   # 追跡中の全ファイル
+bash scripts/check-secrets.sh --history   # 全コミットの全 blob
+```
+
+誤検知したときは `--no-verify` で抜けるのではなく、スクリプトの `PATTERNS` を直す。
+
 ## CI/CD
 
-GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `main`・`master` への push / 手動実行時に dotfiles を検証する。内容は shell script lint、chezmoi テンプレート展開、TOML/YAML 構文チェック。秘密鍵テンプレートは Bitwarden 認証が必要なため、CI では直接 `chezmoi apply` せず、認証不要なテンプレートだけを検証する。
+GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `main`・`master` への push / 手動実行時に検証する。ジョブは2つ:
+
+| ジョブ | 内容 |
+| --- | --- |
+| `validate` | shellcheck（`*.sh` と hook）、`zsh -n`（zsh 設定と sheldon の inline スニペット）、actionlint、秘密情報スキャン、chezmoi テンプレート展開、TOML/YAML 構文、git config と allowed_signers の検証 |
+| `bootstrap` | 素の `ubuntu:24.04` コンテナで README のワンライナーと同じ経路（`chezmoi init --apply` → `run_once_*` → `run_onchange_*`）を実際に流し、展開結果・ログインシェル・対話 zsh の起動・生成物を検証する |
+
+`bootstrap` が秘密情報なしで通るのは `CI=true` のとき [.chezmoiignore](.chezmoiignore) が鍵を無視し、[scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) が bw 関連スクリプトを空振りさせるため。**CI では mise はシェル起動に必要なツールだけを入れる**（rust / node / neovim まで入れると 30 分を超えるため。対象は [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) 参照）。
+
+lint は同じものをローカルでも回せる（`shellcheck` と `actionlint` は mise 管理）:
+
+```sh
+shellcheck -e SC1091 run_once_*.sh run_onchange_*.sh* scripts/*.sh .githooks/*
+zsh -n dot_zshenv dot_config/zsh/dot_zshenv dot_config/zsh/dot_zshrc
+actionlint
+```
 
 ## 構成
 
 | パス | 内容 |
 | --- | --- |
 | [dot_zshenv](dot_zshenv) | `ZDOTDIR` を宣言して `$ZDOTDIR/.zshenv` を source するだけの stub（`$HOME` に置く必要がある唯一の zsh ファイル） |
-| [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`） |
+| [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`）。`EDITOR` / `VISUAL` の定義もここ |
 | [dot_config/mise/config.toml](dot_config/mise/config.toml) | mise が管理する開発ツール一覧 |
-| [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)） |
+| [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)）。読み込み順の約束はファイル冒頭のコメント参照 |
 | [dot_config/zeno/config.yml](dot_config/zeno/config.yml) | [zeno.zsh](https://github.com/yuki-yano/zeno.zsh) のスニペット |
-| [dot_config/git/](dot_config/git/) | git 設定 |
+| [dot_config/git/](dot_config/git/) | git 設定（`config` / `ignore` / ssh 署名の `allowed_signers`） |
+| [dot_config/jj/config.toml](dot_config/jj/config.toml) | [jujutsu](https://jj-vcs.github.io/jj/) の設定。jj は git の設定を読まないので別に要る |
 | [dot_config/npm/](dot_config/npm/), [dot_config/pnpm/](dot_config/pnpm/) | Node パッケージマネージャ設定 |
-| `run_once_after_*` / `run_onchange_after_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
-| [scripts/](scripts/) | `apply` の経路に載せない手動実行用スクリプト（sudo が必要な一度きりの移行など）。`docs/` と同様 `$HOME` には展開しない |
+| [private_dot_ssh/](private_dot_ssh/) | ssh 鍵・クライアント設定・GitHub のホスト鍵（[SSH 鍵](#ssh-鍵bitwarden-連携)参照） |
+| `run_once_*` / `run_onchange_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
+| [scripts/](scripts/) | `$HOME` に展開しないスクリプト。手動実行用（`revert-etc-zshenv.sh`）と、`apply` や CI・hook から呼ぶ共有ヘルパー（`needs-bitwarden.sh` / `check-secrets.sh`） |
+| [.githooks/](.githooks/) | ソースリポジトリの git hook。`.` 始まりなので chezmoi は `$HOME` に展開しない |
 
 ### ZDOTDIR を `~/.zshenv` で宣言する理由
 
@@ -111,6 +165,24 @@ zsh は `ZDOTDIR` 未設定なら `$HOME` を `ZDOTDIR` とみなすため、`~/
 以前は `/etc/zsh/zshenv` に `ZDOTDIR` を追記していたが、やめた。あのファイルは root を含む全ユーザーの全 zsh 起動（非対話スクリプトも）で読まれ、`zsh -f` 以外では読み込みを止められない（`NO_GLOBAL_RCS` が効くのは `zprofile` 以降）。そこに個人の `$HOME` を絶対パスで焼き込むと `sudo zsh` した root が他人の設定を読む。加えて sudo が必要で chezmoi の管理外（`chezmoi diff` に出ない）になり、zsh 更新時に conffile の競合を起こす。
 
 **既存マシンの移行**: 以前の追記が残っていると `/etc` 側が先に `ZDOTDIR` を設定するので `~/.zshenv` は読まれない（挙動は変わらないが root への影響も消えない）。1度だけ `/etc/zsh/zshenv` を元に戻す必要がある。[scripts/revert-etc-zshenv.sh](scripts/revert-etc-zshenv.sh) を実行すれば一括で済む（`--dry-run` で差分確認可、何度実行しても安全）。背景・手動手順・復元方法は [docs/migration-etc-zshenv-to-home-zshenv.md](docs/migration-etc-zshenv-to-home-zshenv.md)。新規マシンでは不要。
+
+## zsh の起動
+
+`update` 関数（[.zshrc](dot_config/zsh/dot_zshrc)）で apt / mise / sheldon / dotfiles をまとめて更新する。sheldon のプラグインは `plugins.lock` に固定されるので、`sheldon lock --update` を通さないと古いままになる。ツールが入れ替わると生成物（starship の init 出力・補完ダンプ）が古くなるため、`update` はそれらのキャッシュも捨てる。
+
+起動時間は `hyperfine -w 5 -r 50 'zsh -i -c exit'`（zeno スニペット `benchmark`）で測る。現状は約 **104ms**。プロンプト表示に間に合わせる必要のない処理は [zsh-defer](https://github.com/romkatv/zsh-defer) に回している:
+
+| 処理 | 扱い | 理由 |
+| --- | --- | --- |
+| `warn_dirty` | defer | chezmoi + git の2プロセスで約 60ms |
+| keychain / ssh-agent | defer | プロンプト表示に不要 |
+| `compinit` | defer | 約 30ms。**fpath を広げるプラグインより後**に走らせる必要がある |
+| `zoxide init` | defer | `z` を打つまでに間に合えばよい |
+| `starship init` | キャッシュ | プロンプトなので defer できない。出力を `$XDG_CACHE_HOME/zsh/starship-init.zsh` に保存 |
+| `mise completion` | 静的生成 | 毎起動の subprocess をやめ、補完ファイルとして `fpath` に置く |
+| `bindkey` | defer | widget を定義するプラグイン（zeno / autosuggestions）が defer なので、即時に張ると読み込み前の入力が `No such widget` で捨てられる |
+
+`apply = ["defer"]` は **inline プラグインには効かない**（テンプレートは `files` を展開するためのもの）。inline を遅延したいときは自分で `zsh-defer` を書く。読み込み順の約束は [plugins.toml](dot_config/sheldon/plugins.toml) 冒頭のコメントにまとめてある。
 
 ## ツールの追加・更新
 
@@ -121,4 +193,6 @@ mise use -g <tool>   # config.toml に追記してインストール
 mise upgrade         # 更新
 ```
 
-zsh 補完を静的生成したい CLI は [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) に `gen <name> <command...>` を追加する。生成先は `~/.local/share/zsh/completions` で、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録している。`mise` と `zoxide` は sheldon 側で動的に初期化しているため、このスクリプトでは生成しない。
+バージョンは基本 `latest` だが、**言語ランタイム（node / deno）はメジャーを固定**している。無言のメジャー更新で壊れるのはプロジェクト側なので、上げるときは明示的に上げる。CLI が壊れるのは安くて気付けるので `latest` のままにしている。mise の lockfile（`mise.lock`）はプロジェクト設定用で、グローバル設定の `[tools]` は対象外（mise 2026.8.3 で `mise lock` が `No tools configured to lock` を返す）。
+
+zsh 補完を静的生成したい CLI は [run_onchange_after_40-zsh-completions.sh](run_onchange_after_40-zsh-completions.sh) に `gen <name> <command...>` を追加する。生成先は `~/.local/share/zsh/completions` で、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録している。`zoxide` は sheldon 側で動的に初期化しているため、このスクリプトでは生成しない。
