@@ -8,7 +8,10 @@ COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
 mkdir -p "$COMP_DIR"
 
 # gen <name> <補完を zsh 用に出力するコマンド...>
-# グローバルに置きたくないツールは `mise exec <tool>@<ver> --` 経由で呼ぶ。
+# 対象は mise 管理のツール（PATH 上の shim を呼ぶ）。`mise exec <tool>@latest --` は
+# 使わない。lock を素通りして未固定の版を毎回ダウンロードするうえ、config.toml に
+# 無いツールは 30-mise-install の `mise prune` が消すので、消しては落とし直す往復に
+# なる。補完が欲しいツールは config.toml に入れて lock に載せること。
 gen() {
   name="$1"
   shift
@@ -30,13 +33,13 @@ gen jj jj util completion zsh
 gen zellij zellij setup --generate-completion zsh
 gen bw env BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" bw completion --shell zsh
 gen bat bat --completion zsh
+gen typst typst completions zsh
 
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 if [ -x "$MISE" ]; then
   # mise 自身の補完は静的に置く。毎起動 `mise completion zsh` を eval すると
   # subprocess 1回分（実測 約30ms）が起動時間に乗る。
   gen mise "$MISE" completion zsh
-  gen typst "$MISE" exec typst@latest -- typst completions zsh
 else
   printf "mise is not installed. Skipping mise-managed completions...\n"
 fi
