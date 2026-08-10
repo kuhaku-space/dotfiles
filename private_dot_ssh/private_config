@@ -1,0 +1,29 @@
+# ssh クライアント設定。
+#
+# このリポジトリは public なので、マシン固有・非公開のホスト（研究室や社内の
+# ホスト名・IP・ユーザー名）はここに書かず ~/.ssh/config.d/*.conf に置く。
+# glob なので、該当ファイルが無いマシンでもエラーにならない。
+#
+# ssh は「最初に見つかった値」を採用するため、上書きしたいホスト定義を先に
+# 読ませる必要がある。Include は必ず先頭に置く。
+Include ~/.ssh/config.d/*.conf
+
+Host github.com
+	User git
+	IdentityFile ~/.ssh/id_ed25519
+	# 他の鍵を順に試して "Too many authentication failures" になるのを防ぐ。
+	IdentitiesOnly yes
+
+Host *
+	# ssh-agent に鍵を自動で登録する（keychain と併用しても害はない）。
+	AddKeysToAgent yes
+	# 接続を維持して、多段の git push などで再接続コストを払わない。
+	ControlMaster auto
+	ControlPath ~/.ssh/control/%C
+	ControlPersist 10m
+	# 切れた接続を掴んだままにしない。
+	ServerAliveInterval 60
+	ServerAliveCountMax 3
+	# 1つ目が書き込み先、2つ目はリポジトリが配布する既知ホスト鍵（github）。
+	# これにより新規マシンの初回 push で TOFU の確認プロンプトが出ない。
+	UserKnownHostsFile ~/.ssh/known_hosts ~/.ssh/known_hosts.chezmoi

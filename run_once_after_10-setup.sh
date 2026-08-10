@@ -46,6 +46,10 @@ set -u
 
 printf "\e[1;36mMake directories\e[m\n"
 mkdir -p "$HOME/.local/state/zsh" "$HOME/.cache/zsh"
+# ssh は ControlPath のディレクトリを自分では作らない。config.d は Include 用
+# （マシン固有・非公開のホスト定義を置く場所。~/.ssh/config 参照）。
+mkdir -p "$HOME/.ssh/control" "$HOME/.ssh/config.d"
+chmod 700 "$HOME/.ssh/control" "$HOME/.ssh/config.d"
 
 printf "\e[1;36mInstall mise\e[m\n"
 # .zshenv は既に source 済みなので $HOME/.local/bin は PATH 上にある

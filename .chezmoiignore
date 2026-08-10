@@ -3,28 +3,44 @@ docs/
 scripts/
 
 {{/*
-  SSH 鍵は Bitwarden から取得するため、テンプレート評価のたびに bw の
-  アンロック（マスターパスワード入力）を要求してしまう。鍵は一度正しく
-  配置すれば変わらないので、ローカルの ~/.ssh/id_ed25519 の公開鍵
-  フィンガープリントが下記の期待値と一致する場合は鍵を管理対象から外し、
-  bw を呼ばない（＝パスワードを求められない）ようにする。
+  get.chezmoi.io のインストーラは -b を付けないと ./bin に chezmoi 本体を置く。
+  ソースディレクトリ内で実行するとそれが管理対象（→ ~/bin/chezmoi）になってしまう
+  ので、念のため無視する。chezmoi 本体は mise が管理している。
+*/ -}}
+bin/
+
+{{/*
+  CI では Bitwarden の認証（ログイン・アンロック）ができないので、鍵は展開しない。
+  これがあるおかげで bootstrap の smoke test（.github/workflows/ci-cd.yml）が
+  秘密情報なしで `chezmoi init --apply` を通せる。
+*/ -}}
+{{- if env "CI" }}
+.ssh/id_ed25519
+.ssh/id_ed25519.pub
+{{- else }}
+{{/*
+  秘密鍵は Bitwarden から取得するため、テンプレート評価のたびに bw のアンロック
+  （マスターパスワード入力）を要求してしまう。鍵は一度正しく配置すれば変わらないので、
+  ローカルの ~/.ssh/id_ed25519 が期待する鍵と同じなら管理対象から外し、bw を
+  呼ばない（＝パスワードを求められない）ようにする。
 
   鍵が未配置・古い・壊れている場合のみ管理対象に含め、bw から取り直す。
 
-  鍵をローテーションした（Bitwarden 側の鍵を差し替えた）ときは、下記
-  $expectedFp も新しい公開鍵フィンガープリントに更新すること。古い値の
-  ままだと新しい鍵が「不一致」扱いになり、apply のたびに bw を呼んで
-  しまう。現在の値は次で確認できる: ssh-keygen -lf ~/.ssh/id_ed25519
-
-  期待値（公開鍵 SHA256 フィンガープリント。公開情報なので平文で持つ）:
+  期待値はリポジトリ内の公開鍵 private_dot_ssh/id_ed25519.pub から都度導出する。
+  公開鍵は秘密ではないので平文で持てる。こうしておくと鍵をローテーションしたときに
+  更新する場所が公開鍵1ファイルだけになる（フィンガープリントを別途書かない）。
 */ -}}
-{{- $expectedFp := "SHA256:XpYFK7UnRY1p5mcnFMHQzfCmUPPs+7WwHYDad4LT7gg" -}}
+{{- $pubPath := joinPath .chezmoi.sourceDir "private_dot_ssh/id_ed25519.pub" -}}
+{{- $expectedFp := "" -}}
+{{- if stat $pubPath -}}
+{{-   $expectedFp = (output "ssh-keygen" "-lf" $pubPath | regexFind "SHA256:[^ ]+") -}}
+{{- end -}}
 {{- $keyPath := joinPath .chezmoi.homeDir ".ssh/id_ed25519" -}}
 {{- $localFp := "" -}}
 {{- if stat $keyPath -}}
 {{-   $localFp = (output "ssh-keygen" "-lf" $keyPath | regexFind "SHA256:[^ ]+") -}}
 {{- end -}}
-{{- if eq $localFp $expectedFp }}
+{{- if and $expectedFp (eq $localFp $expectedFp) }}
 .ssh/id_ed25519
-.ssh/id_ed25519.pub
+{{- end }}
 {{- end }}
