@@ -1,32 +1,12 @@
 #!/usr/bin/env bash
-# mise 管理ツールの zsh 補完を生成して fpath 配下（~/.local/share/zsh/completions）に置く。
+# mise 管理ツールの zsh 補完を生成して ~/.local/share/zsh/completions に置く。
+# 呼ぶのは mise の postinstall hook と run_onchange_after_40（apply 時の担保）。
+# 設計と経緯は README の「zsh 補完」節。
 #
-# 呼ばれ方は2つある。
-#   1. mise の postinstall hook（dot_config/mise/config.toml）
-#      ツールが入った／上がった瞬間に走る。これが本命で、これがあるので補完が
-#      実行ファイルより古くなることがない。以前は補完の再生成が
-#      run_onchange_after_40 の内容ハッシュでしか起きず、mise upgrade したあと
-#      「実行ファイルは新しいのに補完は古い」状態が次の編集まで残っていた。
-#   2. run_onchange_after_40-zsh-completions.sh.tmpl（apply 時の保証）
-#      全ツールが既に入っていると mise install は何もせず hook も発火しないので、
-#      補完が無い状態（新規マシンの2回目以降の apply、ファイルを消した後）を
-#      こちらで拾う。
+# インストール済みのツールだけを対象にし、入っていないものは生成済みでも消す。
+# 版ごとの記録（$STAMP）を持ち、版が変わったツールだけ作り直す（全部だと約1.9秒）。
 #
-# 補完を置くのは**そのツールが実際にインストールされているときだけ**。入っていない
-# ものは（前に生成した分があれば）消す。置いたままにすると、存在しないコマンドで
-# TAB が候補を出してしまう。判定は mise ls --current で、shim の有無では見ない
-# （shim は config から外した後も残る）。
-#
-# 版ごとの記録（$STAMP）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと
-# 約1.9秒かかり、その 88% は bw（141MB のバイナリで単体 1.7 秒）が占める。hook は
-# 無関係なプロジェクトでの mise install でも発火するので、1ツールの更新に毎回
-# 1.9秒払うのは重すぎる。
-#
-# 補完を追加したいときは NAMES / emit() / mise_tool() に足す。対象は config.toml に
-# 載っている mise 管理ツールだけにすること（理由は 40 のコメント）。
-#
-# 手で叩いてもよい:
-#   refresh-zsh-completions          変化のあったものだけ作り直す
+#   refresh-zsh-completions          変化のあったものだけ
 #   refresh-zsh-completions --force  全部作り直す
 set -eu
 
@@ -34,8 +14,8 @@ COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
 STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/completions.stamp"
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 
-# hook から呼ばれるので、この中の mise 呼び出しで hook が再帰しないようにする。
-# shim 経由のツール呼び出しは、未インストールなら mise が自動インストールしうる。
+# hook から呼ばれるので、この中の mise 呼び出し（shim 経由は自動インストールを
+# 伴うことがある）で hook が再帰しないようにする。
 export MISE_NO_HOOKS=1
 
 FORCE=0
@@ -48,19 +28,14 @@ case "${1:-}" in
     ;;
 esac
 
-# 生成対象。ファイル名は _<name> になる。
-# typst のようにグローバル設定へ載せていないツールも入れてよい。入っていれば補完を
-# 作り、入っていなければ作らない（消す）だけなので、config.toml に足す必要はない。
+# 生成対象。ファイル名は _<name> になる。入っていれば作り、入っていなければ消すだけ
+# なので、config.toml に載せていないツール（typst）を並べてよい。
 NAMES=(chezmoi gh deno jj zellij bw bat typst mise)
 
 # emit <name> <version>: 補完スクリプトを stdout へ出す。
-# ツールごとにサブコマンドが違うだけなので case で持つ（eval は使わない）。
-#
-# 呼び出しは shim ではなく `mise exec <tool>@<version> --` を通す。shim は現在の
-# ディレクトリで版が解決できないと "No version is set for shim" で失敗するので、
-# プロジェクトの mise.toml にだけあるツールを $HOME から呼べない。版を明示するので
-# レジストリ参照も走らない（`@latest` は使わない。lock 外のダウンロードになる）。
-# 実測ではオーバーヘッドも無い（bat で shim 直 50ms に対し mise exec 42ms）。
+# shim ではなく `mise exec <tool>@<version> --` を通す。shim は CWD で版が解決できない
+# と失敗するので、プロジェクトの mise.toml にだけあるツールを $HOME から呼べない。
+# 版は明示する（@latest は lock 外のダウンロードになる）。
 emit() {
   local name="$1" version="$2" tool
   tool="$(mise_tool "$name")"
@@ -101,19 +76,12 @@ comp_files() {
 
 mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
 
-# 版一覧は mise を1回だけ叩いて使い回す（約20ms）。
-#
-# --installed を使う。--current だと「そのディレクトリで有効なツール」しか出ないため、
-# プロジェクトの mise.toml だけに書かれたツール（グローバル設定に載せたくないもの。
-# 例: typst）を拾えず、しかも CWD 依存になる。hook は mise install を叩いた
-# ディレクトリで走るのに 40 は $HOME 相当で走るので、--current だと同じマシンで
-# 「プロジェクト内で生成 → $HOME で削除」を往復し続けることになる。
-# --installed は CWD に依らず、実際に入っている版だけを返す（未インストールの
-# "(missing)" 行も出ない）。
+# 版一覧は mise を1回だけ叩いて使い回す。--installed は CWD に依らず実際に入っている
+# 版だけを返す。--current だとそのディレクトリで有効なツールしか出ないため、hook
+# （プロジェクト内で走る）と 40（$HOME で走る）で結果が食い違い、生成と削除を往復する。
 #
 # mise が使えないときは何も触らずに抜ける。この後の判定は「mise が知らないツールは
-# 未インストール」とみなすので、mise が壊れている状態で走らせると全部の補完を
-# 消してしまう。
+# 未インストール」とみなすので、そのまま進むと全部の補完を消してしまう。
 if ! MISE_LS="$("$MISE" ls --installed --no-header 2>/dev/null)"; then
   printf 'mise is not usable; leaving existing completions untouched.\n' >&2
   exit 0
@@ -121,12 +89,8 @@ fi
 MISE_OWN="$("$MISE" --version 2>/dev/null | awk '{ print $1 }' || true)"
 
 # version_of <name>: インストール済みならその版、そうでなければ空を返す。
-#
-# 判定に command -v は使えない。mise の shim は対象ツールを config から外した後も
-# 残るので（実測: shim 101 個に対し現在のツールは 20 個、外した typst の shim も
-# 残っていた）、shim があってもインストール済みを意味しない。
-#
-# 同じツールの複数版が入っている場合は最後の行＝最新を採る（mise は昇順に並べる）。
+# command -v では判定できない。mise の shim は config から外した後も残るので、
+# あってもインストール済みを意味しない。複数版あるときは最後の行＝最新（mise は昇順）。
 version_of() {
   local tool
   tool="$(mise_tool "$1")"
@@ -138,11 +102,9 @@ version_of() {
     awk -v t="$tool" '$1 == t { v = $2 } END { if (v != "") print v }'
 }
 
-# $STAMP の各行は "<name>\t<version>\t<ok|skip>"。インストール済みのツールだけが載る。
-# ok   = その版で生成に成功した
-# skip = インストール済みなのに生成に失敗した（補完サブコマンドが変わった等）。
-#        版が変わるまで再試行しない。こうしないと、失敗するツールが1つあるだけで
-#        毎回生成を走らせることになる。
+# $STAMP の各行は "<name>\t<version>\t<ok|skip>"（インストール済みのものだけが載る）。
+# skip = その版では生成に失敗した。版が変わるまで再試行しない。こうしないと、失敗する
+# ツールが1つあるだけで毎回生成が走る。
 stamp_field() {
   [ -r "$STAMP" ] || return 0
   awk -F'\t' -v n="$1" -v f="$2" '$1 == n { print $f; exit }' "$STAMP"
@@ -163,10 +125,8 @@ announce() {
 for name in "${NAMES[@]}"; do
   version="$(version_of "$name")"
 
-  # インストールされていないツールの補完は有効にしない。置いたままにすると、
-  # 存在しないコマンドで TAB が候補を出す（config.toml から外した後、まだ
-  # そのマシンに入っていない段階、そのツールを使わないマシン）。
-  # stamp に行を残さないので、後で入れ直したら作り直される。
+  # 未インストールなら消す。残すと存在しないコマンドで TAB が候補を出す。
+  # stamp に行を残さないので、後で入れ直せば作り直される。
   if [ -z "$version" ]; then
     if [ -e "$COMP_DIR/_$name" ]; then
       announce
@@ -208,13 +168,10 @@ done
 mv "$NEW_STAMP" "$STAMP"
 trap - EXIT
 
-# 補完ファイルの集合が変わったときだけ zcompdump を捨てる。
-#
-# 内容だけが変わった場合は捨てない。zcompdump が持つのは command → 補完関数の
-# 対応表で、関数本体は fpath から遅延 autoload されるため古くならない。捨てると
-# 次の compinit が 36ms → 216ms に伸びるだけ（実測）。
-# 集合が変わった場合、compinit はダンプ1行目の #files と実際の数を照合して自分で
-# 作り直すが、同数のまま入れ替わると気付けないので、ここで確実に捨てる。
+# 補完ファイルの集合が変わったときだけ zcompdump を捨てる。内容だけの変化では捨てない
+# （持っているのは command → 補完関数の対応表だけで、関数本体は fpath から遅延
+# autoload されるため古くならない）。compinit 自身の #files 照合は、同数のまま
+# 入れ替わると気付けないので、ここで捨てる。
 if [ "$BEFORE" != "$(comp_files)" ]; then
   rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
   printf "  completion files changed; dropped stale zcompdump\n"

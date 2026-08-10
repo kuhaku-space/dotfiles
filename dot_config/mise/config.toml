@@ -8,16 +8,10 @@
 lockfile = true
 
 [hooks]
-# ツールが入った／上がった直後に zsh 補完を作り直す。
-#
-# これが無いと補完の再生成は run_onchange_after_40 の内容ハッシュでしか起きず、
-# `mise upgrade` したあと「実行ファイルは新しいのに補完は古い」状態が次にその
-# スクリプトを編集するまで残る。バージョンマネージャとシェル補完の間に空く隙間を、
-# mise 側のフックで閉じる。
-#
-# postinstall は実際に何かが入ったときだけ発火する（更新が無ければ走らない）ので、
-# 無駄打ちしない。スクリプト側も版が変わっていなければ約20msで抜ける。
-# フックのコマンドが無い場合は mise が WARN を出すだけで install は成功する。
+# ツールが入った／上がった直後に zsh 補完を作り直す。これが無いと再生成は
+# run_onchange_after_40 の内容ハッシュでしか起きず、`mise upgrade` のあと補完だけ
+# 古いまま残る。postinstall は実際に何か入ったときだけ発火し、コマンドが無い場合も
+# WARN が出るだけで install は成功する。
 postinstall = "~/.local/bin/refresh-zsh-completions"
 
 [tools]
@@ -47,18 +41,11 @@ actionlint = "latest"
 # rust と node と typst は意図的にここに置かない。版を固定したいのがプロジェクト側
 # なので、各リポジトリの mise 設定（または rustup）に任せる。
 #
-# rust: mise の core:rust は rustup を検出すると installs/rust を
-#   $CARGO_HOME/bin への symlink にするだけで、実体は rustup が管理する。
-#   その上で RUSTUP_TOOLCHAIN を export するため、rustup の選択順で最強のこれが
-#   プロジェクトの rust-toolchain.toml を黙って上書きしてしまう。
-#   lock にも url/checksum が入らず（symlink なので記録するものが無い）、
-#   このファイル冒頭の再現性の話も rust には効いていなかった。
-# node: dotfiles 側に node 依存は無い（bw は aqua のネイティブバイナリ、
-#   claude は aqua:anthropics/claude-code、nvim の設定は未管理）。
-# typst: 2度足して2度外している（a1bbe35 → 800e007、および後の再発）。足したくなる
-#   動機は毎回「zsh 補完が欲しい」だが、補完のためにグローバルへ版を固定するのは
-#   関係が逆立ちしている。文書のビルドはプロジェクトごとに版を決めたいので、ここに
-#   置くと 800e007 で避けたはずの「グローバルの版がプロジェクトより強い」状態に戻る。
-#   補完だけなら ~/.local/bin/refresh-zsh-completions が面倒を見る。あれは
-#   `mise ls --installed` を見るので、プロジェクトの mise.toml で入れた typst でも
-#   補完を生成し、どこにも入っていなければ生成しない。ここに書く必要はない。
+# rust: core:rust は rustup を検出すると installs/rust を $CARGO_HOME/bin への
+#   symlink にした上で RUSTUP_TOOLCHAIN を export するため、プロジェクトの
+#   rust-toolchain.toml を黙って上書きする。lock にも url/checksum が入らない。
+# node: dotfiles 側に node 依存は無い（bw も claude も aqua のネイティブバイナリ）。
+# typst: 2度足して2度外している（a1bbe35 → 800e007、9aa7955 → 99d0ce5）。動機は毎回
+#   「zsh 補完が欲しい」だが、それは refresh-zsh-completions が面倒を見る（`mise ls
+#   --installed` を見るので、プロジェクトの mise.toml で入れた typst でも生成される）。
+#   ここに置くと、避けたはずの「グローバルの版がプロジェクトより強い」状態に戻る。
