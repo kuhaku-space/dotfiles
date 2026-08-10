@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+# ステージ済みの変更に秘密情報が混ざっていないか検査する。
+# core.hooksPath はこのディレクトリを指す（run_onchange_after_20-git-hooks.sh が設定）。
+set -euo pipefail
+
+root="$(git rev-parse --show-toplevel)"
+exec bash "$root/scripts/check-secrets.sh" --staged
