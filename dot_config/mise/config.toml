@@ -14,6 +14,16 @@ lockfile = true
 # WARN が出るだけで install は成功する。
 postinstall = "~/.local/bin/refresh-zsh-completions"
 
+[tool_alias]
+# claude を aqua から外す。aqua レジストリの anthropics/claude-code は base が
+# type: http（url なし）で、version_overrides 側で type: github_release に差し替える
+# 構成だが、mise 2026.8.4 の aqua backend はこの type 差し替えを反映せず url が空の
+# まま http backend に渡すため、全バージョンで "relative URL without a base" と言って
+# install が落ちる（mise.lock にも url = ".tar.gz" という壊れた行が記録される）。
+# GitHub Releases 直取りに寄せると checksum・attestation・SLSA provenance の
+# 検証込みで通る。aqua 側が直ったら "latest" に戻してよい。
+claude = "github:anthropics/claude-code"
+
 [tools]
 bat = "latest"
 deno = "latest"
@@ -27,7 +37,8 @@ neovim = "latest"
 starship = "latest"
 chezmoi = "latest"
 zoxide = "latest"
-claude = "latest"
+# アーカイブ内の実体が claude-code ではなく claude なので exe で教える
+claude = { version = "latest", exe = "claude" }
 usage = "latest"
 jujutsu = "latest"
 sheldon = "latest"
@@ -44,7 +55,7 @@ actionlint = "latest"
 # rust: core:rust は rustup を検出すると installs/rust を $CARGO_HOME/bin への
 #   symlink にした上で RUSTUP_TOOLCHAIN を export するため、プロジェクトの
 #   rust-toolchain.toml を黙って上書きする。lock にも url/checksum が入らない。
-# node: dotfiles 側に node 依存は無い（bw も claude も aqua のネイティブバイナリ）。
+# node: dotfiles 側に node 依存は無い（bw も claude も公式のネイティブバイナリ）。
 # typst: 2度足して2度外している（a1bbe35 → 800e007、9aa7955 → 99d0ce5）。動機は毎回
 #   「zsh 補完が欲しい」だが、それは refresh-zsh-completions が面倒を見る（`mise ls
 #   --installed` を見るので、プロジェクトの mise.toml で入れた typst でも生成される）。
