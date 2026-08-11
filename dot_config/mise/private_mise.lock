@@ -175,22 +175,32 @@ version = "2.1.226"
 backend = "aqua:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/linux-arm64/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
 
 [tools.claude."platforms.linux-arm64-musl"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/linux-arm64-musl/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
 
 [tools.claude."platforms.linux-x64"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/linux-x64/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
 
 [tools.claude."platforms.linux-x64-musl"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/linux-x64-musl/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
 
 [tools.claude."platforms.macos-arm64"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/darwin-arm64/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
 
 [tools.claude."platforms.macos-x64"]
-url = "https://storage.googleapis.com/claude-code-dist-86c565f3-f756-42ad-8dfa-d59b1c096819/claude-code-releases/2.1.226/darwin-x64/claude"
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".tar.gz"
+
+[tools.claude."platforms.windows-x64"]
+checksum = "sha256:3e59a330f12e9552fad2ad290bd470f54dc7a672643fff2dea6f9952b40622f2"
+url = ".zip"
 
 [[tools.deno]]
 version = "2.9.5"
