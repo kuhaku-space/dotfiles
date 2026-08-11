@@ -58,7 +58,12 @@ function update() {
 
   if command -v mise >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] mise\e[m"
-    mise self-update -y && mise upgrade && mise prune
+    # upgrade を -C "$HOME" でグローバル config に閉じる。付けないと update を
+    # 叩いた場所がプロジェクトの中だったときにそのツールまで上がり、lockfile =
+    # true なのでプロジェクト側にも mise.lock が生える（あそこは各リポジトリの
+    # 管理下なのでこちらから触りたくない）。$HOME に mise.toml は無いので、
+    # 読まれるのは ~/.config/mise/config.toml だけになる。
+    mise self-update -y && mise upgrade -C "$HOME" && mise prune
 
     # mise.lock は $HOME 側で書き換わる生成物なので、更新後にソースへ取り込む。
     # 取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。
