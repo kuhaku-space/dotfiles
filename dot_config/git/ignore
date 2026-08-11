@@ -1,2 +1,9 @@
 **/.claude/settings.local.json
 mise.local.toml
+
+# グローバル設定が lockfile = true なので、プロジェクトの中で mise を叩くとその
+# リポジトリにも mise.lock が生える。lock を読ませる利点（版の固定と checksum
+# 検証）は残したいので生成は止めず、追跡だけしない。既に mise.lock を commit
+# している repo は追跡済みなので影響を受けない。
+# dotfiles 側の lock はソースでは private_mise.lock という名前なので一致しない。
+mise.lock
