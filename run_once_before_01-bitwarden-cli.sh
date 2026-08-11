@@ -70,7 +70,10 @@ fi
 # ここで確保してしまう。apt が無い環境では従来どおり手動導入を促す。
 if ! command -v unzip >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
   printf "Installing unzip (required to extract bw)\n"
-  sudo apt-get update -qq && sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq unzip || true
+  # 入れられなくても直後のチェックで手動導入を促すので、ここでは落とさない。
+  if sudo apt-get update -qq; then
+    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq unzip || true
+  fi
 fi
 if ! command -v unzip >/dev/null 2>&1; then
   printf "unzip is required to extract bw but is not installed.\n" >&2
