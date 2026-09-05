@@ -48,7 +48,9 @@ function update() {
   fi
 
   echo -e "\e[1;36m[update] drop generated zsh caches\e[m"
-  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
+  rm -f \
+    "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/atuin-init.zsh" \
+    "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
 }
 
 function clip() {
@@ -91,4 +93,4 @@ setopt inc_append_history
 setopt nonomatch
 
 zsh-defer -c "bindkey '^ ' autosuggest-accept"
-zsh-defer -c "bindkey ' ' zeno-auto-snippet; bindkey '^]' zeno-ghq-cd; bindkey '^r' zeno-history-selection; bindkey '^x' zeno-insert-snippet"
+zsh-defer -c "bindkey ' ' zeno-auto-snippet; bindkey '^]' zeno-ghq-cd; bindkey '^x' zeno-insert-snippet"

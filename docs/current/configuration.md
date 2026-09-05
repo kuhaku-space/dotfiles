@@ -92,7 +92,7 @@ miseをactivateした親プロセスからVS CodeなどがPATH先頭にhelperを
 
 SSH agent初期化はprompt後へ遅延する。`ssh-add -l` の終了コード0は鍵あり、1は既存agentに鍵なし、その他はagent接続不可として扱う。既存のdesktop agentがあればそこへ追加し、なければkeychainを使う。遅延処理中のpassphrase promptはZLEと競合するためstdinを閉じ、後のSSH接続時に`AddKeysToAgent`へ任せる。keychainがない環境では静かに終了する。
 
-履歴は重複削除、先頭spaceの除外、空白圧縮、実行時刻・所要時間、逐次追記を有効にする。pluginが提供するwidgetは遅延ロードされるため、対応する`bindkey`も同じく遅延する。
+履歴は重複削除、先頭spaceの除外、空白圧縮、実行時刻・所要時間、逐次追記を有効にする。標準履歴はAtuinのロールバック元として維持し、`Ctrl-R`の検索だけをAtuinへ移譲する。上矢印は標準動作を維持し、Atuin AIのbindingも無効にする。pluginが提供するwidgetは遅延ロードされるため、対応する`bindkey`も同じく遅延する。
 
 起動時間に関する全体設計は [zsh-startup.md](zsh-startup.md) を参照する。
 
@@ -105,7 +105,11 @@ SSH agent初期化はprompt後へ遅延する。`ssh-add -l` の終了コード0
 3. fpath確定後にcompinitを遅延実行し、直後に生成済みのCarapace登録コードを読む。
 4. 補完を必要としない残りのpluginを遅延ロードする。
 
-inline pluginには通常のdefer templateが適用されないため、自身で`zsh-defer`を呼ぶ。compinitのdumpは変更時だけzcompileする。Starshipは最初のpromptに必要なので遅延せず、init出力をcacheして毎回のsubprocessを避ける。zoxideは最初に`z`を使うまでに用意できればよいので遅延する。mise補完は静的生成するため、起動時には生成しない。
+inline pluginには通常のdefer templateが適用されないため、自身で`zsh-defer`を呼ぶ。compinitのdumpは変更時だけzcompileする。StarshipとAtuinは最初のpromptから必要なので遅延せず、init出力をcacheして毎回のsubprocessを避ける。`update`はツール更新後に両方のcacheを削除する。zoxideは最初に`z`を使うまでに用意できればよいので遅延する。mise補完は静的生成するため、起動時には生成しない。
+
+## Atuin
+
+[Atuin設定](../../dot_config/atuin/config.toml) は、導入時点では履歴同期とupdate checkを無効にしてローカルだけで運用する。検索はGit repository全体を対象にできるworkspace filterとfuzzy matchingを既定にし、組み込みのsecret filterを有効にする。同期を有効にする場合は、暗号鍵をBitwardenへ保存し、必要な`history_filter`と`cwd_filter`を追加してから行う。
 
 ## SSH
 

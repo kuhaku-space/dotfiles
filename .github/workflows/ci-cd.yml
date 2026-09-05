@@ -228,9 +228,10 @@ jobs:
               timeout 300 zsh -ic "print -r -- BOOTSTRAP_OK" | grep -q BOOTSTRAP_OK
 
               test -s /root/.local/share/zsh/completions/_mise
+              test -s /root/.cache/zsh/atuin-init.zsh
               test -s /root/.cache/zsh/starship-init.zsh
 
               test -f /root/.config/mise/mise.lock
               bash /root/dotfiles/scripts/check-mise-lock.sh \
-                sheldon starship zoxide fzf deno bat eza usage
+                atuin sheldon starship zoxide fzf deno bat eza usage
             '

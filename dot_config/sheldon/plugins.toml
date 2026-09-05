@@ -43,6 +43,17 @@ github = "zdharma-continuum/fast-syntax-highlighting"
 [plugins.zeno]
 github = "yuki-yano/zeno.zsh"
 
+[plugins.atuin]
+inline = '''
+_atuin_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/atuin-init.zsh"
+if [[ ! -s $_atuin_cache ]] && (( $+commands[atuin] )); then
+  mkdir -p "${_atuin_cache:h}"
+  atuin init zsh --disable-up-arrow --disable-ai >| $_atuin_cache
+fi
+[[ -s $_atuin_cache ]] && source $_atuin_cache
+unset _atuin_cache
+'''
+
 [plugins.starship]
 inline = '''
 _starship_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"

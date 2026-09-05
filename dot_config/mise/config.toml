@@ -8,6 +8,7 @@ postinstall = "~/.local/bin/refresh-zsh-completions"
 claude = "github:anthropics/claude-code"
 
 [tools]
+atuin = "latest"
 bat = "latest"
 carapace = "latest"
 deno = "latest"

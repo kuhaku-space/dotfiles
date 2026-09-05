@@ -1,0 +1,9 @@
+auto_sync = false
+update_check = false
+secrets_filter = true
+
+filter_mode = "workspace"
+search_mode = "fuzzy"
+workspaces = true
+style = "compact"
+show_preview = true

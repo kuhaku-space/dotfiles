@@ -11,7 +11,7 @@ fi
 
 if [ -n "${CI:-}" ]; then
   printf "\e[1;36mInstall tools via mise (CI: shell-startup subset only)\e[m\n"
-  "$MISE" install sheldon starship zoxide fzf deno bat eza usage
+  "$MISE" install atuin sheldon starship zoxide fzf deno bat eza usage
   exit 0
 fi
 

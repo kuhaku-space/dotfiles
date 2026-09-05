@@ -46,6 +46,46 @@ url = "https://github.com/rhysd/actionlint/releases/download/v1.7.12/actionlint_
 url_api = "https://api.github.com/repos/rhysd/actionlint/releases/assets/384924919"
 provenance = "github-attestations"
 
+[[tools.atuin]]
+version = "18.21.0"
+backend = "aqua:atuinsh/atuin"
+
+[tools.atuin."platforms.linux-arm64"]
+checksum = "sha256:dbdee27f7fc67b92e770d1af89d3b421051499a058cd3e4698d123e0117fa950"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647911"
+provenance = "github-attestations"
+
+[tools.atuin."platforms.linux-arm64-musl"]
+checksum = "sha256:9b8a76df370eba71ea0809d4df74f79351be2314c1ed90cae229499e69ca2ee1"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647921"
+provenance = "github-attestations"
+
+[tools.atuin."platforms.linux-x64"]
+checksum = "sha256:434d82b4c5f691b6f0423f30a4b931df4afded19b05a795a280192fdf8a61a2d"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647975"
+provenance = "github-attestations"
+
+[tools.atuin."platforms.linux-x64-musl"]
+checksum = "sha256:792e1867d113ba9bebec94996b3160164aba738e3d23987b3cddb9dee976ac08"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647980"
+provenance = "github-attestations"
+
+[tools.atuin."platforms.macos-arm64"]
+checksum = "sha256:c78ac159c89c38ee0b56eb6a11d9c0a7340de3a03b98fbbccd44f8e2d91e6e6e"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647916"
+provenance = "github-attestations"
+
+[tools.atuin."platforms.windows-x64"]
+checksum = "sha256:08ecd4aca5836754e53eaa987fd0d514b527689335a11b6ef05121abaabb7da7"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647972"
+provenance = "github-attestations"
+
 [[tools.bat]]
 version = "0.26.1"
 backend = "aqua:sharkdp/bat"
