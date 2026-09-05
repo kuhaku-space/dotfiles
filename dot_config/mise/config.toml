@@ -23,7 +23,6 @@ chezmoi = "latest"
 zoxide = "latest"
 claude = { version = "latest", exe = "claude" }
 usage = "latest"
-jujutsu = "latest"
 sheldon = "latest"
 zellij = "latest"
 bitwarden = "latest"
