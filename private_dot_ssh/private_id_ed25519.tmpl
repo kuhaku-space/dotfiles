@@ -1,3 +1,1 @@
-{{- /* 認証 兼 git 署名用の SSH 秘密鍵。Bitwarden の SSH Key item から取得する（リポジトリには鍵を置かない）。
-       "github" という名前の item が複数あるため、一意な item ID で指定する。 */ -}}
 {{- (bitwarden "item" "75746fd6-f025-4945-81d8-b46f0135c3bb").sshKey.privateKey -}}

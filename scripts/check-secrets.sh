@@ -1,20 +1,8 @@
 #!/usr/bin/env bash
-# 秘密情報がこのリポジトリに入るのを止める。
-#
-# 背景: chezmoi.toml で git.autoCommit / autoPush を有効にしているため、
-# 例えば `chezmoi add ~/.ssh/id_ed25519` を打つと、平文の秘密鍵がソースに入って
-# そのまま自動 commit → 自動 push され、public リポジトリに出てしまう。
-# push の前に機械的に止める最後の砦がこれ。
-#
-# 使い方:
-#   check-secrets.sh --staged    ステージ済みの変更を検査（pre-commit hook 用）
-#   check-secrets.sh --tracked   追跡中の全ファイルを検査（CI 用）
-#   check-secrets.sh --history   全コミットの全 blob を検査（CI 用。小さいリポジトリ前提）
 set -euo pipefail
 
 MODE="${1:---staged}"
 
-# 検査から除外するパス。自分自身とフック本体はパターン定義を含むので必ず除外する。
 is_excluded() {
   case "$1" in
     scripts/check-secrets.sh | .githooks/*) return 0 ;;
@@ -22,8 +10,6 @@ is_excluded() {
   esac
 }
 
-# 検出パターン（名前|正規表現）。名前は検出時のメッセージに使う。
-# パターン自身がヒットしないよう、文字クラスで1文字割っている。
 PATTERNS=(
   "OpenSSH/PEM private key|-----BEGIN[ A-Z]*PRIVA[T]E KEY-----"
   "PuTTY private key|PuTTY-User-Key-File"
@@ -38,7 +24,6 @@ PATTERNS=(
 
 found=0
 
-# scan <表示名> <内容の取得コマンド...>
 scan() {
   local label="$1"
   shift
@@ -73,7 +58,6 @@ case "$MODE" in
     done < <(git ls-files)
     ;;
   --history)
-    # <blob-sha> <path> の一覧。同じ blob が複数コミットに出ても一度で済む。
     while read -r sha path; do
       [ -n "${path:-}" ] || continue
       is_excluded "$path" && continue

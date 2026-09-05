@@ -1,15 +1,4 @@
 #!/usr/bin/env bash
-# mise.lock に記録された版が実際に入っているか確認する。
-#
-# 版指定は config.toml では "latest" のままで、実際に入る版は mise.lock が決める。
-# つまり lock が効いていないと、マシンごとに違う版が入っても誰も気付かない。
-# それを機械的に見張るのがこのスクリプト。CI の bootstrap ジョブが呼ぶ。
-#
-# 使い方:
-#   check-mise-lock.sh              lock に載っている全ツールを検査
-#   check-mise-lock.sh bat eza      指定したツールだけ検査（未インストールの環境用）
-#
-# python も jq も使わない（素の Ubuntu コンテナで動かすため）。
 set -euo pipefail
 
 LOCK="${MISE_LOCK:-${XDG_CONFIG_HOME:-$HOME/.config}/mise/mise.lock}"
@@ -24,9 +13,6 @@ if [ ! -x "$MISE" ]; then
   exit 1
 fi
 
-# lock 内の [[tools.<name>]] 直後の version を取り出す。
-# `npm:foo` のように記号を含む名前は TOML のキーが引用されるので、
-# 引用符を落としてから比較する。
 locked_version() {
   awk -v name="$1" '
     {
@@ -39,8 +25,6 @@ locked_version() {
   ' "$LOCK" || true
 }
 
-# 実際に使われている版（mise ls --current の2列目）。
-# 未知のツール名では mise が失敗しうるので、失敗は「空」として扱う。
 current_version() {
   { "$MISE" ls --current "$1" 2>/dev/null || true; } | awk 'NR == 1 { print $2 }'
 }

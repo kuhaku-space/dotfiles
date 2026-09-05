@@ -1,67 +1,46 @@
 # dotfiles
 
-[chezmoi](https://www.chezmoi.io/) で管理している dotfiles。Linux 上の zsh 環境を想定していて、主な検証環境は WSL2 (Ubuntu) と実機の Ubuntu。
+[chezmoi](https://www.chezmoi.io/) で管理している、Linux 向けの dotfiles。主な検証環境は WSL2 (Ubuntu) と実機の Ubuntu。
 
-apt 以外のディストリでも動くが、パッケージ導入だけは自動化していない（[run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) が必要なものを一覧で出すので、それを自分のパッケージマネージャで入れる）。実機で問題になりやすい点への対処は [docs/bare-metal-linux.md](docs/bare-metal-linux.md) にまとめている。
+chezmoi のソース命名規則（`dot_config/` → `~/.config/`、`dot_zshrc` → `.zshrc` など）でファイルを保存し、`chezmoi apply` で `$HOME` に展開する。
 
-ファイルは chezmoi のソース命名規則で保存している（`dot_config/` → `~/.config/`、`dot_zshrc` → `.zshrc` など）。`chezmoi apply` で `$HOME` に展開される。
-
-> 個別の設計と移行記録は `docs/` 配下に置いている。SSH 鍵は [ssh-keys-bitwarden.md](docs/ssh-keys-bitwarden.md)、zsh の起動時間は [zsh-startup.md](docs/zsh-startup.md)、実機 Linux での注意点は [bare-metal-linux.md](docs/bare-metal-linux.md)、移行記録は [migration-yadm-to-chezmoi.md](docs/migration-yadm-to-chezmoi.md) と [migration-etc-zshenv-to-home-zshenv.md](docs/migration-etc-zshenv-to-home-zshenv.md)（`ZDOTDIR` の宣言場所を `/etc/zsh/zshenv` から `~/.zshenv` へ移した件。既存マシンで `/etc` を元に戻す手順を含む）。
+apt 以外のディストリビューションでも利用できるが、パッケージ導入は自動化していない。必要なパッケージは [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) が表示する。実機 Linux 固有の注意点は [docs/current/bare-metal-linux.md](docs/current/bare-metal-linux.md) を参照する。
 
 ## セットアップ
 
-新しいマシンでは、次のワンライナーだけで導入が完結する（chezmoi 本体の導入 → リポジトリの取得 → `$HOME` への展開 → セットアップスクリプトの実行まで）。
+新しいマシンでは、次のコマンドで chezmoi の導入、リポジトリの取得、設定の展開、セットアップを行う。
 
 ```sh
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/kuhaku-space/dotfiles.git
 ```
 
-- `get.chezmoi.io` が chezmoi 本体を一時的に取得し、`--` 以降をそのまま `chezmoi` に渡す。
-- リポジトリは **HTTPS**（public）で `~/.local/share/chezmoi`（chezmoi のデフォルトソース）に clone される。SSH 鍵が無い新規マシンでも clone できる。
-  - `kuhaku-space/dotfiles` という短縮形ではなく URL を明示しているのは、短縮形だと chezmoi が `https://kuhaku-space@github.com/...` とユーザー名付き URL を生成し、public リポジトリでも認証を要求してしまうため。
-- `--apply` で展開と同時にセットアップスクリプト（`run_once_` / `run_onchange_`）が走る。`run_once_` 内で SSH 鍵生成・apt・mise 導入まで行い、最後に push 用 remote を SSH へ切り替える。
+SSH 鍵が必要な場合は、途中で Bitwarden へのログインとアンロックを求められる。事前準備と鍵の扱いは [SSH 鍵（Bitwarden 連携）](docs/current/ssh-keys-bitwarden.md) を参照する。
 
-以降は単に `chezmoi apply` / `chezmoi update` でよい。chezmoi 本体は mise でも管理しているため、初回セットアップ後は mise 管理版が使われる。
+すでに別の場所へ clone したリポジトリをソースにする場合:
 
-> このマシンのように既にソースを別の場所（例: ghq 配下）へ clone 済みで、そこをソースにしたい場合は `chezmoi init --source <path> --apply` で初期化する。`--source` は `~/.config/chezmoi/chezmoi.toml` に記録される。
+```sh
+chezmoi init --source <path> --apply
+```
 
-`chezmoi apply` 時に走るスクリプトは、実行頻度ごとに分割している（ファイル名のソート順で実行される）:
-
-| スクリプト | タイミング | 内容 |
-| --- | --- | --- |
-| [run_before_00-backup-ssh-key.sh](run_before_00-backup-ssh-key.sh) | 毎回（ファイル展開**前**） | 既存の `~/.ssh/id_ed25519` がリポジトリの管理する鍵と違うとき `.bak.<日時>` へ退避。chezmoi は自分が書いていないファイルを確認なしで上書きするので、その前に逃がす |
-| [run_once_before_01-bitwarden-cli.sh](run_once_before_01-bitwarden-cli.sh) | 初回1回だけ（ファイル展開**前**） | `bw` CLI が無ければ先行導入。SSH 鍵テンプレートが `bw` を使うため、テンプレート評価前に保証する必要がある。取得先は `mise.lock`（arch 別の URL と sha256 を持つので検証付きで、mise 管理版と同じ版が入る） |
-| [run_once_before_02-bitwarden-login.sh](run_once_before_02-bitwarden-login.sh) | 初回1回だけ（ファイル展開**前**） | 未ログインなら対話的に `bw login` を起動。鍵テンプレートの取得前にログインを保証する（アンロックは `bitwarden.unlock=true` が自動で実行） |
-| [run_once_after_05-apt-packages.sh](run_once_after_05-apt-packages.sh) | 初回1回だけ | `apt` パッケージ（git, curl, openssh-client, zsh, keychain, build-essential, xclip, wl-clipboard など）の不足分を install。apt が無いディストリでは必要な一覧を出して抜ける |
-| [run_once_after_10-setup.sh](run_once_after_10-setup.sh) | 初回1回だけ | デフォルトシェルを zsh に変更 / ディレクトリ作成 / [mise](https://mise.jdx.dev/) 本体の導入 / push 用 remote を SSH へ切り替え |
-| [run_once_after_15-nerd-font.sh](run_once_after_15-nerd-font.sh) | 初回1回だけ | JetBrainsMono Nerd Font を `~/.local/share/fonts` に導入（starship / eza --icons / zellij が Nerd Font のグリフを使う）。WSL では Windows 側の端末が描画するので何もしない |
-| [run_onchange_after_20-git-hooks.sh](run_onchange_after_20-git-hooks.sh) | スクリプト内容が変わったとき | ソースリポジトリの `core.hooksPath` を `.githooks/` に設定（秘密情報の pre-commit 検査。後述） |
-| [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) | `mise/config.toml` が変わったとき | `mise install` / `mise prune` で開発ツールを同期 |
-| [run_onchange_after_40-zsh-completions.sh.tmpl](run_onchange_after_40-zsh-completions.sh.tmpl) | `refresh-zsh-completions` が変わったとき | zsh 補完が揃っていることを保証する（生成本体は後述の `refresh-zsh-completions`）。普段の更新は mise の `postinstall` hook が行うので、ここは apply 時の担保 |
-
-apt（05）を setup（10）より先に実行するのは、setup が zsh / git / sudo など apt で入るツールに依存するため。後から apt パッケージを追加したいときは、05 を手動実行するか直接 `apt install` する。なお `before_` の 01 は 05 より**前**に走るので、apt に頼れない。必要な `unzip` は 01 が自分で確保する。
-
-`run_once_` は内容のハッシュで管理されるので、スクリプトを編集すると次の `apply` で再実行される。どれも冪等に書くこと。
-
-鍵が既に正しく置かれているマシンでは、01/02 は [scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) の判定で何もせず抜ける。`.chezmoiignore` も同じスクリプトを呼んで「鍵を管理対象に含めるか」を決める（判定をここ一箇所に寄せている。テンプレートから `ssh-keygen` を直接呼ぶと、鍵が読めないときに `apply` 全体が落ちる）。SSH 鍵の設計と初回マシンでの取得手順は [docs/ssh-keys-bitwarden.md](docs/ssh-keys-bitwarden.md)。
+セットアップスクリプトの実行順や処理内容は [スクリプトの役割と設計](docs/current/scripts.md) にまとめている。
 
 ## 日常の操作
 
+基本は `$HOME` 側のファイルを編集し、ソースへ取り込んでから反映する。
+
 ```sh
-$EDITOR ~/.config/zsh/.zshrc        # $HOME 側の実ファイルを編集
-chezmoi re-add ~/.config/zsh/.zshrc # 変更をソースへ取り込む
-chezmoi diff                        # 反映差分を確認
-chezmoi apply                       # $HOME に反映
-chezmoi update                      # pull + apply
+$EDITOR ~/.config/zsh/.zshrc
+chezmoi re-add ~/.config/zsh/.zshrc
+chezmoi diff
+chezmoi apply
+chezmoi update                       # pull + apply
 ```
 
-基本は `$HOME` 側の実ファイルを編集して `chezmoi re-add` でソースへ取り込む。`README.md` や `docs/` は [.chezmoiignore](.chezmoiignore) で `$HOME` に展開しないため、リポジトリ上のファイルを直接編集する。
+`README.md` と `docs/` は `$HOME` へ展開されないため、リポジトリ上で直接編集する。
 
-同期状態は `dotfiles-status`（[.config/zsh/.zshrc](dot_config/zsh/dot_zshrc)）でまとめて見る。未コミット・未 push（`git status --short --branch`）と、`$HOME` とソースの差分（`chezmoi status`）の両方を出す。
+同期状態は `dotfiles-status` で確認できる。Git の未 commit・未 push と、ソースと `$HOME` の差分をまとめて表示する。
 
-ズレたまま `apply` すると、chezmoi が最後に書いた後に変わったファイルは `diff/overwrite/skip` を聞かれるが、**chezmoi が一度も書いていないファイル（新規マシンの既存ファイル等）は聞かれずに上書きされる**。
-
-変更を保存・同期するときだけ、ソースリポジトリで Git 操作を行う:
+Git を直接操作する場合:
 
 ```sh
 chezmoi git -- status
@@ -70,124 +49,35 @@ chezmoi git -- commit -m "..."
 chezmoi git -- push
 ```
 
-### 秘密情報を commit しないための歯止め
+このリポジトリは chezmoi の autoCommit / autoPush を有効にしている。秘密情報を検出すると pre-commit hook が commit を止めるため、誤検知でも `--no-verify` で回避せず検出パターンを修正する。検査方法は [Secrets and signing](docs/commands.md#secrets-and-signing) を参照する。
 
-[chezmoi.toml](.chezmoi.toml.tmpl) で `git.autoCommit` / `autoPush` を有効にしているので、**ソースに入ったものは即座に public リポジトリへ出る**。そこで [scripts/check-secrets.sh](scripts/check-secrets.sh) が秘密鍵・トークン類のパターンを検査し、[.githooks/pre-commit](.githooks/pre-commit) が commit を止める。フックは clone しただけでは有効にならないので、[run_onchange_after_20-git-hooks.sh](run_onchange_after_20-git-hooks.sh) が `core.hooksPath` を設定する。CI では追跡中の全ファイルと**全履歴の blob** に対して同じ検査を走らせる。
+## ツールの更新
 
-```sh
-bash scripts/check-secrets.sh --staged    # pre-commit と同じ検査
-bash scripts/check-secrets.sh --tracked   # 追跡中の全ファイル
-bash scripts/check-secrets.sh --history   # 全コミットの全 blob
-```
-
-誤検知したときは `--no-verify` で抜けるのではなく、スクリプトの `PATTERNS` を直す。
-
-## CI/CD
-
-GitHub Actions の [CI/CD](.github/workflows/ci-cd.yml) で、pull request / `main`・`master` への push / 手動実行時に検証する。ジョブは2つ:
-
-| ジョブ | 内容 |
-| --- | --- |
-| `validate` | shellcheck（`*.sh` と hook）、`zsh -n`（zsh 設定と sheldon の inline スニペット）、actionlint、秘密情報スキャン、chezmoi テンプレート展開（**鍵が読めない場合の異常系を含む**）、`mise.lock` の `bw` エントリ、TOML/YAML 構文、git config と allowed_signers の検証 |
-| `bootstrap` | 素の `ubuntu:24.04` コンテナで README のワンライナーと同じ経路（`chezmoi init --apply` → `run_once_*` → `run_onchange_*`）を実際に流し、展開結果・ログインシェル・対話 zsh の起動・生成物・**mise.lock 通りの版が入ったか**を検証する |
-
-`bootstrap` が秘密情報なしで通るのは `CI=true` のとき [.chezmoiignore](.chezmoiignore) が鍵を無視し、[scripts/needs-bitwarden.sh](scripts/needs-bitwarden.sh) が bw 関連スクリプトを空振りさせるため。**CI では mise はシェル起動に必要なツールだけを入れる**（対象と理由は [run_onchange_after_30-mise-install.sh.tmpl](run_onchange_after_30-mise-install.sh.tmpl) のコメント参照）。
-
-lint は同じものをローカルでも回せる（`shellcheck` と `actionlint` は mise 管理）:
+開発ツールは mise で管理している。
 
 ```sh
-shellcheck -e SC1091 run_once_*.sh run_onchange_*.sh* scripts/*.sh .githooks/*
-zsh -n dot_zshenv dot_config/zsh/dot_zshenv dot_config/zsh/dot_zshrc
-actionlint
+mise use -g <tool>                    # ツールを追加
+mise upgrade                         # ツールと lockfile を更新
+chezmoi re-add ~/.config/mise/mise.lock
 ```
+
+普段は `.zshrc` の `update` 関数で dotfiles、apt、mise、Sheldon をまとめて更新できる。mise のバージョン固定と zsh 補完生成の仕組みは [設定ファイルの設計](docs/current/configuration.md#mise) と [スクリプトの役割と設計](docs/current/scripts.md#refresh-zsh-completions) を参照する。
 
 ## 構成
 
 | パス | 内容 |
 | --- | --- |
-| [dot_zshenv](dot_zshenv) | `ZDOTDIR` を宣言して `$ZDOTDIR/.zshenv` を source するだけの stub（`$HOME` に置く必要がある唯一の zsh ファイル）。zsh の探索順と `/etc/zsh/zshenv` を使わない理由はファイル冒頭のコメント参照 |
-| [dot_config/zsh/](dot_config/zsh/) | zsh 設定本体（`.zshenv` / `.zshrc`）。`EDITOR` / `VISUAL` / `LANG` / OpenSSL のパス、`clip` 関数と ssh-agent の用意もここ |
-| [dot_config/mise/](dot_config/mise/) | mise が管理する開発ツール一覧（`config.toml`）と、版・URL・チェックサムを固定する `mise.lock`。ツール導入後に zsh 補完を作り直す `postinstall` hook もここ |
-| [dot_local/bin/](dot_local/bin/) | `$HOME` に置くコマンド（`~/.local/bin`）。`refresh-zsh-completions` は mise 管理ツールの zsh 補完を生成する |
-| [dot_config/sheldon/plugins.toml](dot_config/sheldon/plugins.toml) | zsh プラグイン（[sheldon](https://sheldon.cli.rs/)）。読み込み順の約束はファイル冒頭のコメント参照 |
-| [dot_config/zeno/config.yml](dot_config/zeno/config.yml) | [zeno.zsh](https://github.com/yuki-yano/zeno.zsh) のスニペット |
-| [dot_config/git/](dot_config/git/) | git 設定（`config` / `ignore` / ssh 署名の `allowed_signers`） |
-| [dot_config/jj/config.toml](dot_config/jj/config.toml) | [jujutsu](https://jj-vcs.github.io/jj/) の設定。jj は git の設定を読まないので別に要る |
-| [dot_config/npm/](dot_config/npm/), [dot_config/pnpm/](dot_config/pnpm/) | Node パッケージマネージャ設定 |
-| [private_dot_ssh/](private_dot_ssh/) | ssh 鍵・クライアント設定・GitHub のホスト鍵（[docs/ssh-keys-bitwarden.md](docs/ssh-keys-bitwarden.md)） |
-| `run_before_*` / `run_once_*` / `run_onchange_*` | `chezmoi apply` 時に走るセットアップ／同期スクリプト（[セットアップ](#セットアップ)参照） |
-| [scripts/](scripts/) | `$HOME` に展開しないスクリプト。手動実行用（`revert-etc-zshenv.sh`）と、`apply` や CI・hook から呼ぶ共有ヘルパー（`needs-bitwarden.sh` / `check-secrets.sh` / `check-mise-lock.sh`） |
-| [.githooks/](.githooks/) | ソースリポジトリの git hook。`.` 始まりなので chezmoi は `$HOME` に展開しない |
+| [dot_config/zsh/](dot_config/zsh/) | zsh の環境・対話設定 |
+| [dot_config/mise/](dot_config/mise/) | mise のツール設定と lockfile |
+| [dot_config/sheldon/](dot_config/sheldon/) | zsh プラグイン設定 |
+| [dot_config/git/](dot_config/git/) / [dot_config/jj/](dot_config/jj/) | Git と Jujutsu の設定 |
+| [private_dot_ssh/](private_dot_ssh/) | SSH 鍵テンプレートとクライアント設定 |
+| [dot_local/bin/](dot_local/bin/) | `~/.local/bin` へ展開するコマンド |
+| `run_before_*` / `run_once_*` / `run_onchange_*` | `chezmoi apply` 時に実行するスクリプト |
+| [scripts/](scripts/) | 手動実行・hook・CI 用の補助スクリプト |
 
-## zsh の起動
+## ドキュメント
 
-`update` 関数（[.zshrc](dot_config/zsh/dot_zshrc)）で dotfiles / apt / mise / sheldon をこの順に更新する（dotfiles が先頭なのは意図的。理由は関数のコメント）。sheldon のプラグインは `plugins.lock` に固定されるので、`sheldon lock --update` を通さないと古いままになる。
+設計や運用上の詳細は [ドキュメント索引](docs/INDEX.md) から選ぶ。変更後の検証コマンドは [docs/commands.md](docs/commands.md) にまとめている。
 
-起動は約 100ms。測り方と、何を defer / キャッシュ / 静的生成にしているかは [docs/zsh-startup.md](docs/zsh-startup.md)。
-
-## ツールの追加・更新
-
-開発ツールは mise で管理している。追加・更新は config を編集して `mise install`:
-
-```sh
-mise use -g <tool>   # config.toml に追記してインストール
-mise upgrade         # 更新（lock も進む）
-```
-
-### バージョンの固定（mise.lock）
-
-版指定は `latest` のままだが、**実際に入る版は [mise.lock](dot_config/mise/private_mise.lock) が決める**（`[settings] lockfile = true`。詳細は [config.toml](dot_config/mise/config.toml) 冒頭のコメント）。
-
-```sh
-mise lock --global   # lock を作る／更新する（-g が無いと "No tools configured to lock"）
-mise lock -g --bump  # latest 等を再解決して lock を進める（インストールはしない）
-```
-
-`mise.lock` は `$HOME` 側で書き換わる生成物なので、更新したらソースへ取り込む必要がある。取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。`update` 関数はこれを自動でやる。手で更新するときは:
-
-```sh
-chezmoi update                      # 先に pull する（後述）
-mise upgrade
-chezmoi re-add ~/.config/mise/mise.lock
-```
-
-> pull を飛ばすと、他のマシンが進めた lock と rebase でコンフリクトする（生成物なので同じ行が両方で変わる）。そうなったら手でマージせず `chezmoi git -- rebase --abort` して上をやり直す。
-
-lock と実際に入っている版がずれていないかは次で確認できる（CI の `bootstrap` ジョブも実行する）:
-
-```sh
-bash scripts/check-mise-lock.sh          # lock の全ツール
-bash scripts/check-mise-lock.sh bat eza  # 指定したものだけ
-```
-
-### zsh 補完
-
-補完は静的ファイルとして `~/.local/share/zsh/completions` に置き、[.zshenv](dot_config/zsh/dot_zshenv) がこのディレクトリを `fpath` の先頭へ登録する。シェル起動時に CLI を実行しないので起動時間に乗らない。
-
-生成するのは [dot_local/bin/refresh-zsh-completions](dot_local/bin/executable_refresh-zsh-completions) で、**mise の `postinstall` hook**（[config.toml](dot_config/mise/config.toml)）が呼ぶ。ツールが入った／上がった瞬間に走るので、実行ファイルだけ新しくて補完が古いという状態にならない。全ツールが既に入っていて `mise install` が何もしないと hook は発火しないため、[run_onchange_after_40](run_onchange_after_40-zsh-completions.sh.tmpl) が apply 時にも呼んで担保する。
-
-補完を置くのは**そのツールが実際にインストールされているときだけ**で、入っていないものは（前に生成した分があれば）消す。置いたままにすると存在しないコマンドで TAB が候補を出してしまう。
-
-判定は `mise ls --installed` で行う。`--current` ではないのが要点で、あれは「そのディレクトリで有効なツール」しか返さないため、
-
-- グローバル設定に載せていないツール（プロジェクトの `mise.toml` だけにある `typst` など）を拾えない
-- CWD 依存になる。hook は `mise install` を叩いたディレクトリで走るのに 40 は `$HOME` 相当で走るので、「プロジェクト内で生成 → `$HOME` で削除」を往復し続ける
-
-`--installed` は CWD に依らず実際に入っている版だけを返すので、この両方を回避できる。そのため **`config.toml` に載せていないツールの補完も、インストールされていれば生成される**（`typst` がこれ。グローバルに版を固定したくないが補完は欲しい、という場合に `config.toml` を汚さずに済む）。
-
-ツールの起動は shim ではなく `mise exec <tool>@<version> --` を通す。shim は現在のディレクトリで版が解決できないと失敗するので、プロジェクトローカルのツールを `$HOME` から呼べない。版を明示するのでレジストリ参照も走らず、オーバーヘッドも無い（実測で shim 直と同等）。
-
-判定を mise に依存させているため、`mise` 自体が使えないときは何も触らずに抜ける（でないと「全部未インストール」と誤判定して補完を全消しする）。shim の有無では判定しない — shim は `config.toml` から外した後も残るため。
-
-版ごとの記録（`~/.local/state/zsh/completions.stamp`）を持ち、**版が変わったツールだけ**作り直す。全部作り直すと約1.9秒かかり、その大半は `bw`（141MB のバイナリで単体1.7秒）なので、1ツールの更新でそれを払わない。変化が無ければ約20msで抜ける。
-
-`NAMES` に無いファイル（手で置いた補完など）は触らない。
-
-対象を増やすときは `refresh-zsh-completions` の `NAMES` / `emit()` / `mise_tool()` に足す。ファイルを編集すると 40 のハッシュが変わって再実行され、生成まで走る。**補完が欲しいからといって `config.toml` にツールを足さないこと**（理由は config.toml 末尾の typst のくだり）。`zoxide` は sheldon 側で動的に初期化しているため生成しない。
-
-`zcompdump` は補完ファイルの集合が変わったときだけ捨てる。あれが持つのは command → 補完関数の対応表だけで、関数本体は `fpath` から遅延 autoload されるため、ツールの版が上がっても古くならない。無用に捨てると次の `compinit` が 36ms → 216ms に伸びる。
-
-```sh
-refresh-zsh-completions            # 変化のあったものだけ
-refresh-zsh-completions --force    # 全部作り直す
-```
+CI は GitHub Actions の [`ci-cd.yml`](.github/workflows/ci-cd.yml) で、構文・秘密情報・chezmoi テンプレートと、素の Ubuntu 上でのセットアップ経路を検証する。

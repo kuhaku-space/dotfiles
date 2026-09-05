@@ -1,8 +1,8 @@
 # /etc/zsh/zshenv → ~/.zshenv 移行記録
 
-`ZDOTDIR` の宣言を `/etc/zsh/zshenv` への追記から、chezmoi 管理下の `~/.zshenv`（ソースは [dot_zshenv](../dot_zshenv)）へ移した際の記録。**既存マシンで `/etc/zsh/zshenv` を元に戻す手順**を含む。
+`ZDOTDIR` の宣言を `/etc/zsh/zshenv` への追記から、chezmoi 管理下の `~/.zshenv`（ソースは [dot_zshenv](../../dot_zshenv)）へ移した際の記録。**既存マシンで `/etc/zsh/zshenv` を元に戻す手順**を含む。
 
-新規マシンでは何もしなくてよい（[run_once_after_10-setup.sh](../run_once_after_10-setup.sh) は `/etc` を触らない）。以前このリポジトリでセットアップしたマシンにだけ追記が残っている。
+新規マシンでは何もしなくてよい（[run_once_after_10-setup.sh](../../run_once_after_10-setup.sh) は `/etc` を触らない）。以前このリポジトリでセットアップしたマシンにだけ追記が残っている。
 
 ## なぜ /etc/zsh/zshenv をやめたか
 
@@ -13,7 +13,7 @@
 | chezmoi の管理外 | sudo が必要で、`chezmoi diff` / `chezmoi status` に出ず、`chezmoi apply` で再現もされない |
 | conffile 競合 | dpkg の conffile なので、追記があると `zsh-common` 更新時に「設定ファイルが変更されています」と競合を聞かれる |
 
-`~/.zshenv` に置く方式は `$HOME` 直下にファイルが1枚増えるが、zsh は `ZDOTDIR` 未設定時に `$HOME` を `ZDOTDIR` とみなす仕様なので、これは避けられない最小コスト。詳細は [dot_zshenv](../dot_zshenv) 冒頭のコメント。
+`~/.zshenv` に置く方式は `$HOME` 直下にファイルが1枚増えるが、zsh は `ZDOTDIR` 未設定時に `$HOME` を `ZDOTDIR` とみなす仕様なので、これは避けられない最小コスト。詳細は [dot_zshenv](../../dot_zshenv) 冒頭のコメント。
 
 ## 一括実行
 
@@ -93,7 +93,7 @@ HISTFILE=/home/<user>/.local/state/zsh/history
 fpath[1]=/home/<user>/.local/share/zsh/completions
 ```
 
-`HISTFILE` と `fpath` は本体 [dot_config/zsh/dot_zshenv](../dot_config/zsh/dot_zshenv) が設定する値なので、これが出れば stub からの `source` も効いている。対話シェルまで確認するなら `env -u ZDOTDIR zsh -i -c 'exit'` がエラーなく終わることを見る。
+`HISTFILE` と `fpath` は本体 [dot_config/zsh/dot_zshenv](../../dot_config/zsh/dot_zshenv) が設定する値なので、これが出れば stub からの `source` も効いている。対話シェルまで確認するなら `env -u ZDOTDIR zsh -i -c 'exit'` がエラーなく終わることを見る。
 
 ## バックアップが無い状態から復元する
 

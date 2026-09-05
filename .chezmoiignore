@@ -1,41 +1,14 @@
 README.md
+AGENTS.md
 docs/
 scripts/
 
-{{/*
-  get.chezmoi.io のインストーラは -b を付けないと ./bin に chezmoi 本体を置く。
-  ソースディレクトリ内で実行するとそれが管理対象（→ ~/bin/chezmoi）になってしまう
-  ので、念のため無視する。chezmoi 本体は mise が管理している。
-*/ -}}
 bin/
 
-{{/*
-  CI では Bitwarden の認証（ログイン・アンロック）ができないので、鍵は展開しない。
-  これがあるおかげで bootstrap の smoke test（.github/workflows/ci-cd.yml）が
-  秘密情報なしで `chezmoi init --apply` を通せる。
-*/ -}}
 {{- if env "CI" }}
 .ssh/id_ed25519
 .ssh/id_ed25519.pub
 {{- else }}
-{{/*
-  秘密鍵は Bitwarden から取得するため、テンプレート評価のたびに bw のアンロック
-  （マスターパスワード入力）を要求してしまう。鍵は一度正しく配置すれば変わらないので、
-  ローカルの ~/.ssh/id_ed25519 が期待する鍵と同じなら管理対象から外し、bw を
-  呼ばない（＝パスワードを求められない）ようにする。
-
-  鍵が未配置・古い・壊れている場合のみ管理対象に含め、bw から取り直す。
-
-  判定は scripts/needs-bitwarden.sh に委ねる（run_once_before_01/02 と同じ経路）。
-  以前はここで ssh-keygen を直接 output していたが、それだと ~/.ssh/id_ed25519 が
-  鍵として読めないとき（別形式・破損・空ファイル）に ssh-keygen が非ゼロで終了し、
-  chezmoi の output がテンプレート評価ごとエラーにして apply 全体を落としていた。
-  しかも落ちる原因のファイルを手で消すまで apply が一切通らず、dotfiles 側から
-  復旧できなくなる。実機を後から管理下に入れるとき（既に自分の鍵がある）に踏む。
-
-  スクリプト側は同じ状況を「判定できない → 取り直しが必要」に倒すので、終了コードを
-  シェルで文字列へ変換して受け取る（output は非ゼロ終了を許さないため）。
-*/ -}}
 {{- $script := joinPath .chezmoi.sourceDir "scripts/needs-bitwarden.sh" -}}
 {{- $probe := printf "CHEZMOI_SOURCE_DIR=%s bash %s >/dev/null 2>&1 && echo fetch || echo keep" (.chezmoi.sourceDir | squote) ($script | squote) -}}
 {{- if eq (output "bash" "-c" $probe | trim) "keep" }}

@@ -1,27 +1,10 @@
 [settings]
-# バージョン・URL・チェックサムを mise.lock に記録する。
-# 版指定は "latest" のままでよく、実際に入る版は lock が決めるので他のマシンでも
-# 同じ構成が再現する（チェックサム検証も付く）。
-# lock はグローバル設定にも作れる: `mise lock --global`（-g を付けないと
-# プロジェクトの config root しか見ないので "No tools configured to lock" になる）。
-# 更新は `mise upgrade`（.zshrc の update 関数が lock の取り込みまで面倒を見る）。
 lockfile = true
 
 [hooks]
-# ツールが入った／上がった直後に zsh 補完を作り直す。これが無いと再生成は
-# run_onchange_after_40 の内容ハッシュでしか起きず、`mise upgrade` のあと補完だけ
-# 古いまま残る。postinstall は実際に何か入ったときだけ発火し、コマンドが無い場合も
-# WARN が出るだけで install は成功する。
 postinstall = "~/.local/bin/refresh-zsh-completions"
 
 [tool_alias]
-# claude を aqua から外す。aqua レジストリの anthropics/claude-code は base が
-# type: http（url なし）で、version_overrides 側で type: github_release に差し替える
-# 構成だが、mise 2026.8.4 の aqua backend はこの type 差し替えを反映せず url が空の
-# まま http backend に渡すため、全バージョンで "relative URL without a base" と言って
-# install が落ちる（mise.lock にも url = ".tar.gz" という壊れた行が記録される）。
-# GitHub Releases 直取りに寄せると checksum・attestation・SLSA provenance の
-# 検証込みで通る。aqua 側が直ったら "latest" に戻してよい。
 claude = "github:anthropics/claude-code"
 
 [tools]
@@ -37,26 +20,11 @@ neovim = "latest"
 starship = "latest"
 chezmoi = "latest"
 zoxide = "latest"
-# アーカイブ内の実体が claude-code ではなく claude なので exe で教える
 claude = { version = "latest", exe = "claude" }
 usage = "latest"
 jujutsu = "latest"
 sheldon = "latest"
 zellij = "latest"
-bitwarden = "latest"  # aqua:bitwarden/clients。公式ネイティブバイナリ（node 不要）で、
-                      # run_once_before_01 が先行導入するものと同一
-# CI と同じ lint をローカルでも回せるようにする（.github/workflows/ci-cd.yml 参照）
+bitwarden = "latest"
 shellcheck = "latest"
 actionlint = "latest"
-
-# rust と node と typst は意図的にここに置かない。版を固定したいのがプロジェクト側
-# なので、各リポジトリの mise 設定（または rustup）に任せる。
-#
-# rust: core:rust は rustup を検出すると installs/rust を $CARGO_HOME/bin への
-#   symlink にした上で RUSTUP_TOOLCHAIN を export するため、プロジェクトの
-#   rust-toolchain.toml を黙って上書きする。lock にも url/checksum が入らない。
-# node: dotfiles 側に node 依存は無い（bw も claude も公式のネイティブバイナリ）。
-# typst: 2度足して2度外している（a1bbe35 → 800e007、9aa7955 → 99d0ce5）。動機は毎回
-#   「zsh 補完が欲しい」だが、それは refresh-zsh-completions が面倒を見る（`mise ls
-#   --installed` を見るので、プロジェクトの mise.toml で入れた typst でも生成される）。
-#   ここに置くと、避けたはずの「グローバルの版がプロジェクトより強い」状態に戻る。

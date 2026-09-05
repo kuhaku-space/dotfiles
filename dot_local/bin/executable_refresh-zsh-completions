@@ -1,21 +1,10 @@
 #!/usr/bin/env bash
-# mise 管理ツールの zsh 補完を生成して ~/.local/share/zsh/completions に置く。
-# 呼ぶのは mise の postinstall hook と run_onchange_after_40（apply 時の担保）。
-# 設計と経緯は README の「zsh 補完」節。
-#
-# インストール済みのツールだけを対象にし、入っていないものは生成済みでも消す。
-# 版ごとの記録（$STAMP）を持ち、版が変わったツールだけ作り直す（全部だと約1.9秒）。
-#
-#   refresh-zsh-completions          変化のあったものだけ
-#   refresh-zsh-completions --force  全部作り直す
 set -eu
 
 COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
 STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/completions.stamp"
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 
-# hook から呼ばれるので、この中の mise 呼び出し（shim 経由は自動インストールを
-# 伴うことがある）で hook が再帰しないようにする。
 export MISE_NO_HOOKS=1
 
 FORCE=0
@@ -28,14 +17,8 @@ case "${1:-}" in
     ;;
 esac
 
-# 生成対象。ファイル名は _<name> になる。入っていれば作り、入っていなければ消すだけ
-# なので、config.toml に載せていないツール（typst）を並べてよい。
 NAMES=(chezmoi gh deno jj zellij bw bat typst mise)
 
-# emit <name> <version>: 補完スクリプトを stdout へ出す。
-# shim ではなく `mise exec <tool>@<version> --` を通す。shim は CWD で版が解決できない
-# と失敗するので、プロジェクトの mise.toml にだけあるツールを $HOME から呼べない。
-# 版は明示する（@latest は lock 外のダウンロードになる）。
 emit() {
   local name="$1" version="$2" tool
   tool="$(mise_tool "$name")"
@@ -50,7 +33,6 @@ emit() {
     deno) "${run[@]}" deno completions zsh ;;
     jj) "${run[@]}" jj util completion zsh ;;
     zellij) "${run[@]}" zellij setup --generate-completion zsh ;;
-    # bw は appdata の場所を明示しないと既定の場所を作ってしまう。
     bw) BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" "${run[@]}" bw completion --shell zsh ;;
     bat) "${run[@]}" bat --completion zsh ;;
     typst) "${run[@]}" typst completions zsh ;;
@@ -58,8 +40,6 @@ emit() {
   esac
 }
 
-# mise_tool <name>: 補完名に対応する mise のツール名。
-# 空を返すものは mise 自身（mise ls には出ない）。
 mise_tool() {
   case "$1" in
     jj) printf 'jujutsu\n' ;;
@@ -69,28 +49,18 @@ mise_tool() {
   esac
 }
 
-# 補完ディレクトリに今あるファイル名の一覧（ソート済み）。
 comp_files() {
   find "$COMP_DIR" -maxdepth 1 -type f -printf '%f\n' 2>/dev/null | LC_ALL=C sort || true
 }
 
 mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
 
-# 版一覧は mise を1回だけ叩いて使い回す。--installed は CWD に依らず実際に入っている
-# 版だけを返す。--current だとそのディレクトリで有効なツールしか出ないため、hook
-# （プロジェクト内で走る）と 40（$HOME で走る）で結果が食い違い、生成と削除を往復する。
-#
-# mise が使えないときは何も触らずに抜ける。この後の判定は「mise が知らないツールは
-# 未インストール」とみなすので、そのまま進むと全部の補完を消してしまう。
 if ! MISE_LS="$("$MISE" ls --installed --no-header 2>/dev/null)"; then
   printf 'mise is not usable; leaving existing completions untouched.\n' >&2
   exit 0
 fi
 MISE_OWN="$("$MISE" --version 2>/dev/null | awk '{ print $1 }' || true)"
 
-# version_of <name>: インストール済みならその版、そうでなければ空を返す。
-# command -v では判定できない。mise の shim は config から外した後も残るので、
-# あってもインストール済みを意味しない。複数版あるときは最後の行＝最新（mise は昇順）。
 version_of() {
   local tool
   tool="$(mise_tool "$1")"
@@ -102,9 +72,6 @@ version_of() {
     awk -v t="$tool" '$1 == t { v = $2 } END { if (v != "") print v }'
 }
 
-# $STAMP の各行は "<name>\t<version>\t<ok|skip>"（インストール済みのものだけが載る）。
-# skip = その版では生成に失敗した。版が変わるまで再試行しない。こうしないと、失敗する
-# ツールが1つあるだけで毎回生成が走る。
 stamp_field() {
   [ -r "$STAMP" ] || return 0
   awk -F'\t' -v n="$1" -v f="$2" '$1 == n { print $f; exit }' "$STAMP"
@@ -125,8 +92,6 @@ announce() {
 for name in "${NAMES[@]}"; do
   version="$(version_of "$name")"
 
-  # 未インストールなら消す。残すと存在しないコマンドで TAB が候補を出す。
-  # stamp に行を残さないので、後で入れ直せば作り直される。
   if [ -z "$version" ]; then
     if [ -e "$COMP_DIR/_$name" ]; then
       announce
@@ -139,7 +104,6 @@ for name in "${NAMES[@]}"; do
   prev_version="$(stamp_field "$name" 2)"
   prev_state="$(stamp_field "$name" 3)"
 
-  # 作り直す条件: 強制 / 記録が無い / 版が変わった / 成功記録があるのにファイルが無い
   need=0
   if [ "$FORCE" -eq 1 ]; then
     need=1
@@ -168,10 +132,6 @@ done
 mv "$NEW_STAMP" "$STAMP"
 trap - EXIT
 
-# 補完ファイルの集合が変わったときだけ zcompdump を捨てる。内容だけの変化では捨てない
-# （持っているのは command → 補完関数の対応表だけで、関数本体は fpath から遅延
-# autoload されるため古くならない）。compinit 自身の #files 照合は、同数のまま
-# 入れ替わると気付けないので、ここで捨てる。
 if [ "$BEFORE" != "$(comp_files)" ]; then
   rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
   printf "  completion files changed; dropped stale zcompdump\n"

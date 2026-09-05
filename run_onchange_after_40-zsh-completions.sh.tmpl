@@ -1,11 +1,4 @@
 #!/usr/bin/env bash
-# zsh 補完が揃っていることを apply 時に保証する。生成の本体は
-# ~/.local/bin/refresh-zsh-completions で、普段は mise の postinstall hook が呼ぶ。
-# ここからも呼ぶのは、全ツールが既に入っていると `mise install` が何もせず hook も
-# 発火しないため。変化が無ければ本体が約20msで抜けるので、毎回呼んで害はない。
-#
-# 下のハッシュは本体の内容に連動するので、NAMES / emit() を編集すれば再実行される。
-# 補完が欲しいからといって config.toml にツールを足さないこと（理由はそちらの末尾）。
 # refresh-zsh-completions hash: {{ include "dot_local/bin/executable_refresh-zsh-completions" | sha256sum }}
 set -eu
 
@@ -15,5 +8,4 @@ if [ ! -x "$REFRESH" ]; then
   exit 0
 fi
 
-# 再実行されるのは本体が変わったとき＝対象が増減しうるので、早期脱出に頼らない。
 "$REFRESH" --force

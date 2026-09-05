@@ -15,8 +15,8 @@ WSL と実機の差はおおむね次の4つに集約される。
 
 | 症状 | 原因 | 対処 |
 | --- | --- | --- |
-| 既存の鍵があると `apply` が全面停止し、その鍵を消すまで復旧できない | `.chezmoiignore` が `ssh-keygen` を `output` で直接呼んでいた。chezmoi の `output` は非ゼロ終了をテンプレート評価のエラーにする | 判定を [scripts/needs-bitwarden.sh](../scripts/needs-bitwarden.sh) に一本化し、終了コードを文字列で受け取る |
-| 前から使っていた `~/.ssh/id_ed25519` が黙って消える | chezmoi は自分が一度も書いていないファイルを確認なしで上書きする | [run_before_00-backup-ssh-key.sh](../run_before_00-backup-ssh-key.sh) が指紋の違う鍵を `.bak.<日時>` へ退避する |
+| 既存の鍵があると `apply` が全面停止し、その鍵を消すまで復旧できない | `.chezmoiignore` が `ssh-keygen` を `output` で直接呼んでいた。chezmoi の `output` は非ゼロ終了をテンプレート評価のエラーにする | 判定を [scripts/needs-bitwarden.sh](../../scripts/needs-bitwarden.sh) に一本化し、終了コードを文字列で受け取る |
+| 前から使っていた `~/.ssh/id_ed25519` が黙って消える | chezmoi は自分が一度も書いていないファイルを確認なしで上書きする | [run_before_00-backup-ssh-key.sh](../../run_before_00-backup-ssh-key.sh) が指紋の違う鍵を `.bak.<日時>` へ退避する |
 | `chsh` で `apply` が止まり、mise の導入も補完生成も走らない | LDAP/SSSD 管理のアカウントは `chsh` を拒否する。sudo が無いと `/etc/shells` も書けない | 警告を出して続行する。ログインシェルは手で直せる |
 | `mise self-update` で同上 | self-update は standalone インストール専用。apt/pacman/nix/brew 版では失敗する | 同上 |
 | 最小構成のマシンで初回 `apply` が必ず失敗する | `unzip` を入れるのは 05 だが、それを要求する `before_` の 01 が先に走る | 01 が apt で自分で確保する |
@@ -34,7 +34,7 @@ WSL と実機の差はおおむね次の4つに集約される。
 
 | 症状 | 原因 | 対処 |
 | --- | --- | --- |
-| 記号が全部豆腐（□）になる | Nerd Font を Linux 側に入れていなかった（WSL では Windows Terminal 側にあった） | [run_once_after_15-nerd-font.sh](../run_once_after_15-nerd-font.sh) が導入する。端末側でフォントを選ぶ操作だけ手動 |
+| 記号が全部豆腐（□）になる | Nerd Font を Linux 側に入れていなかった（WSL では Windows Terminal 側にあった） | [run_once_after_15-nerd-font.sh](../../run_once_after_15-nerd-font.sh) が導入する。端末側でフォントを選ぶ操作だけ手動 |
 | クリップボードにコピーできない | `xclip` 決め打ち。Wayland 専用セッションや ssh 越し・TTY では動かない | `clip` 関数が wl-copy / xclip / OSC 52 を実行時に選ぶ |
 | GUI の git クライアントや VS Code と鍵が共有されない | デスクトップの ssh-agent がいるのに keychain が別の agent を立てていた | `ssh-add -l` の終了コードで判定し、既存の agent があればそこへ足す |
 | 全 ssh が `unix_listener: cannot bind to path` | `$HOME` が NFS だと ControlPath の Unix socket を作れない | `/run/user/$UID` を優先し、無い環境だけ `~/.ssh/control` に落とす |
@@ -49,4 +49,4 @@ WSL と実機の差はおおむね次の4つに集約される。
 
 `validate` ジョブが、鍵として読めない `~/.ssh/id_ed25519`（破損・空・別の鍵）でもテンプレート評価が落ちないことと、`mise.lock` に `bw` の linux-x64 / linux-arm64 エントリがあることを検査する。
 
-一方、**Bitwarden を要求する経路（`run_once_before_01/02`）は CI では一度も走らない**。`CI=true` で [needs-bitwarden.sh](../scripts/needs-bitwarden.sh) が常に「不要」を返すため。ここに入る変更は手で確認すること。
+一方、**Bitwarden を要求する経路（`run_once_before_01/02`）は CI では一度も走らない**。`CI=true` で [needs-bitwarden.sh](../../scripts/needs-bitwarden.sh) が常に「不要」を返すため。ここに入る変更は手で確認すること。

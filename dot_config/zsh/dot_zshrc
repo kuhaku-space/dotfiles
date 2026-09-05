@@ -1,31 +1,15 @@
-# dotfiles の同期状態をまとめて見る。
-#
-# 以前はこれをシェル起動ごとに走らせて「未コミット」を警告していたが、やめた。
-# 見ていたのはソースの作業ツリーだけで、$HOME 側の実ファイルを直接編集して
-# re-add を忘れるズレも、未 push も検知できていなかった。しかも chezmoi の
-# autoCommit / autoPush が commit と push を自動でやるので、警告すべき対象が
-# ほとんど残っていない。消せない警告を全シェルで鳴らすより、必要なときに呼ぶ方がよい。
-#
-# re-add 忘れは apply で即座に消えるわけではない。chezmoi が最後に書いた後に
-# ターゲットが変わっていれば apply は diff/overwrite/skip を聞いてくる。ただし
-# 聞かれるのは apply の途中なので事前には見えず、chezmoi が一度も書いていない
-# ファイル（新規マシンに既存ファイルがある等）は聞かれずに上書きされる。
-# だからズレは apply を打つ前にこの関数で見る。
 function dotfiles-status() {
   command -v chezmoi >/dev/null 2>&1 || {
     echo "chezmoi not found" >&2
     return 1
   }
 
-  # zsh では $status が $? の別名（読み取り専用）なので、変数名に使わない。
   local src drift
   src="$(chezmoi source-path)" || return 1
 
   echo -e "\e[1;36m[dotfiles] $src\e[m"
-  # 未コミットの変更と ahead/behind（未 push もここに出る）
   git -C "$src" status --short --branch
 
-  # $HOME とソースの差分（re-add 忘れ / apply 忘れ）
   drift="$(chezmoi status)"
   if [ -n "$drift" ]; then
     echo -e '\e[1;33m[dotfiles] $HOME とソースの差分 (M: 内容が違う / A: 未展開 / D: 削除予定)\e[m'
@@ -33,15 +17,7 @@ function dotfiles-status() {
   fi
 }
 
-# dotfiles / apt / mise / sheldon をまとめて更新する
 function update() {
-  # dotfiles を最初に更新する。順番には意味がある。この後の mise ブロックは
-  # mise.lock を re-add し、autoCommit がソースにローカルコミットを作る。先に
-  # pull していないと、そのコミットが chezmoi update の `git pull --rebase` で
-  # 他マシンの lock 更新の上に replay され、同じ version / checksum 行を両方が
-  # 書き換えているのでコンフリクトする。pull が失敗した時点で apply は走らないため、
-  # $HOME には何も反映されないままソースが rebase 途中で残る。先に pull しておけば
-  # re-add のコミットは fast-forward で push でき、rebase する対象が残らない。
   if command -v chezmoi >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"
     chezmoi update
@@ -58,51 +34,23 @@ function update() {
 
   if command -v mise >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] mise\e[m"
-    # upgrade を -C "$HOME" でグローバル config に閉じる。付けないと update を
-    # 叩いた場所がプロジェクトの中だったときにそのツールまで上がり、lockfile =
-    # true なのでプロジェクト側にも mise.lock が生える（あそこは各リポジトリの
-    # 管理下なのでこちらから触りたくない）。$HOME に mise.toml は無いので、
-    # 読まれるのは ~/.config/mise/config.toml だけになる。
     mise self-update -y && mise upgrade -C "$HOME" && mise prune
 
-    # mise.lock は $HOME 側で書き換わる生成物なので、更新後にソースへ取り込む。
-    # 取り込まないと次の `chezmoi apply` が古い lock で上書きしてしまう。
-    # （chezmoi の autoCommit / autoPush が commit と push まで行う）
     local mise_lock="${XDG_CONFIG_HOME:-$HOME/.config}/mise/mise.lock"
     if [ -f "$mise_lock" ] && command -v chezmoi >/dev/null 2>&1; then
       chezmoi re-add "$mise_lock"
     fi
   fi
 
-  # sheldon のプラグインは plugins.lock に固定されるので、明示的に更新しないと
-  # 一度 lock された版のまま古くなり続ける。
   if command -v sheldon >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] sheldon\e[m"
     sheldon lock --update
   fi
 
-  # starship が入れ替わると init 出力のキャッシュが古くなる。捨てておけば次の
-  # シェル起動で作り直される。
-  #
-  # zcompdump はここで捨てない。あれが持つのは command → 補完関数の対応表だけで、
-  # 関数本体は fpath から遅延 autoload されるため、ツールの版が上がっても古く
-  # ならない。補完ファイルが増減した場合も compinit がダンプ1行目の #files と
-  # 実際の数を照合して自分で作り直す。捨てると次の compinit が 36ms → 216ms に
-  # 伸びるだけだった（実測）。
-  #
-  # 補完そのものの更新は mise の postinstall hook が refresh-zsh-completions を
-  # 呼んで面倒を見る（上の mise ブロックで発火する）。増減を伴う場合はそちらが
-  # zcompdump を捨てる。
   echo -e "\e[1;36m[update] drop generated zsh caches\e[m"
   rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
 }
 
-# 標準入力をクリップボードへ送る。使える手段が環境で違うので実行時に選ぶ。
-#
-# WSL は WSLg 経由で xclip が通るが、実機はそうとは限らない。デスクトップは
-# Wayland が既定のことが多く（xclip は X11 専用）、ssh 越しや TTY には
-# ディスプレイ自体が無い。最後の OSC 52 は端末エスケープなので、対応した端末で
-# ssh していれば手元のクリップボードに入る。
 function clip() {
   if [[ -n "$WAYLAND_DISPLAY" ]] && (( $+commands[wl-copy] )); then
     wl-copy
@@ -115,32 +63,11 @@ function clip() {
 
 eval "$(mise activate zsh)"
 
-# VS Code / Copilot 等は、mise が有効な親プロセスの PATH 先頭へ helper を追加して
-# zsh を起動することがある。その場合、mise は既存の挿入位置を引き継ぐため、helper
-# が mise 管理ツールより前に残る。activate 後に管理ツールだけを先頭へ戻し、最初の
-# precmd hook がこの並びを元へ戻さないよう snapshot も更新する。
 path=(${(M)path:#${XDG_DATA_HOME}/mise/installs/*} ${path:#${XDG_DATA_HOME}/mise/installs/*})
 export __MISE_ZSH_ACTIVATE_PATH="$PATH"
 
 eval "$(sheldon source)"
 
-# 以下 zsh-defer するものは「最初のプロンプト表示に間に合わなくてよい」もの。
-# zsh-defer は登録順に実行するので、sheldon が登録した compinit / zeno /
-# zsh-autosuggestions の読み込みは、ここで登録する処理より先に完了する。
-
-# ssh-agent の用意。プロンプト表示に不要なので defer する。
-#
-# 無条件に keychain を起動してはいけない。実機のデスクトップ（GNOME/KDE）では
-# gnome-keyring や systemd の ssh-agent.socket が既に agent を出しており、そこへ
-# 重ねて keychain を立てると SSH_AUTH_SOCK がこのシェルだけ別 agent を指す。
-# GUI の git クライアントや VS Code はそちらを見ないので、鍵が共有されなくなる。
-#
-# ssh-add -l の終了コードで3つの状態を見分けられる:
-#   0 = agent に鍵が載っている        → 何もしない
-#   1 = agent はいるが鍵が無い        → その agent に足す（新しく立てない）
-#   2 = agent に繋がらない            → keychain に立ててもらう
-# 鍵にパスフレーズがある場合、defer 中のプロンプトは ZLE と衝突するので </dev/null で
-# 即座に失敗させる。その場合は ssh 接続時に AddKeysToAgent yes（~/.ssh/config）が拾う。
 function _init_ssh_agent() {
   local key="$HOME/.ssh/id_ed25519"
   [[ -r $key ]] || return 0
@@ -148,8 +75,6 @@ function _init_ssh_agent() {
   case $? in
     0) ;;
     1) ssh-add -q "$key" </dev/null &>/dev/null || true ;;
-    # keychain は apt でしか入れていないので、無い環境では黙って諦める
-    # （毎回のシェル起動で command not found を出さない）。
     *) (( $+commands[keychain] )) &&
       eval "$(keychain --eval --nogui --quiet --agents ssh "$key")" ;;
   esac
@@ -159,14 +84,11 @@ zsh-defer _init_ssh_agent
 
 setopt auto_cd
 setopt hist_ignore_all_dups
-setopt hist_ignore_space   # 先頭にスペースを付けたコマンドは履歴に残さない
-setopt hist_reduce_blanks  # 余分な空白を詰めて履歴に入れる
-setopt extended_history    # 実行時刻と所要時間も記録する
-setopt inc_append_history  # シェル終了時ではなく実行ごとに履歴を書き出す
+setopt hist_ignore_space
+setopt hist_reduce_blanks
+setopt extended_history
+setopt inc_append_history
 setopt nonomatch
 
-# widget を提供するプラグイン（zsh-autosuggestions / zeno）は defer で読まれるので、
-# bindkey も同じく defer する。即時に張ると、プラグインが読まれるまでの短い間だけ
-# `No such widget` になり、そのキー入力（特にスペース）が捨てられる。
 zsh-defer -c "bindkey '^ ' autosuggest-accept"
 zsh-defer -c "bindkey ' ' zeno-auto-snippet; bindkey '^]' zeno-ghq-cd; bindkey '^r' zeno-history-selection; bindkey '^x' zeno-insert-snippet"
