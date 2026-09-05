@@ -90,13 +90,15 @@ chezmoi が実行するスクリプトと、リポジトリ内の補助コマン
 
 ### `refresh-zsh-completions`
 
-[dot_local/bin/executable_refresh-zsh-completions](../../dot_local/bin/executable_refresh-zsh-completions) は、インストール済みツールの zsh 補完を `~/.local/share/zsh/completions` に生成する。起動時間との関係は [zsh-startup.md](zsh-startup.md) を参照する。
+[dot_local/bin/executable_refresh-zsh-completions](../../dot_local/bin/executable_refresh-zsh-completions) は、インストール済みツールの zsh 補完を `~/.local/share/zsh/completions` に生成する。Carapace の全completer登録コードは通常の補完関数ではないため、`~/.cache/zsh/carapace-init.zsh` に分けて生成する。起動時間との関係は [zsh-startup.md](zsh-startup.md) を参照する。
 
 - hook の再帰を防ぐため `MISE_NO_HOOKS=1` で mise を呼ぶ。
-- 対象ツールは `NAMES` で管理する。グローバル設定にないプロジェクト専用ツールも、インストール済みなら対象にできる。
+- Carapace未対応で静的生成が必要な対象は `NAMES` で管理する。現在は `bw` と `mise` だけである。
+- stampに残っている旧対象は補完ファイルを削除し、Carapace管理へ移す。
 - shim は CWD によってバージョンを解決できないため、`mise exec <tool>@<version>` を使う。`bw` は既定の appdata directory を作らないよう場所を明示する。
 - `mise ls --installed` を一度だけ実行して使い回す。`--current` は CWD 依存で、postinstall と chezmoi apply の実行場所によって生成と削除を繰り返すため使わない。mise が利用不能なら既存補完を消さず終了する。
 - stamp はインストール済みツールごとに名前、バージョン、`ok` または `skip` を記録する。失敗した同じバージョンは毎回再試行せず、バージョン変更時に再試行する。
+- Carapace の登録コードも同じstampでバージョンを追跡し、未導入になった場合はcacheを削除する。
 - 強制指定、初回、バージョン変更、成功記録があるのに生成物がない場合だけ再生成する。未インストールのツールは補完と stamp を削除し、再導入時に生成し直す。
 - zcompdump は補完ファイルの集合が変わった場合だけ削除する。内容だけの変更では command と補完関数の対応は変わらず、関数本体は `fpath` から遅延ロードされる。
 

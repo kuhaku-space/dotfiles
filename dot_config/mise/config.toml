@@ -9,6 +9,7 @@ claude = "github:anthropics/claude-code"
 
 [tools]
 bat = "latest"
+carapace = "latest"
 deno = "latest"
 eza = "latest"
 fzf = "latest"

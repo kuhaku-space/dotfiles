@@ -21,6 +21,10 @@ export ZENO_GIT_TREE="eza --tree"
 
 export FZF_DEFAULT_OPTS="--reverse"
 
+# Register every completer provided by Carapace; native fallbacks are kept only
+# for commands Carapace does not support.
+unset CARAPACE_EXCLUDES
+
 for _openssl_libdir in "/usr/lib/${CPUTYPE:-$(uname -m)}-linux-gnu" /usr/lib64 /usr/lib; do
   if [ -e "$_openssl_libdir/libssl.so" ] && [ -e /usr/include/openssl/ssl.h ]; then
     export OPENSSL_LIB_DIR="$_openssl_libdir"

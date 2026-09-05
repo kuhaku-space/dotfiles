@@ -27,6 +27,8 @@ _init_compinit() {
   autoload -Uz compinit
   compinit -d "$zdump"
   [[ -s "$zdump.zwc" && "$zdump.zwc" -nt "$zdump" ]] || zcompile "$zdump"
+  local carapace_init="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/carapace-init.zsh"
+  [[ -s $carapace_init ]] && source "$carapace_init"
   unset -f _init_compinit
 }
 zsh-defer _init_compinit

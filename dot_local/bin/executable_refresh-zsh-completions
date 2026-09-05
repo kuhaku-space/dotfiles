@@ -2,10 +2,13 @@
 set -eu
 
 COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
+CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+CARAPACE_INIT="$CACHE_DIR/carapace-init.zsh"
 STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/completions.stamp"
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 
 export MISE_NO_HOOKS=1
+unset CARAPACE_EXCLUDES
 
 FORCE=0
 case "${1:-}" in
@@ -17,7 +20,7 @@ case "${1:-}" in
     ;;
 esac
 
-NAMES=(chezmoi gh deno jj zellij bw bat typst mise)
+NAMES=(bw mise)
 
 emit() {
   local name="$1" version="$2" tool
@@ -28,21 +31,13 @@ emit() {
   fi
   local -a run=("$MISE" exec "$tool@$version" --)
   case "$name" in
-    chezmoi) "${run[@]}" chezmoi completion zsh ;;
-    gh) "${run[@]}" gh completion -s zsh ;;
-    deno) "${run[@]}" deno completions zsh ;;
-    jj) "${run[@]}" jj util completion zsh ;;
-    zellij) "${run[@]}" zellij setup --generate-completion zsh ;;
     bw) BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" "${run[@]}" bw completion --shell zsh ;;
-    bat) "${run[@]}" bat --completion zsh ;;
-    typst) "${run[@]}" typst completions zsh ;;
     *) return 1 ;;
   esac
 }
 
 mise_tool() {
   case "$1" in
-    jj) printf 'jujutsu\n' ;;
     bw) printf 'bitwarden\n' ;;
     mise) printf '\n' ;;
     *) printf '%s\n' "$1" ;;
@@ -53,7 +48,7 @@ comp_files() {
   find "$COMP_DIR" -maxdepth 1 -type f -printf '%f\n' 2>/dev/null | LC_ALL=C sort || true
 }
 
-mkdir -p "$COMP_DIR" "$(dirname "$STAMP")"
+mkdir -p "$COMP_DIR" "$CACHE_DIR" "$(dirname "$STAMP")"
 
 if ! MISE_LS="$("$MISE" ls --installed --no-header 2>/dev/null)"; then
   printf 'mise is not usable; leaving existing completions untouched.\n' >&2
@@ -88,6 +83,25 @@ announce() {
   printf "\e[1;36mGenerate zsh completions\e[m\n"
   announced=1
 }
+
+is_static_name() {
+  local candidate="$1" name
+  for name in "${NAMES[@]}"; do
+    [ "$candidate" = "$name" ] && return 0
+  done
+  return 1
+}
+
+if [ -r "$STAMP" ]; then
+  while IFS=$'\t' read -r old_name _; do
+    [ "$old_name" = "carapace-init" ] && continue
+    if ! is_static_name "$old_name" && [ -e "$COMP_DIR/_$old_name" ]; then
+      announce
+      rm -f "$COMP_DIR/_$old_name"
+      printf "  removed _%s (managed by carapace)\n" "$old_name"
+    fi
+  done <"$STAMP"
+fi
 
 for name in "${NAMES[@]}"; do
   version="$(version_of "$name")"
@@ -128,6 +142,43 @@ for name in "${NAMES[@]}"; do
     printf '%s\t%s\tskip\n' "$name" "$version" >>"$NEW_STAMP"
   fi
 done
+
+carapace_version="$(version_of carapace)"
+if [ -z "$carapace_version" ]; then
+  if [ -e "$CARAPACE_INIT" ]; then
+    announce
+    rm -f "$CARAPACE_INIT"
+    printf "  removed carapace init (not installed)\n"
+  fi
+else
+  prev_version="$(stamp_field carapace-init 2)"
+  prev_state="$(stamp_field carapace-init 3)"
+  need=0
+  if [ "$FORCE" -eq 1 ]; then
+    need=1
+  elif [ -z "$prev_version" ] || [ "$prev_version" != "$carapace_version" ]; then
+    need=1
+  elif [ "$prev_state" = "ok" ] && [ ! -s "$CARAPACE_INIT" ]; then
+    need=1
+  fi
+
+  if [ "$need" -eq 1 ]; then
+    announce
+    carapace_tmp="$(mktemp "$CACHE_DIR/carapace-init.XXXXXX")"
+    if "$MISE" exec "carapace@$carapace_version" -- carapace _carapace zsh >"$carapace_tmp" 2>/dev/null &&
+      [ -s "$carapace_tmp" ]; then
+      mv "$carapace_tmp" "$CARAPACE_INIT"
+      printf "  generated carapace init (%s)\n" "$carapace_version"
+      printf 'carapace-init\t%s\tok\n' "$carapace_version" >>"$NEW_STAMP"
+    else
+      rm -f "$carapace_tmp"
+      printf "  skip carapace init (generation failed)\n"
+      printf 'carapace-init\t%s\tskip\n' "$carapace_version" >>"$NEW_STAMP"
+    fi
+  else
+    printf 'carapace-init\t%s\t%s\n' "$carapace_version" "$prev_state" >>"$NEW_STAMP"
+  fi
+fi
 
 mv "$NEW_STAMP" "$STAMP"
 trap - EXIT

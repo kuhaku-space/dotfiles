@@ -47,7 +47,7 @@ CI は Bitwarden 認証を利用できないため秘密鍵と公開鍵を除外
 
 [mise設定](../../dot_config/mise/config.toml) は `lockfile = true` とし、`latest` 指定を解決したバージョン、URL、checksum を `mise.lock` に記録する。グローバル lock の作成・更新には `mise lock --global` または `mise upgrade` を使う。`update` 関数は更新後の lockfile を chezmoi のソースへ取り込む。
 
-`postinstall` hook は、ツールの導入・更新直後に `refresh-zsh-completions` を呼ぶ。これがないと、補完の更新は chezmoi の onchange スクリプトが変化した場合に限られ、`mise upgrade` 後も古い補完が残る。
+`postinstall` hook は、ツールの導入・更新直後に `refresh-zsh-completions` を呼ぶ。これがないと、補完の更新は chezmoi の onchange スクリプトが変化した場合に限られ、`mise upgrade` 後も古い補完が残る。補完はCarapaceへ集約し、未対応の `bw` と `mise` だけ各CLIの生成機能を使う。起動ごとの subprocess を避けるため、Carapaceのzsh登録コードもこの hook で生成する。
 
 Claude Code は aqua backend ではなく GitHub Releases から取得する。mise 2026.8.4 では aqua registry の backend type override が反映されず、空 URL によってインストールと lockfile が壊れたためである。アーカイブ内の実行ファイル名は `claude-code` ではなく `claude` なので明示する。aqua 側の問題が解消した場合は通常の `latest` 指定へ戻せる。
 
@@ -102,7 +102,7 @@ SSH agent初期化はprompt後へ遅延する。`ssh-add -l` の終了コード0
 
 1. `zsh-defer` を最初に同期ロードする。
 2. `zsh-completions` はfpathを広げるためcompinitより前に同期ロードする。
-3. fpath確定後にcompinitを遅延実行する。
+3. fpath確定後にcompinitを遅延実行し、直後に生成済みのCarapace登録コードを読む。
 4. 補完を必要としない残りのpluginを遅延ロードする。
 
 inline pluginには通常のdefer templateが適用されないため、自身で`zsh-defer`を呼ぶ。compinitのdumpは変更時だけzcompileする。Starshipは最初のpromptに必要なので遅延せず、init出力をcacheして毎回のsubprocessを避ける。zoxideは最初に`z`を使うまでに用意できればよいので遅延する。mise補完は静的生成するため、起動時には生成しない。

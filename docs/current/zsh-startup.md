@@ -11,6 +11,7 @@
 | `zoxide init` | defer | `z` を打つまでに間に合えばよい |
 | `starship init` | キャッシュ | プロンプトなので defer できない。出力を `$XDG_CACHE_HOME/zsh/starship-init.zsh` に保存 |
 | `mise completion` | 静的生成 | 毎起動の subprocess をやめ、補完ファイルとして `fpath` に置く |
+| `carapace _carapace` | キャッシュ | 全completerの登録コードを更新時に生成し、`compinit`直後に読む |
 | `bindkey` | defer | widget を定義するプラグイン（zeno / autosuggestions）が defer なので、即時に張ると読み込み前の入力が `No such widget` で捨てられる |
 
 `apply = ["defer"]` は **inline プラグインには効かない**（テンプレートは `files` を展開するためのもの）。inline を遅延したいときは自分で `zsh-defer` を書く。読み込み順の約束は [plugins.toml](../../dot_config/sheldon/plugins.toml) 冒頭のコメントにまとめてある。
