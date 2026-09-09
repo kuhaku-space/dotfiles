@@ -63,6 +63,16 @@ function clip() {
   fi
 }
 
+autoload -Uz add-zsh-hook
+function _flush_tty_input() {
+  local ret=$?
+  local junk
+  read -t 0 -k 1 junk || return $ret
+  while read -t 0.1 -k 1 junk; do :; done
+  return $ret
+}
+add-zsh-hook precmd _flush_tty_input
+
 eval "$(mise activate zsh)"
 
 path=(${(M)path:#${XDG_DATA_HOME}/mise/installs/*} ${path:#${XDG_DATA_HOME}/mise/installs/*})

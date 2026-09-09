@@ -88,6 +88,8 @@ Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 
 `clip` はWaylandでは`wl-copy`、X11では`xclip`、表示サーバーがなければOSC 52を選ぶ。SSH越しでもOSC 52対応端末なら手元のclipboardへ送れる。
 
+`precmd` hookは、ペーストした入力をプログラムが読み切らずに終了した場合に、ttyへ残った文字が次のコマンドとして実行されるのを防ぐ。ペーストの残りは遅れて届くため、入力が0.1秒途切れるまで読み捨てる。既に先行入力された文字も一緒に破棄されるが、入力がなければ即座に戻るため通常のpromptは遅延させない。
+
 miseをactivateした親プロセスからVS CodeなどがPATH先頭にhelperを挿入する場合があるため、activate後にmise管理ツールを先頭へ戻し、miseのsnapshotも更新する。
 
 SSH agent初期化はprompt後へ遅延する。`ssh-add -l` の終了コード0は鍵あり、1は既存agentに鍵なし、その他はagent接続不可として扱う。既存のdesktop agentがあればそこへ追加し、なければkeychainを使う。遅延処理中のpassphrase promptはZLEと競合するためstdinを閉じ、後のSSH接続時に`AddKeysToAgent`へ任せる。keychainがない環境では静かに終了する。
