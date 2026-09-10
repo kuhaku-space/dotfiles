@@ -8,7 +8,7 @@
 
 [`.chezmoi.toml.tmpl`](../../.chezmoi.toml.tmpl) は、初期化時の実際のソース位置を `.chezmoi.sourceDir` から取得する。これにより既定の `~/.local/share/chezmoi` と ghq 配下のどちらで初期化しても、生成される `chezmoi.toml` が正しい場所を参照する。
 
-Bitwarden の `unlock = true` により、秘密鍵テンプレートが Bitwarden を必要とするときだけ chezmoi が `bw unlock` を実行する。正しい鍵が既にある通常の `apply` では `.chezmoiignore` が秘密鍵を除外するため、アンロックも発生しない。
+Bitwarden の `unlock = true` により、秘密鍵テンプレートが Bitwarden を必要とするときだけ chezmoi が `bw unlock` を実行する。`command` は初回先行導入先の `~/.local/bin/bw` を絶対パスで指定する。導入スクリプトが子プロセスとして動いても親の chezmoi の PATH は更新されないため、初回の同じ `apply` 内でも確実に起動できるようにするためである。正しい鍵が既にある通常の `apply` では `.chezmoiignore` が秘密鍵を除外するため、アンロックも発生しない。
 
 Git の autoCommit と autoPush は、chezmoi がソースへ加えた変更を自動公開する。このため秘密情報検査を pre-commit と CI の両方で実施する。
 
@@ -149,6 +149,6 @@ SSH鍵の導入・更新手順は [ssh-keys-bitwarden.md](ssh-keys-bitwarden.md)
 
 `validate`は履歴全体のsecret scanに必要なためfull historyをcheckoutする。runnerから認証なしでGitHub APIを使うと403になる場合があるため、actionlintのrelease assetは`GH_TOKEN`を設定した`gh`で取得する。拡張子を持たない`dot_local/bin/`もShellCheck対象へ明示的に含め、chezmoiのshell templateはrender後にも`bash -n`を実行する。zsh設定とSheldonのinline codeはzsh構文として検査する。
 
-chezmoi template検査では、Bitwarden認証を要求する秘密鍵templateだけを通常renderから除外する。一方、CI分岐が秘密鍵を除外すること、破損・空・別の鍵でも`.chezmoiignore`評価が停止しないこと、Bitwardenのx86_64／arm64取得情報がlockfileに残っていることを個別に検証する。TOML検査は拡張子が`.toml`でないmise lockfileも含め、allowed signersは3 fieldが存在し公開鍵として解釈できることまで確認する。
+chezmoi template検査では、Bitwarden認証を要求する秘密鍵templateだけを通常renderから除外する。一方、CI分岐が秘密鍵を除外すること、破損・空・別の鍵でも`.chezmoiignore`評価が停止しないこと、Bitwardenのx86_64／arm64取得情報がlockfileに残っていることを個別に検証する。TOML検査は拡張子が`.toml`でないmise lockfileも含め、生成した`bitwarden.command`が各環境の`~/.local/bin/bw`の絶対パスであることも検査する。allowed signersは3 fieldが存在し公開鍵として解釈できることまで確認する。
 
 `bootstrap`はREADMEのone-linerと同じ`chezmoi init --apply`経路を素のUbuntu containerで実行する。read-only mountを直接使うとremoteを書き換えられず、runner所有のcopyはGitのdubious ownership判定を受けるため、`/root/dotfiles`へcopyして所有者を揃える。展開ファイル、CIでの鍵除外、`bin/`除外、login shell、SSH remote、hook、対話zsh、補完、Starship cacheを検査し、CIで導入するsubsetについて実際のversionが配布lockfileと一致することも確認する。

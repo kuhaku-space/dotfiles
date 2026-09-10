@@ -1,6 +1,7 @@
 sourceDir = {{ .chezmoi.sourceDir | quote }}
 
 [bitwarden]
+    command = {{ joinPath .chezmoi.homeDir ".local/bin/bw" | quote }}
     unlock = true
 
 [git]

@@ -32,7 +32,7 @@ chezmoi が実行するスクリプトと、リポジトリ内の補助コマン
 
 [run_once_before_02-bitwarden-login.sh](../../run_once_before_02-bitwarden-login.sh) は、鍵の取得が必要で `bw status` が `unauthenticated` の場合だけ対話的なログインを開始する。`locked` と `unlocked` はログイン済みなので何もしない。アンロックは `.chezmoi.toml.tmpl` の `bitwarden.unlock = true` が担当する。
 
-01 が `~/.local/bin` に配置した直後は PATH に反映されていない場合があるため、そこも明示的に探索する。後からログアウトした場合は手動で `bw login` してから再適用する。SSH 鍵全体の運用は [ssh-keys-bitwarden.md](ssh-keys-bitwarden.md) を参照する。
+01 が `~/.local/bin` に配置した直後は PATH に反映されていない場合があるため、そこも明示的に探索する。chezmoi 本体が続けて行うアンロックも同じ問題を避けるため、`.chezmoi.toml.tmpl` の `bitwarden.command` がこの先行導入先を絶対パスで指定する。後からログアウトした場合は手動で `bw login` してから再適用する。SSH 鍵全体の運用は [ssh-keys-bitwarden.md](ssh-keys-bitwarden.md) を参照する。
 
 ## apply 後のセットアップ
 

@@ -163,7 +163,13 @@ jobs:
               )
           )
           with rendered.open("rb") as f:
-              tomllib.load(f)
+              rendered_config = tomllib.load(f)
+          expected_bw = str(Path.home() / ".local/bin/bw")
+          actual_bw = rendered_config.get("bitwarden", {}).get("command")
+          if actual_bw != expected_bw:
+              raise SystemExit(
+                  f"bitwarden.command is {actual_bw!r}, expected {expected_bw!r}"
+              )
           '
 
       - name: Validate git config
@@ -214,6 +220,8 @@ jobs:
               test -f /root/.config/git/allowed_signers
               test -f /root/.ssh/known_hosts.chezmoi
               test -f /root/.config/jj/config.toml
+              grep -Fqx "    command = \"/root/.local/bin/bw\"" \
+                /root/.config/chezmoi/chezmoi.toml
               test ! -e /root/.ssh/id_ed25519
               test ! -e /root/bin/chezmoi
               getent passwd root | grep -q "zsh$"
