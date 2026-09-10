@@ -5,8 +5,6 @@ warn() {
   printf "\e[1;33m%s\e[m\n" "$1" >&2
 }
 
-cd "$HOME"
-
 printf "\e[1;36mChange default shell to zsh\e[m\n"
 ZSH_PATH="$(command -v zsh || true)"
 CURRENT_SHELL="$(getent passwd "$(id -un)" 2>/dev/null | cut -d: -f7)"

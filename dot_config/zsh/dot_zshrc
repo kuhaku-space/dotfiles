@@ -28,7 +28,6 @@ function update() {
     sudo apt update -qq &&
       sudo apt upgrade -qq -y &&
       sudo apt autoremove -qq -y &&
-      sudo apt autoclean -qq -y &&
       sudo apt clean -qq -y
   fi
 

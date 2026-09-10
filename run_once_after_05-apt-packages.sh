@@ -40,6 +40,5 @@ if [ ${#MISSING_PACKAGES[@]} -ne 0 ]; then
   sudo -E apt-get update -qq
   sudo -E apt-get install -qq -y "${MISSING_PACKAGES[@]}"
   sudo -E apt-get autoremove -qq -y
-  sudo -E apt-get autoclean -qq -y
   sudo -E apt-get clean -qq -y
 fi
