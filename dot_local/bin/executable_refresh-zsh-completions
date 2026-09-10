@@ -1,10 +1,13 @@
 #!/usr/bin/env bash
 set -eu
 
-COMP_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/zsh/completions"
-CACHE_DIR="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+DATA_HOME="${XDG_DATA_HOME:-$HOME/.local/share}"
+CACHE_HOME="${XDG_CACHE_HOME:-$HOME/.cache}"
+STATE_HOME="${XDG_STATE_HOME:-$HOME/.local/state}"
+COMP_DIR="$DATA_HOME/zsh/completions"
+CACHE_DIR="$CACHE_HOME/zsh"
 CARAPACE_INIT="$CACHE_DIR/carapace-init.zsh"
-STAMP="${XDG_STATE_HOME:-$HOME/.local/state}/zsh/completions.stamp"
+STAMP="$STATE_HOME/zsh/completions.stamp"
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 
 export MISE_NO_HOOKS=1
@@ -72,6 +75,14 @@ stamp_field() {
   awk -F'\t' -v n="$1" -v f="$2" '$1 == n { print $f; exit }' "$STAMP"
 }
 
+needs_refresh() {
+  local previous_version="$1" current_version="$2" previous_state="$3" output="$4"
+  [ "$FORCE" -eq 1 ] ||
+    [ -z "$previous_version" ] ||
+    [ "$previous_version" != "$current_version" ] ||
+    { [ "$previous_state" = "ok" ] && [ ! -s "$output" ]; }
+}
+
 BEFORE="$(comp_files)"
 NEW_STAMP="$(mktemp)"
 # shellcheck disable=SC2064  # 展開は trap 設定時に済ませたい
@@ -118,16 +129,7 @@ for name in "${NAMES[@]}"; do
   prev_version="$(stamp_field "$name" 2)"
   prev_state="$(stamp_field "$name" 3)"
 
-  need=0
-  if [ "$FORCE" -eq 1 ]; then
-    need=1
-  elif [ -z "$prev_version" ] || [ "$prev_version" != "$version" ]; then
-    need=1
-  elif [ "$prev_state" = "ok" ] && [ ! -s "$COMP_DIR/_$name" ]; then
-    need=1
-  fi
-
-  if [ "$need" -eq 0 ]; then
+  if ! needs_refresh "$prev_version" "$version" "$prev_state" "$COMP_DIR/_$name"; then
     printf '%s\t%s\t%s\n' "$name" "$version" "$prev_state" >>"$NEW_STAMP"
     continue
   fi
@@ -153,16 +155,7 @@ if [ -z "$carapace_version" ]; then
 else
   prev_version="$(stamp_field carapace-init 2)"
   prev_state="$(stamp_field carapace-init 3)"
-  need=0
-  if [ "$FORCE" -eq 1 ]; then
-    need=1
-  elif [ -z "$prev_version" ] || [ "$prev_version" != "$carapace_version" ]; then
-    need=1
-  elif [ "$prev_state" = "ok" ] && [ ! -s "$CARAPACE_INIT" ]; then
-    need=1
-  fi
-
-  if [ "$need" -eq 1 ]; then
+  if needs_refresh "$prev_version" "$carapace_version" "$prev_state" "$CARAPACE_INIT"; then
     announce
     carapace_tmp="$(mktemp "$CACHE_DIR/carapace-init.XXXXXX")"
     if "$MISE" exec "carapace@$carapace_version" -- carapace _carapace zsh >"$carapace_tmp" 2>/dev/null &&
@@ -184,6 +177,6 @@ mv "$NEW_STAMP" "$STAMP"
 trap - EXIT
 
 if [ "$BEFORE" != "$(comp_files)" ]; then
-  rm -f "${XDG_CACHE_HOME:-$HOME/.cache}/zsh/zcompdump-"*
+  rm -f "$CACHE_DIR/zcompdump-"*
   printf "  completion files changed; dropped stale zcompdump\n"
 fi
