@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-check_command() {
-  command -v "$1" >/dev/null 2>&1
-}
-
 warn() {
   printf "\e[1;33m%s\e[m\n" "$1" >&2
 }
@@ -43,7 +39,7 @@ mkdir -p "$HOME/.ssh/control" "$HOME/.ssh/config.d"
 chmod 700 "$HOME/.ssh/control" "$HOME/.ssh/config.d"
 
 printf "\e[1;36mInstall mise\e[m\n"
-check_command mise || curl -fsSL https://mise.run | sh
+command -v mise >/dev/null 2>&1 || curl -fsSL https://mise.run | sh
 MISE="$(command -v mise || echo "$HOME/.local/bin/mise")"
 "$MISE" self-update -y ||
   warn "mise self-update failed (not a standalone install?). Update it with your package manager."

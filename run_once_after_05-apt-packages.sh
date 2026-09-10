@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 set -eu
 
-check_command() {
-  command -v "$1" >/dev/null 2>&1
-}
-
 PACKAGES=(
   "ca-certificates"
   "curl"
@@ -23,7 +19,7 @@ PACKAGES=(
   "fontconfig"
 )
 
-if ! check_command apt-get; then
+if ! command -v apt-get >/dev/null 2>&1; then
   printf "\e[1;33mapt is not available on this system.\e[m\n" >&2
   printf "Install the equivalent of these packages with your package manager,\n" >&2
   printf "otherwise zsh / keychain / clipboard / builds will not work:\n" >&2
