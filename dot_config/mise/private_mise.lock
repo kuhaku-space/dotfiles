@@ -47,43 +47,43 @@ url_api = "https://api.github.com/repos/rhysd/actionlint/releases/assets/3849249
 provenance = "github-attestations"
 
 [[tools.atuin]]
-version = "18.21.0"
+version = "18.22.0"
 backend = "aqua:atuinsh/atuin"
 
 [tools.atuin."platforms.linux-arm64"]
-checksum = "sha256:dbdee27f7fc67b92e770d1af89d3b421051499a058cd3e4698d123e0117fa950"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647911"
+checksum = "sha256:591680ad8045f87f2b524a3654232a1e91b4ba7e8d52fe2d18885437a3fc5265"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690852"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-arm64-musl"]
-checksum = "sha256:9b8a76df370eba71ea0809d4df74f79351be2314c1ed90cae229499e69ca2ee1"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647921"
+checksum = "sha256:76d12818e3dff64ddac3b9f4ec63b305070ddcf5fc382a2a23dc0826fa9bf5a8"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690849"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-x64"]
-checksum = "sha256:434d82b4c5f691b6f0423f30a4b931df4afded19b05a795a280192fdf8a61a2d"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647975"
+checksum = "sha256:920200b8e2ecff88eb8f2c2d4bfc4c62ed1c2f4efca2ba854a23bd157a542328"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690960"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-x64-musl"]
-checksum = "sha256:792e1867d113ba9bebec94996b3160164aba738e3d23987b3cddb9dee976ac08"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647980"
+checksum = "sha256:b3c123df1887cf27c6480a87d148c86831cd83da478e0a8ab773ca188f3f3222"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690977"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.macos-arm64"]
-checksum = "sha256:c78ac159c89c38ee0b56eb6a11d9c0a7340de3a03b98fbbccd44f8e2d91e6e6e"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647916"
+checksum = "sha256:5e6e525f60147351f114397e7f09aeded87f302e99ef83a5eee74c524b805812"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690857"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.windows-x64"]
-checksum = "sha256:08ecd4aca5836754e53eaa987fd0d514b527689335a11b6ef05121abaabb7da7"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.21.0/atuin-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/538647972"
+checksum = "sha256:b7848f9fd1445eb9679ab206013eee71ceb82971cbb770cec2a2e999510cb52d"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690950"
 provenance = "github-attestations"
 
 [[tools.bat]]
@@ -250,43 +250,43 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/53665369
 provenance = "cosign"
 
 [[tools.claude]]
-version = "2.1.266"
+version = "2.1.267"
 backend = "github:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-checksum = "sha256:88b299b5854d00a2788131d312f06c436fac5e58a014e06c7566587d759bb4f8"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525499"
+checksum = "sha256:a8d72d6586f7858210c1fcd538c4a517d9cd44268d92edbc71380f56afab372f"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320291"
 
 [tools.claude."platforms.linux-arm64-musl"]
-checksum = "sha256:1ca59f3f2c25cb5df48af1718444256c1eba617737088c18bf44402ae81f5f7a"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525494"
+checksum = "sha256:f7d3ede71c34e5a3250191730f493c48c915c3cf620f2b1ee1e3c7115ba0338f"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320294"
 
 [tools.claude."platforms.linux-x64"]
-checksum = "sha256:80e04708880470c6d566a414fbc55c52059631feb7cc54537d1d4b39786b20d9"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525634"
+checksum = "sha256:449bc65dc82d68694103a801c8ac54b6549f9e12f469217c9e0d5560c1085023"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320444"
 
 [tools.claude."platforms.linux-x64-musl"]
-checksum = "sha256:a1b87ad4e757b429fa94a1d1fd452dc25d67f75e3fbdc995d62511166d375e39"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525495"
+checksum = "sha256:866c9778a3fce3cd2005fa8cf8d276962ed57c049ef77d356ce2b3bdb4512c49"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320292"
 
 [tools.claude."platforms.macos-arm64"]
-checksum = "sha256:0fef53e10206aa3e819f0c156313ac67574c1d9be44355f3587c1f08688df4e5"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525497"
+checksum = "sha256:eef3ff022932943bffca2439f8ca4a28381b2adc1cf46c76177879e233c1b290"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320289"
 
 [tools.claude."platforms.macos-x64"]
-checksum = "sha256:4391769450d2f4935e5503aee98dcd7863bcbd293838031dc241d1ea5dbc9f26"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525500"
+checksum = "sha256:2b1d62b17ac11bedc9b70dfdbdaa36b9bcb979be93a64a9fb6c8b9d11b6ffa63"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320293"
 
 [tools.claude."platforms.windows-x64"]
-checksum = "sha256:741120655b10b0134bc3189fb1d8ca9d899e55931182a3df309b8f3dd0a3fa2b"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.266/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/551525641"
+checksum = "sha256:7f414f9d74d1dab779f1c85a6e8ed96557811d434f5c325efb68f7685c2dce86"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.267/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/553320464"
 
 [[tools.deno]]
 version = "2.9.6"
