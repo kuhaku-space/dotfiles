@@ -111,7 +111,25 @@ inline pluginには通常のdefer templateが適用されないため、自身�
 
 ## Atuin
 
-[Atuin設定](../../dot_config/atuin/config.toml) は、導入時点では履歴同期とupdate checkを無効にしてローカルだけで運用する。検索はGit repository全体を対象にできるworkspace filterとfuzzy matchingを既定にし、組み込みのsecret filterを有効にする。同期を有効にする場合は、暗号鍵をBitwardenへ保存し、必要な`history_filter`と`cwd_filter`を追加してから行う。
+[Atuin設定](../../dot_config/atuin/config.toml) はAtuin Cloud（`https://api.atuin.sh`）へ履歴を同期する。履歴は端末側で暗号化してから送るため、鍵を持たないサーバーは中身を読めない。update checkはmiseがバージョンを固定するので無効にする。検索はGit repository全体を対象にできるworkspace filterとfuzzy matchingを既定にし、組み込みのsecret filterを有効にする。
+
+同期する以上、機密を含むコマンドは記録の時点で落とす。`history_filter`は組み込みのsecret filterが拾わない範囲を補う。
+
+| パターン | 落とすもの |
+| --- | --- |
+| `^\s*bw\b` | Bitwarden CLI。session tokenやmaster passwordが引数に乗る |
+| `^\s*atuin\s+(login\|register\|key)\b` | Atuin自身の認証情報と暗号鍵 |
+| `(?i)(password\|passwd\|secret\|token\|api[-_]?key)\s*=` | 環境変数やオプションでの値の直接指定 |
+| `(?i)authorization:\s*\S` | `curl -H "Authorization: Bearer ..."` 形式のtoken |
+
+正規表現はunanchoredなので、`^`を付けないものはコマンド中のどこに現れても一致する。`grep password= .`のような無害なコマンドも巻き添えで落ちるが、cloudへ送る以上は記録しない側に倒す。機密を扱うworking directoryは現状ないため`cwd_filter`は設定しない。必要になった時点で追加する。
+
+暗号鍵`~/.local/share/atuin/key`はBitwardenのSecure Note item 1件に保存する。鍵はサーバーに渡らないので、失うとサーバー側の履歴を復号できなくなる。新しい端末では`atuin login`にこの鍵を渡して既存の履歴に合流する。SSH鍵と違いchezmoiのtemplateでは展開しない。展開するにはログインにpasswordも要るので、鍵だけ自動で置いても無人化にはならないためである。
+
+```sh
+atuin login -u <username>   # password と key を対話で入力
+atuin sync
+```
 
 ## SSH
 

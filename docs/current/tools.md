@@ -17,7 +17,7 @@
 | ツール | 用途 |
 | --- | --- |
 | starship | prompt。init 出力を cache して起動ごとの subprocess を避ける |
-| atuin | `Ctrl-R` の履歴検索。同期は無効でローカルだけで使う |
+| atuin | `Ctrl-R` の履歴検索。Atuin Cloud へ暗号化して同期する（[設定](configuration.md#atuin)） |
 | zoxide | 使用履歴に基づくディレクトリ移動 |
 | carapace | 補完の集約先。未対応の `bw` と `mise` だけ各 CLI の生成機能を使う |
 | usage | mise の補完生成が利用する CLI spec ツール |

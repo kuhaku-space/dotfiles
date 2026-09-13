@@ -1,6 +1,14 @@
-auto_sync = false
+auto_sync = true
+sync_frequency = "5m"
 update_check = false
 secrets_filter = true
+
+history_filter = [
+  '^\s*bw\b',
+  '^\s*atuin\s+(login|register|key)\b',
+  '(?i)(password|passwd|secret|token|api[-_]?key)\s*=',
+  '(?i)authorization:\s*\S',
+]
 
 filter_mode = "workspace"
 search_mode = "fuzzy"
