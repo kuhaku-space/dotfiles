@@ -61,6 +61,8 @@ mise upgrade                         # ツールと lockfile を更新
 chezmoi re-add ~/.config/mise/mise.lock
 ```
 
+導入しているツールの一覧と役割、apt パッケージと zsh プラグインの内訳は [使用しているツール](docs/current/tools.md) にまとめている。
+
 普段は `.zshrc` の `update` 関数で dotfiles、apt、mise、Sheldon をまとめて更新できる。mise のバージョン固定と zsh 補完生成の仕組みは [設定ファイルの設計](docs/current/configuration.md#mise) と [スクリプトの役割と設計](docs/current/scripts.md#refresh-zsh-completions) を参照する。
 
 ## 構成

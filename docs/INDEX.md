@@ -9,6 +9,7 @@
 | [current/bare-metal-linux.md](current/bare-metal-linux.md) | WSL2 以外の Linux、別アーキテクチャ、管理端末、デスクトップ環境での制約や手作業を確認するとき |
 | [current/configuration.md](current/configuration.md) | chezmoi、Git、jj、mise、zsh、Sheldon、SSH、Zellij の設定値と設計理由を変更するとき |
 | [current/ssh-keys-bitwarden.md](current/ssh-keys-bitwarden.md) | SSH 鍵の Bitwarden 連携、初回取得、既存鍵の保護、SSH クライアント設定を変更するとき |
+| [current/tools.md](current/tools.md) | 導入しているツール、apt パッケージ、zsh プラグインの一覧と役割、追加・削除の手順を確認するとき |
 | [current/scripts.md](current/scripts.md) | chezmoi の実行スクリプト、補完生成、検証スクリプトの役割や実装理由を変更するとき |
 | [current/zsh-startup.md](current/zsh-startup.md) | zsh の起動時間、遅延読み込み、キャッシュ、補完生成を変更するとき |
 | [commands.md](commands.md) | 変更後に実行する検証コマンドを選ぶとき |
