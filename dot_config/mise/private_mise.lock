@@ -204,89 +204,89 @@ url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/cara
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542249"
 
 [[tools.chezmoi]]
-version = "2.72.1"
+version = "2.72.2"
 backend = "aqua:twpayne/chezmoi"
 
 [tools.chezmoi."platforms.linux-arm64"]
-checksum = "sha256:75508ef41216b6d64f3145986b751729d7f92d09c6bad77d51cf2895ab35a508"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653653"
+checksum = "sha256:499925fd10804b7c1a5dc4b4a275c8935261d02a4be0c18bbd41b7747810de67"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706486"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.linux-arm64-musl"]
-checksum = "sha256:75508ef41216b6d64f3145986b751729d7f92d09c6bad77d51cf2895ab35a508"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653653"
+checksum = "sha256:499925fd10804b7c1a5dc4b4a275c8935261d02a4be0c18bbd41b7747810de67"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706486"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.linux-x64"]
-checksum = "sha256:9f97d32caca166e5c92160ec3a9325519809c38963121cef38173142065c981f"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_linux-glibc_amd64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653696"
+checksum = "sha256:a2be1b8bcdf06c6f173e070bb3ddbcc52c50478fe9b57f6e6c63d15c7cff4f03"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_linux-glibc_amd64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706563"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.linux-x64-musl"]
-checksum = "sha256:b961e2972d6fcd1002f9b986d4a61dc5da288e96aab226434fd5b20a7de80cf9"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_linux-musl_amd64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653704"
+checksum = "sha256:791ee366ae62222ad4ae02cc9d5b19f7548953f767678d9a7158b02960895081"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_linux-musl_amd64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706565"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.macos-arm64"]
-checksum = "sha256:938d422091cc001e68fe3fd7efea9b923a36facbf2b8db67063639abbaf72de2"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653589"
+checksum = "sha256:2b0c7e57f3f2da44628fa9f6863b9bd41f0935cfd2416228aa9df6daab6690f5"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706522"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.macos-x64"]
-checksum = "sha256:bf0f0e048291efe126cb8bc51cf566057b92755cd53ce82c45efa11d2f8f4898"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653588"
+checksum = "sha256:08ad1ba33a73e68f7657ee226f72b5d800b5a947954b06e185e8591bd32b0063"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706295"
 provenance = "cosign"
 
 [tools.chezmoi."platforms.windows-x64"]
-checksum = "sha256:75b22917f6baa0a40fec7bf9ad16fd8ea8cf4943f8d8cc1ddb07586d4376bf34"
-url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.1/chezmoi_2.72.1_windows_amd64.zip"
-url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/536653691"
+checksum = "sha256:5c2038736c485d4e3eaad4ac06ea1fe3c4b63d4d51e470547bf12737c02f37f6"
+url = "https://github.com/twpayne/chezmoi/releases/download/v2.72.2/chezmoi_2.72.2_windows_amd64.zip"
+url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/561706352"
 provenance = "cosign"
 
 [[tools.claude]]
-version = "2.1.269"
+version = "2.1.270"
 backend = "github:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-checksum = "sha256:b6834b006482a17618ee41d790dd39eaed9aac10ea6efef190252bd029c84d2b"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750831"
+checksum = "sha256:005d990a52bc16a5dd9ac51f2cc959f686a2c502b343b2eab92351ababf50f7f"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771865"
 
 [tools.claude."platforms.linux-arm64-musl"]
-checksum = "sha256:9c928645fda21bc795cb7e0a4f58cdec0d1fae69f8f8ac8e496662d8075a004e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750828"
+checksum = "sha256:5fb26398e8aa2ca2423fcdacd1ab3b6c335545b0b3feaa13e1f8fb184a1f0a76"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771868"
 
 [tools.claude."platforms.linux-x64"]
-checksum = "sha256:2749b0fc61cb5ff9a998431d30e9e447a2214b4c5393708db0800245dd3733eb"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750940"
+checksum = "sha256:b069b327de3ad6c8cda70886675da46fb213797ac99a367df384e2202b37e0b7"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771973"
 
 [tools.claude."platforms.linux-x64-musl"]
-checksum = "sha256:32fe4d52bfa69b6ded66a7b5d852745681497dbaf39f38b3e4cc3b755d3aec47"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750830"
+checksum = "sha256:6677556de94f08a350307989d28285a927b9fa9cac1f188ba587c71d1e49b13f"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771864"
 
 [tools.claude."platforms.macos-arm64"]
-checksum = "sha256:c1649ec5235ac893c2055badc28347d28b9399ca641ad3c485b1c2432c2d6ccd"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750835"
+checksum = "sha256:844b574a4f66103138a0d3090e7ef6117f83790b4d637c25a798057a735e68e9"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771867"
 
 [tools.claude."platforms.macos-x64"]
-checksum = "sha256:c62ad73f946dec1001312e024b3a6cd46831356cae81f2a12a817df911fc844f"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750824"
+checksum = "sha256:bfc4a3bb1f785e389035b7b49ac752e0fd92d908efdc6d1b4ec590e545c54730"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771863"
 
 [tools.claude."platforms.windows-x64"]
-checksum = "sha256:535d783da264feb5f6a4f98683b173ce88e7d5b228c64f4306f3f8981ca2f510"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.269/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/557750954"
+checksum = "sha256:bc0b26b266b0b7c1bd983ebaa68d8239d557f44f4ffdf27bb65788888ea902bf"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.270/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/559771991"
 
 [[tools.deno]]
 version = "2.9.6"
@@ -681,43 +681,43 @@ url = "https://github.com/starship/starship/releases/download/v1.26.0/starship-x
 url_api = "https://api.github.com/repos/starship/starship/releases/assets/460374615"
 
 [[tools.usage]]
-version = "6.8.0"
+version = "6.9.0"
 backend = "aqua:jdx/usage"
 
 [tools.usage."platforms.linux-arm64"]
-checksum = "sha256:5ac012d6a7a1aaa5049e22afb77c3ec76768c2203d323d6d26a7b494ddccc780"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547479496"
+checksum = "sha256:75665f4351ef2ba81734114bd32fe555be3262241f013873f8f4990c734d5b3e"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559446346"
 
 [tools.usage."platforms.linux-arm64-musl"]
-checksum = "sha256:a9b15be628824117d03d1ca2b7e1a42b5acfd5b8d1a6bfeffaa8256f2616a66e"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547479495"
+checksum = "sha256:6de188b39e85cbdb487281812c2bb3b158d852bc4b12260f19b5a926b8b7bdf7"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559446298"
 
 [tools.usage."platforms.linux-x64"]
-checksum = "sha256:468c27b16302250cf74f2bddb0d0539b958ae3a391d226acc73bdd714c2a18cb"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547479229"
+checksum = "sha256:95e743dcc4eb0c5a2491d0e5cec185a808c7d34781ad7e6101377db935686be6"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559445103"
 
 [tools.usage."platforms.linux-x64-musl"]
-checksum = "sha256:62b44e6d10e636e4ff1e5f56366d84475d8282990a5882499cae658e95b99f32"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547479563"
+checksum = "sha256:8693c8adebfac36211e9a7066d394ca0b08a10ae5794408e8791bf32c12eece0"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559445273"
 
 [tools.usage."platforms.macos-arm64"]
-checksum = "sha256:f6bfe2e5353e02769d3f6902d06db1cb201f84124df08465fd4826f9ce7ba632"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-universal-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547480261"
+checksum = "sha256:9e5315149d5a08d7d1b863b4e94729aa36240353f2847529d06ac21fac7c6c01"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-universal-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559448529"
 
 [tools.usage."platforms.macos-x64"]
-checksum = "sha256:f6bfe2e5353e02769d3f6902d06db1cb201f84124df08465fd4826f9ce7ba632"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-universal-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547480261"
+checksum = "sha256:9e5315149d5a08d7d1b863b4e94729aa36240353f2847529d06ac21fac7c6c01"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-universal-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559448529"
 
 [tools.usage."platforms.windows-x64"]
-checksum = "sha256:f97cf597bef4a2a643b38abcb02e2d47622e658fccf17fd5d1a97df9fac17b78"
-url = "https://github.com/jdx/usage/releases/download/v6.8.0/usage-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/547482883"
+checksum = "sha256:c2ddc621ad3e4806a4eb685e4adeb654093eaeb01007c81dac103ecdfbb4fb31"
+url = "https://github.com/jdx/usage/releases/download/v6.9.0/usage-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/559449723"
 
 [[tools.zellij]]
 version = "0.45.1"
