@@ -126,43 +126,43 @@ url = "https://github.com/sharkdp/bat/releases/download/v0.26.1/bat-v0.26.1-x86_
 url_api = "https://api.github.com/repos/sharkdp/bat/releases/assets/323549116"
 
 [[tools.bitwarden]]
-version = "2026.8.0"
+version = "2026.9.0"
 backend = "aqua:bitwarden/clients"
 
 [tools.bitwarden."platforms.linux-arm64"]
-checksum = "sha256:74d822a5dceda5896ed8fc07bc61925b29afd98d96a6a3e9e525ae556c3083a8"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-linux-arm64-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522478224"
+checksum = "sha256:3f474cc34b701a1cebdd486009870038b034343afb83095607422cdad4c3653a"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-linux-arm64-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320369"
 
 [tools.bitwarden."platforms.linux-arm64-musl"]
-checksum = "sha256:74d822a5dceda5896ed8fc07bc61925b29afd98d96a6a3e9e525ae556c3083a8"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-linux-arm64-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522478224"
+checksum = "sha256:3f474cc34b701a1cebdd486009870038b034343afb83095607422cdad4c3653a"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-linux-arm64-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320369"
 
 [tools.bitwarden."platforms.linux-x64"]
-checksum = "sha256:367f618e9fcccaac4980ec12c7bafd01df739b5f3cb1af31bc9045cf75eea1d6"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-linux-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522478170"
+checksum = "sha256:580c1deec8345b19dbac7f8b02babb6cc4fe250c69c567e29061f727f1e40768"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-linux-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320307"
 
 [tools.bitwarden."platforms.linux-x64-musl"]
-checksum = "sha256:367f618e9fcccaac4980ec12c7bafd01df739b5f3cb1af31bc9045cf75eea1d6"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-linux-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522478170"
+checksum = "sha256:580c1deec8345b19dbac7f8b02babb6cc4fe250c69c567e29061f727f1e40768"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-linux-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320307"
 
 [tools.bitwarden."platforms.macos-arm64"]
-checksum = "sha256:73414942357644605eefd3f4afaf0b41b71772ad6574e8e3c72e0b6d237104c8"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-macos-arm64-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522478010"
+checksum = "sha256:014bc4c093e586197013fac79b9d0f1df1da6004003293c8930406bf1ffde45b"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-macos-arm64-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320204"
 
 [tools.bitwarden."platforms.macos-x64"]
-checksum = "sha256:c5d57f70d5394f8c348f6c3bf53683ad6d15e6acfe55e7c1e0a8f376482d8e71"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-macos-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522477971"
+checksum = "sha256:d2a1865c2c1f49c34e6f1b38a42c5b95dcf22e34f81121c4962ebda32f708a3e"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-macos-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570320154"
 
 [tools.bitwarden."platforms.windows-x64"]
-checksum = "sha256:26a6bb9a88ca9eeaad9e59db1816dcceb3ce6cc80a30b33e1324b0642f4a0f32"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.8.0/bw-windows-2026.8.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/522477842"
+checksum = "sha256:09f58bdfc9d3b7ba04277042db4804dd932e581c972f740f37b9d12106096424"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-windows-2026.9.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570319949"
 
 [[tools.carapace]]
 version = "1.7.3"
@@ -250,75 +250,75 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/56170635
 provenance = "cosign"
 
 [[tools.claude]]
-version = "2.1.273"
+version = "2.1.274"
 backend = "github:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-checksum = "sha256:33983f2ec19610aaf9fe6d255fb61d91e985d2e4f76c70387da4820c8f8cf89e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219528"
+checksum = "sha256:3cf0b1909d4c9186b7f3e7b84ea37711faade845b63b160b513d4144a95ac4b5"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930808"
 
 [tools.claude."platforms.linux-arm64-musl"]
-checksum = "sha256:ebf9f42fe97219969f7bcbd89460b57a177dd1bd26b4b25e9458cfbc9ecb4528"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219527"
+checksum = "sha256:b14d7a1af30c84120f43a9a7eb1e5121be028aba6a51a7a584915ed1a283b9a1"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930805"
 
 [tools.claude."platforms.linux-x64"]
-checksum = "sha256:afd5dbac0b1dfeb8f9fb8fa8adaaf8ba49c7a334fda73b9f49ed2e99197ee829"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219673"
+checksum = "sha256:d64c8b6c7e10cd5b99e6ecbcef2d64c9ca4b6804f788e9d7622d5535a99193a2"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930900"
 
 [tools.claude."platforms.linux-x64-musl"]
-checksum = "sha256:baa9e418478de805dadb4bae3a6c61a89597df70354f3bdca9b8d8de7015440e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219521"
+checksum = "sha256:83dc48cab8537af52305071299be51dfef02169f60c7f50a2c27589250636015"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930807"
 
 [tools.claude."platforms.macos-arm64"]
-checksum = "sha256:ae48db6a5ea2bdec38bf8996dd2ae041d801de26dc3d210aba86d2156b485ce4"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219525"
+checksum = "sha256:2be8926f06785d3d4c072a32d83b48c7e02b40ee955bd30600aacaaa77f02c93"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930804"
 
 [tools.claude."platforms.macos-x64"]
-checksum = "sha256:0ca37d2f32674a980d1f91d7315be9ae67e044134579e24968d8d94a3de75d73"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219524"
+checksum = "sha256:512a54e5c17c27b331c1a1e08a1c9f638e2b80fbdd1dbd99b7bf1997e893b0fd"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930806"
 
 [tools.claude."platforms.windows-x64"]
-checksum = "sha256:a07b3344fb010ef9fef3ad9aae54dc11e1c3f59f4f05814a716284ca6ebe5212"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.273/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/566219688"
+checksum = "sha256:ab7d92d051f9331d4fdb3ad5f591e5a54ce0460ff9e48cce57518c48331a901a"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.274/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/568930912"
 
 [[tools.deno]]
-version = "2.9.6"
+version = "2.9.7"
 backend = "core:deno"
 
 [tools.deno."platforms.linux-arm64"]
-checksum = "sha256:9a46afc6c392c7cd2ff71a31558935545b46408d0e87f7a86908c712721c046e"
-url = "https://dl.deno.land/release/v2.9.6/deno-aarch64-unknown-linux-gnu.zip"
+checksum = "sha256:c832298b1ad4422481334855f6003e0f54145762c5a134f20a489511d2f65bbf"
+url = "https://dl.deno.land/release/v2.9.7/deno-aarch64-unknown-linux-gnu.zip"
 
 [tools.deno."platforms.linux-arm64-musl"]
-checksum = "sha256:9a46afc6c392c7cd2ff71a31558935545b46408d0e87f7a86908c712721c046e"
-url = "https://dl.deno.land/release/v2.9.6/deno-aarch64-unknown-linux-gnu.zip"
+checksum = "sha256:c832298b1ad4422481334855f6003e0f54145762c5a134f20a489511d2f65bbf"
+url = "https://dl.deno.land/release/v2.9.7/deno-aarch64-unknown-linux-gnu.zip"
 
 [tools.deno."platforms.linux-x64"]
-checksum = "sha256:394f07f4da2bebe6ce6f1e7ce0fa16429b29b08c35e3fac3fe25972676dff4b2"
-url = "https://dl.deno.land/release/v2.9.6/deno-x86_64-unknown-linux-gnu.zip"
+checksum = "sha256:c6527f24f4b16031d3ae4fa9f658d5f11534c8d84ce7dc8502420280919c3490"
+url = "https://dl.deno.land/release/v2.9.7/deno-x86_64-unknown-linux-gnu.zip"
 
 [tools.deno."platforms.linux-x64-musl"]
-checksum = "sha256:394f07f4da2bebe6ce6f1e7ce0fa16429b29b08c35e3fac3fe25972676dff4b2"
-url = "https://dl.deno.land/release/v2.9.6/deno-x86_64-unknown-linux-gnu.zip"
+checksum = "sha256:c6527f24f4b16031d3ae4fa9f658d5f11534c8d84ce7dc8502420280919c3490"
+url = "https://dl.deno.land/release/v2.9.7/deno-x86_64-unknown-linux-gnu.zip"
 
 [tools.deno."platforms.macos-arm64"]
-checksum = "sha256:213a2f304f04d3c9cb5220669afad138f60a5aab1fe80962abdeb8f35807a472"
-url = "https://dl.deno.land/release/v2.9.6/deno-aarch64-apple-darwin.zip"
+checksum = "sha256:5cd46d6268f6f78f5d88bdc7159d20bd44cdaa4b3303474839f87ec6fe7ae25c"
+url = "https://dl.deno.land/release/v2.9.7/deno-aarch64-apple-darwin.zip"
 
 [tools.deno."platforms.macos-x64"]
-checksum = "sha256:7d4524b82bcc557fe020a1a5b56956ed42b992ae5b28026e8ad5d17329533f5f"
-url = "https://dl.deno.land/release/v2.9.6/deno-x86_64-apple-darwin.zip"
+checksum = "sha256:95daaff11c116a52ad54785e7914c8e9c9cdcaba793c5ed929c74ca2d8e6259a"
+url = "https://dl.deno.land/release/v2.9.7/deno-x86_64-apple-darwin.zip"
 
 [tools.deno."platforms.windows-x64"]
-checksum = "sha256:15e5300b0ba3c3695a7621d90160a746ec9e710228cee639afa9d580f6e3cd11"
-url = "https://dl.deno.land/release/v2.9.6/deno-x86_64-pc-windows-msvc.zip"
+checksum = "sha256:a0c3101b4158d1dfb7d6a78a7bf0f3de80c96bb423c152beec8beb22786f2238"
+url = "https://dl.deno.land/release/v2.9.7/deno-x86_64-pc-windows-msvc.zip"
 
 [[tools.eza]]
 version = "0.23.5"
