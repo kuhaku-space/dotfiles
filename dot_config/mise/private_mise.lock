@@ -47,43 +47,43 @@ url_api = "https://api.github.com/repos/rhysd/actionlint/releases/assets/3849249
 provenance = "github-attestations"
 
 [[tools.atuin]]
-version = "18.22.0"
+version = "18.23.0"
 backend = "aqua:atuinsh/atuin"
 
 [tools.atuin."platforms.linux-arm64"]
-checksum = "sha256:591680ad8045f87f2b524a3654232a1e91b4ba7e8d52fe2d18885437a3fc5265"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690852"
+checksum = "sha256:21869faff1fedb9f8fb27837136567b089bcd588d21252533d5b314605517ae2"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134142"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-arm64-musl"]
-checksum = "sha256:76d12818e3dff64ddac3b9f4ec63b305070ddcf5fc382a2a23dc0826fa9bf5a8"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690849"
+checksum = "sha256:faf91adc71e6b661b21ed4f486babbd7af9d17363d4276da4a0251f83c72498d"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134145"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-x64"]
-checksum = "sha256:920200b8e2ecff88eb8f2c2d4bfc4c62ed1c2f4efca2ba854a23bd157a542328"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690960"
+checksum = "sha256:5cf46e926b696a9b23a3c61ef3cb00f8f7c156d1d7b7967a3b51741653b48ba3"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134239"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.linux-x64-musl"]
-checksum = "sha256:b3c123df1887cf27c6480a87d148c86831cd83da478e0a8ab773ca188f3f3222"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690977"
+checksum = "sha256:d1b40dd6e7cd3d823867ffe22b39a025bc420f7875926ae9ca974155378da14d"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134247"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.macos-arm64"]
-checksum = "sha256:5e6e525f60147351f114397e7f09aeded87f302e99ef83a5eee74c524b805812"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690857"
+checksum = "sha256:c988be1cde19cd7295ce64bc8b955d42fb1855e5227cb640c87fc09c8408c3fc"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134148"
 provenance = "github-attestations"
 
 [tools.atuin."platforms.windows-x64"]
-checksum = "sha256:b7848f9fd1445eb9679ab206013eee71ceb82971cbb770cec2a2e999510cb52d"
-url = "https://github.com/atuinsh/atuin/releases/download/v18.22.0/atuin-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/553690950"
+checksum = "sha256:3e1c1282da39039a7ceb8e53c6b624dfb86200823559bbe80c0ace3d0baf09ae"
+url = "https://github.com/atuinsh/atuin/releases/download/v18.23.0/atuin-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/atuinsh/atuin/releases/assets/580134234"
 provenance = "github-attestations"
 
 [[tools.bat]]
@@ -250,49 +250,49 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/56170635
 provenance = "cosign"
 
 [[tools.claude]]
-version = "2.1.278"
+version = "2.1.280"
 backend = "github:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-checksum = "sha256:5e3cc367f997847c89cdba3f5b1cd6ff5aabb8e94e14b19bad401124c0e838ed"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850764"
+checksum = "sha256:e6cdd9f07fba8d181b7d6d0dedd9406f1be6ba4f5302a56a61ab4ebb43c5a569"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709747"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-arm64-musl"]
-checksum = "sha256:a9fe96bb925f823608aa2d56cb7adc2c3ed4ca60f6184c588d26db608801f1e8"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850759"
+checksum = "sha256:3a5ebe41b78d94ea2bfafee539dde4c9a53afc9658abbc72d918c45477524b28"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709746"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-x64"]
-checksum = "sha256:1d1f9950b96acb5a50bf342a3d3bd51cdf40b1714b2ca3ce2319ba8e8e7f3633"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850915"
+checksum = "sha256:4239c476881f46f5bd2cccee97c10b1c8073f4ab4ae40e3c829493210e757764"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709942"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-x64-musl"]
-checksum = "sha256:b2bddcaafe22a33ccf1aadc3d56dc0e89f05321447d317a0332857d469c98b93"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850755"
+checksum = "sha256:35e3435305e5608abac726ca2ced1f1a651980dff43099606628c10a44d05101"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709745"
 provenance = "github-attestations"
 
 [tools.claude."platforms.macos-arm64"]
-checksum = "sha256:d16dc23a4e27155a59cdc35251eccd7fa30ed46482c51af1c33e71b14d790f6b"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850762"
+checksum = "sha256:872a1fa1f770165202bfa0e1771a8b02ce0a13b5f6de4f4489ec4ff268946b56"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709751"
 provenance = "github-attestations"
 
 [tools.claude."platforms.macos-x64"]
-checksum = "sha256:d5fa59ea628b85b0a9d4b2c8aa59a20a9b9714a0b08c938b2d04de1f00c07bb2"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850760"
+checksum = "sha256:96c54208699e555f67da028f12d7ab594b6bbb844b5d65b47640c086c65ad959"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709749"
 provenance = "github-attestations"
 
 [tools.claude."platforms.windows-x64"]
-checksum = "sha256:8a223953a84861805ca7d00be12dee25590c06533e02f48dd9496f90db709d2e"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.278/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/573850919"
+checksum = "sha256:907679d82257d07c75088052553ad8c0cd2813e588a79e2c965281e9c50f5977"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.280/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/581709967"
 provenance = "github-attestations"
 
 [[tools.deno]]
@@ -688,43 +688,43 @@ url = "https://github.com/starship/starship/releases/download/v1.26.0/starship-x
 url_api = "https://api.github.com/repos/starship/starship/releases/assets/460374615"
 
 [[tools.usage]]
-version = "6.10.0"
+version = "6.11.0"
 backend = "aqua:jdx/usage"
 
 [tools.usage."platforms.linux-arm64"]
-checksum = "sha256:c18a027d38095db27f1c036fbb37a3d12ba26f74a1a1b78ac2c6ddc8ee9f0192"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574828531"
+checksum = "sha256:84fae7251a458d804d1b574ce2b46f483fa5859b773c4a8c5012d9d86c68e7c4"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579392789"
 
 [tools.usage."platforms.linux-arm64-musl"]
-checksum = "sha256:c8de20229ecabee507abd1c6cbb9e78324ba2884ebdd4503dcba761919d372c2"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574831267"
+checksum = "sha256:e52a21f240c58890265e9c74f75e2d329f68220159abcf51aee0ef33f37e4990"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579392962"
 
 [tools.usage."platforms.linux-x64"]
-checksum = "sha256:d0b853eed5db9ede04891fa6e31caed8bc802c3794e59043217b460a02965b24"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574831044"
+checksum = "sha256:2ebc293d1645a80e3b7c4d87cd2cca35d34c6582733260fe1d13e537bb3d1e2e"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579392440"
 
 [tools.usage."platforms.linux-x64-musl"]
-checksum = "sha256:0e30e3f03633f1e052d348900ca03b7a056b1f8d2f3af04b1361c339053af467"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574831013"
+checksum = "sha256:bbc05d7cf1e3f5d7f00bf97217e910898b6914283e5a0cd8c2224c4ce3c49f31"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579391976"
 
 [tools.usage."platforms.macos-arm64"]
-checksum = "sha256:f2c89cf9446b50c0129943e76a4a25188cbf42c116c66c7d3f913f5cc7d5123c"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-universal-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574832170"
+checksum = "sha256:0277664d5a7f615ec427cfc312e175684f027bf69e43e76964f086aaf5e51d3f"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-universal-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579396830"
 
 [tools.usage."platforms.macos-x64"]
-checksum = "sha256:f2c89cf9446b50c0129943e76a4a25188cbf42c116c66c7d3f913f5cc7d5123c"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-universal-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574832170"
+checksum = "sha256:0277664d5a7f615ec427cfc312e175684f027bf69e43e76964f086aaf5e51d3f"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-universal-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579396830"
 
 [tools.usage."platforms.windows-x64"]
-checksum = "sha256:0016fb4ad0aa2762ec089d3710fd540aaeded08e27d0046660a2eca143f976af"
-url = "https://github.com/jdx/usage/releases/download/v6.10.0/usage-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/jdx/usage/releases/assets/574834988"
+checksum = "sha256:49f78fdeb1678986a89fabffc10b9e01c1dee4d3f8f001cd245af0471df9d9be"
+url = "https://github.com/jdx/usage/releases/download/v6.11.0/usage-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/jdx/usage/releases/assets/579397211"
 
 [[tools.zellij]]
 version = "0.45.1"
