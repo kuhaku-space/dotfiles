@@ -165,43 +165,43 @@ url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.9.0/bw-w
 url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/570319949"
 
 [[tools.carapace]]
-version = "1.7.3"
+version = "1.8.0"
 backend = "aqua:carapace-sh/carapace-bin"
 
 [tools.carapace."platforms.linux-arm64"]
-checksum = "sha256:b2456cb09d77004db87de2567d6d7588a61ceb4724522c463e2b1c1f87b4d4b9"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542274"
+checksum = "sha256:d501dfb17f3d1fe32d71e2a3704ef92572fc407f90fa9684d07c64f50d9d2fe4"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311159"
 
 [tools.carapace."platforms.linux-arm64-musl"]
-checksum = "sha256:b2456cb09d77004db87de2567d6d7588a61ceb4724522c463e2b1c1f87b4d4b9"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_linux_arm64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542274"
+checksum = "sha256:d501dfb17f3d1fe32d71e2a3704ef92572fc407f90fa9684d07c64f50d9d2fe4"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_linux_arm64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311159"
 
 [tools.carapace."platforms.linux-x64"]
-checksum = "sha256:35ab52bfe7bdd8296d90c3687660bde80497599badde840ab615d2f421f5f053"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542251"
+checksum = "sha256:6883bb61fe88a8f56c7b74bc9ff68445791ee22697f705b59a063443d8ffc8ad"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311080"
 
 [tools.carapace."platforms.linux-x64-musl"]
-checksum = "sha256:35ab52bfe7bdd8296d90c3687660bde80497599badde840ab615d2f421f5f053"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_linux_amd64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542251"
+checksum = "sha256:6883bb61fe88a8f56c7b74bc9ff68445791ee22697f705b59a063443d8ffc8ad"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_linux_amd64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311080"
 
 [tools.carapace."platforms.macos-arm64"]
-checksum = "sha256:a7e79d8787ffc63c26568e8d8256d12df91f5cda0d9dc83d50e90b8567028a9d"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_darwin_arm64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542252"
+checksum = "sha256:91b4dbce26c4a53dd9a4e5a78259d0c6cd25744d8efa84a2419724f64f33597a"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_darwin_arm64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311082"
 
 [tools.carapace."platforms.macos-x64"]
-checksum = "sha256:23649b6a52bd68d00e8b88e95afadac09e9450fa49b49a95fcabd81b387de4b6"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_darwin_amd64.tar.gz"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542248"
+checksum = "sha256:edb9b0d5b472bd13ca8b3460c3bf0a5bdaa19759c5172b3d9894b73c96a6dd4c"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_darwin_amd64.tar.gz"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311075"
 
 [tools.carapace."platforms.windows-x64"]
-checksum = "sha256:c25e6f88bcb13ab44cb977db07f2b878bf140c397a3fd5582ce5bfb4d2143303"
-url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.7.3/carapace-bin_1.7.3_windows_amd64.zip"
-url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/462542249"
+checksum = "sha256:ee5ba25180a8929e34c5b7f4aa20f898369c31c5e5939f68819cda0da1959762"
+url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.0/carapace-bin_1.8.0_windows_amd64.zip"
+url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/589311077"
 
 [[tools.chezmoi]]
 version = "2.72.2"
@@ -250,49 +250,49 @@ url_api = "https://api.github.com/repos/twpayne/chezmoi/releases/assets/56170635
 provenance = "cosign"
 
 [[tools.claude]]
-version = "2.1.282"
+version = "2.1.283"
 backend = "github:anthropics/claude-code"
 
 [tools.claude."platforms.linux-arm64"]
-checksum = "sha256:62ed261b4ad0838eac468f119524ba58502bc09da8152eddce9194229ba20ac3"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-linux-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282787"
+checksum = "sha256:a2e7d497d40041d7eca8f8fd1d77405a6501ff8b1a61fa02a0e95c458824a43e"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-linux-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996729"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-arm64-musl"]
-checksum = "sha256:c7206ee0e5fc0f898b5bc337812f54086f976b824f006e776eef1d6106fbe277"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-linux-arm64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282790"
+checksum = "sha256:ba6ff89dcb95bc90a7ac2141721aa5d41022150fb3849a0a214590625093d7d1"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-linux-arm64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996725"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-x64"]
-checksum = "sha256:2972e823268974dd084734d5f69fedc227eb4cb3bc9c398ceb7776280e836991"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-linux-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282940"
+checksum = "sha256:db404a91bec8baffb53463166fdc8bf579208a527d60afc2d984d7507dc0c2f9"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-linux-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996841"
 provenance = "github-attestations"
 
 [tools.claude."platforms.linux-x64-musl"]
-checksum = "sha256:27b59bd660e6cd534dbb24ee81cd8d792b8a56ea153467ec30607c75f64417b5"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-linux-x64-musl.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282785"
+checksum = "sha256:a15038f550b277179b03c807bc5684d462d1b4bd3f0ec0895d290d5c6c6b4261"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-linux-x64-musl.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996727"
 provenance = "github-attestations"
 
 [tools.claude."platforms.macos-arm64"]
-checksum = "sha256:09e4c31cbd44ddcf95d1157533f3f66fd630da11a8e115f3fc678110cb19ee24"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-darwin-arm64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282789"
+checksum = "sha256:033f733e135ecd00aeec18ea8990a87a0fd8be220b20548353fd025351a0a9b3"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-darwin-arm64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996726"
 provenance = "github-attestations"
 
 [tools.claude."platforms.macos-x64"]
-checksum = "sha256:a182bc43e63421f8a89e903d5e3a3eff7cf8a54e8774b05956ccacbc21c9352d"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-darwin-x64.tar.gz"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282788"
+checksum = "sha256:ac07dcae42aa355bb6915c5e429d29ad2a797e1ab309527eebef3bfd20b39c79"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-darwin-x64.tar.gz"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996736"
 provenance = "github-attestations"
 
 [tools.claude."platforms.windows-x64"]
-checksum = "sha256:01e1945a47291e16c979c5b8da9e459bb8b0e51a02164d59b67889cff4dd854b"
-url = "https://github.com/anthropics/claude-code/releases/download/v2.1.282/claude-win32-x64.zip"
-url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/586282969"
+checksum = "sha256:07c23b91ee6596914d683ed8bd97b4ed2c002ae5f997859cf4b8d11d7b62fb9c"
+url = "https://github.com/anthropics/claude-code/releases/download/v2.1.283/claude-win32-x64.zip"
+url_api = "https://api.github.com/repos/anthropics/claude-code/releases/assets/588996871"
 provenance = "github-attestations"
 
 [[tools.deno]]
