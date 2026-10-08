@@ -38,7 +38,11 @@ chezmoi が実行するスクリプトと、リポジトリ内の補助コマン
 
 ### `run_once_after_05-apt-packages.sh`
 
-[run_once_after_05-apt-packages.sh](../../run_once_after_05-apt-packages.sh) は、初回に不足している apt パッケージだけを導入する。apt がない環境では必要なパッケージ一覧を表示して正常終了する。後から一覧を変更した場合は、スクリプトを再実行するか各ディストリビューションのパッケージマネージャで追加する。
+[run_once_after_05-apt-packages.sh](../../run_once_after_05-apt-packages.sh) は、不足している apt パッケージだけを導入する。`run_once_` は内容の hash ごとに一度実行されるため、`PACKAGES` を変更すると次の `apply` で再実行され、追加分だけが入る。
+
+apt がない環境、または root 権限を得られない環境（sudo がない、拒否された）では、必要なパッケージ一覧を表示して正常終了する。`chsh` と同様に、パッケージが欠けても後続の mise 導入や補完生成は続ける。root で実行された場合は sudo を使わない。
+
+`autoremove` と `clean` は行わない。初回導入のついでに、ユーザーが管理しているパッケージを削除しないためである。これらは `update` 関数で明示的に実行する。
 
 パッケージの用途は [使用しているツール](tools.md#apt-で導入する-os-パッケージ) を参照する。
 
