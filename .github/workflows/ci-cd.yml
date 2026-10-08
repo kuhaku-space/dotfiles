@@ -43,7 +43,8 @@ jobs:
         run: |
           mapfile -t scripts < <(
             find . -path ./.git -prune -o -type f \
-              \( -name '*.sh' -o -name '*.sh.tmpl' -o -path './dot_local/bin/*' \) \
+              \( -name '*.sh' -o -name '*.sh.tmpl' \
+                -o -path './dot_local/bin/*' \) \
               -print | sort
           )
           if ((${#scripts[@]})); then
@@ -52,7 +53,8 @@ jobs:
           shellcheck -e SC1091 .githooks/*
 
           mapfile -t templates < <(
-            find . -path ./.git -prune -o -type f -name '*.sh.tmpl' -print | sort
+            find . -path ./.git -prune -o \
+              -type f -name '*.sh.tmpl' -print | sort
           )
           for template in "${templates[@]}"; do
             tmp="$(mktemp)"
@@ -75,7 +77,8 @@ jobs:
           import tomllib
           from pathlib import Path
 
-          config = tomllib.loads(Path("dot_config/sheldon/plugins.toml").read_text())
+          path = Path("dot_config/sheldon/plugins.toml")
+          config = tomllib.loads(path.read_text())
           failed = False
           for name, plugin in config.get("plugins", {}).items():
               code = plugin.get("inline")
@@ -86,7 +89,10 @@ jobs:
               )
               if result.returncode != 0:
                   failed = True
-                  print(f"inline plugin {name}: {result.stderr}", file=sys.stderr)
+                  print(
+                      f"inline plugin {name}: {result.stderr}",
+                      file=sys.stderr,
+                  )
           sys.exit(1 if failed else 0)
           '
 
@@ -125,9 +131,10 @@ jobs:
                 ;;
             esac
             env -u CI HOME="$fake_home" \
-              chezmoi --source "$PWD" execute-template <.chezmoiignore >/dev/null ||
-              {
-                printf 'template evaluation failed for key state: %s\n' "$key_state"
+              chezmoi --source "$PWD" execute-template \
+              <.chezmoiignore >/dev/null || {
+                printf 'template evaluation failed for key state: %s\n' \
+                  "$key_state"
                 exit 1
               }
             rm -rf "$fake_home"
@@ -167,7 +174,8 @@ jobs:
           actual_bw = rendered_config.get("bitwarden", {}).get("command")
           if actual_bw != expected_bw:
               raise SystemExit(
-                  f"bitwarden.command is {actual_bw!r}, expected {expected_bw!r}"
+                  f"bitwarden.command is {actual_bw!r}, "
+                  f"expected {expected_bw!r}"
               )
           '
 
@@ -177,11 +185,12 @@ jobs:
           chezmoi --source . execute-template \
             <dot_config/git/allowed_signers.tmpl >/tmp/allowed_signers
           test -s /tmp/allowed_signers
-          grep -vE '^\s*(#|$)' /tmp/allowed_signers | while read -r principal keytype key _; do
-            test -n "$principal" && test -n "$keytype" && test -n "$key"
-            printf '%s %s\n' "$keytype" "$key" >/tmp/signer.pub
-            ssh-keygen -lf /tmp/signer.pub >/dev/null
-          done
+          grep -vE '^\s*(#|$)' /tmp/allowed_signers |
+            while read -r principal keytype key _; do
+              test -n "$principal" && test -n "$keytype" && test -n "$key"
+              printf '%s %s\n' "$keytype" "$key" >/tmp/signer.pub
+              ssh-keygen -lf /tmp/signer.pub >/dev/null
+            done
 
       - name: Validate YAML
         run: |
@@ -225,14 +234,17 @@ jobs:
               test ! -e /root/bin/chezmoi
               getent passwd root | grep -q "zsh$"
               origin_url="$(git -C /root/dotfiles remote get-url origin)"
-              test "$origin_url" = "ssh://git@github.com/kuhaku-space/dotfiles.git" || {
+              expected_url="ssh://git@github.com/kuhaku-space/dotfiles.git"
+              test "$origin_url" = "$expected_url" || {
                 printf "origin is %s\n" "$origin_url"
                 exit 1
               }
-              test "$(git -C /root/dotfiles config core.hooksPath)" = /root/dotfiles/.githooks
+              hooks_path="$(git -C /root/dotfiles config core.hooksPath)"
+              test "$hooks_path" = /root/dotfiles/.githooks
 
               export PATH="/root/.local/share/mise/shims:/root/.local/bin:$PATH"
-              timeout 300 zsh -ic "print -r -- BOOTSTRAP_OK" | grep -q BOOTSTRAP_OK
+              timeout 300 zsh -ic "print -r -- BOOTSTRAP_OK" |
+                grep -q BOOTSTRAP_OK
 
               test -s /root/.local/share/zsh/completions/_mise
               test -s /root/.cache/zsh/atuin-init.zsh
