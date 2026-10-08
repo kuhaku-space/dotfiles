@@ -10,11 +10,11 @@ chezmoi が実行するスクリプトと、リポジトリ内の補助コマン
 
 [run_before_00-backup-ssh-key.sh](../../run_before_00-backup-ssh-key.sh) は、Bitwarden の鍵で上書きされる前に、既存の `~/.ssh/id_ed25519` と公開鍵を日時付きバックアップへ退避する。chezmoi は自身が一度も配置していないファイルを確認なしで上書きするため、初回導入だけでなく鍵のローテーションでも毎回の `apply` 前に検査する。
 
-リポジトリの公開鍵とローカル鍵の指紋が一致するときは何もしない。期待する指紋を取得できない場合は安全側に倒して退避し、`cp -p` で元の mode を維持する。CI では秘密鍵を展開しないため処理しない。
+退避するかどうかは、`.chezmoiignore` が鍵を上書き対象にするかと同じ [scripts/needs-bitwarden.sh](../../scripts/needs-bitwarden.sh) で判定する。指紋が一致するときと CI では何もせず、判定不能な場合は安全側に倒して退避する。`cp -p` で元の mode を維持する。
 
 ### `scripts/needs-bitwarden.sh`
 
-[scripts/needs-bitwarden.sh](../../scripts/needs-bitwarden.sh) は Bitwarden が必要なら終了コード 0、不要なら 1 を返す。`run_once_before_01`、`run_once_before_02`、`.chezmoiignore` が共有する判定は次のとおり。
+[scripts/needs-bitwarden.sh](../../scripts/needs-bitwarden.sh) は Bitwarden が必要なら終了コード 0、不要なら 1 を返す。`run_before_00`、`run_once_before_01`、`run_once_before_02`、`.chezmoiignore` が共有する判定は次のとおり。
 
 - CI では認証できず、鍵も展開しないため常に不要とする。
 - ローカル秘密鍵とリポジトリの公開鍵から同じ指紋が得られれば不要とする。
