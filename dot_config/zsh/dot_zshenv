@@ -43,11 +43,11 @@ skip_global_compinit=1
 
 if [ -n "$ZSH_VERSION" ]; then
   typeset -U path
-  path+=("$HOME/.local/share/mise/shims" "$HOME/.local/bin" "$CARGO_HOME/bin")
+  path+=("$XDG_DATA_HOME/mise/shims" "$HOME/.local/bin" "$CARGO_HOME/bin")
   typeset -U fpath
   fpath=("$XDG_DATA_HOME/zsh/completions" $fpath)
 else
-  export PATH="$PATH:$HOME/.local/share/mise/shims:$HOME/.local/bin:$CARGO_HOME/bin"
+  export PATH="$PATH:$XDG_DATA_HOME/mise/shims:$HOME/.local/bin:$CARGO_HOME/bin"
 fi
 
 if command -v nvim >/dev/null 2>&1; then
