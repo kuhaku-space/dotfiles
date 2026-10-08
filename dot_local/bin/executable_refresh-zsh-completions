@@ -34,7 +34,7 @@ emit() {
   fi
   local -a run=("$MISE" exec "$tool@$version" --)
   case "$name" in
-    bw) BITWARDENCLI_APPDATA_DIR="${XDG_DATA_HOME:-$HOME/.local/share}/Bitwarden CLI" "${run[@]}" bw completion --shell zsh ;;
+    bw) BITWARDENCLI_APPDATA_DIR="$DATA_HOME/Bitwarden CLI" "${run[@]}" bw completion --shell zsh ;;
     *) return 1 ;;
   esac
 }
