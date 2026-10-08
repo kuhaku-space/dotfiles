@@ -11,6 +11,7 @@ PACKAGES=(
   "keychain"
   "jq"
   "build-essential"
+  "pkgconf"
   "libssl-dev"
   "libclang-dev"
   "cmake"
