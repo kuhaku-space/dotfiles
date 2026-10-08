@@ -38,7 +38,7 @@ chezmoi update                       # pull + apply
 
 `README.md` と `docs/` は `$HOME` へ展開されないため、リポジトリ上で直接編集する。
 
-同期状態は `dotfiles-status` で確認できる。Git の未 commit・未 push と、ソースと `$HOME` の差分をまとめて表示する。
+同期状態は `chezmoi status`（`$HOME` との差分）と `chezmoi git -- status -sb`（未 commit・未 push）で確認する。
 
 Git を直接操作する場合:
 

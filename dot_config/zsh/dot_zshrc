@@ -1,22 +1,3 @@
-function dotfiles-status() {
-  command -v chezmoi >/dev/null 2>&1 || {
-    echo "chezmoi not found" >&2
-    return 1
-  }
-
-  local src drift
-  src="$(chezmoi source-path)" || return 1
-
-  echo -e "\e[1;36m[dotfiles] $src\e[m"
-  git -C "$src" status --short --branch
-
-  drift="$(chezmoi status)"
-  if [ -n "$drift" ]; then
-    echo -e '\e[1;33m[dotfiles] $HOME とソースの差分 (M: 内容が違う / A: 未展開 / D: 削除予定)\e[m'
-    echo "$drift"
-  fi
-}
-
 function update() {
   if command -v chezmoi >/dev/null 2>&1; then
     echo -e "\e[1;36m[update] dotfiles (chezmoi)\e[m"

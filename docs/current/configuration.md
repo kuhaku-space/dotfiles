@@ -76,8 +76,6 @@ Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 
 ### 対話設定
 
-[対話設定](../../dot_config/zsh/dot_zshrc) の `dotfiles-status` は、ソースの未commit・ahead/behind と `$HOME` の展開差分を必要なときだけ表示する。シェル起動ごとの警告では re-add 忘れや未pushを十分検出できず、消せない警告が常時出るため手動コマンドにした。ローカル変数名に `status` を使わないのは zsh では `$?` の読み取り専用aliasだからである。
-
 `update` は次の順で実行する。
 
 1. 最初に `chezmoi update` で pull と apply を済ませる。先に mise.lock のローカルcommitを作ると、他マシンのlock更新に対するrebase conflictを起こしやすい。
