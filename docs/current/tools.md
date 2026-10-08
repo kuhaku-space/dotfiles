@@ -35,6 +35,7 @@
 | eza | `ls` の置き換え。zeno の `l` snippet と `ZENO_GIT_TREE` |
 | bat | 色付きのファイル表示。`ZENO_GIT_CAT` |
 | glow | Markdown をターミナルで読む |
+| ripgrep | 高速な再帰 grep（`rg`）。`.gitignore` を尊重して検索する |
 | neovim | あれば `$EDITOR`。なければ `vi` に落ちる |
 
 ### Git と GitHub
@@ -105,6 +106,8 @@ mise で管理するツールを追加する場合は、設定と lockfile の�
 mise use -g <tool>                    # config.toml と mise.lock を更新
 chezmoi re-add ~/.config/mise/config.toml ~/.config/mise/mise.lock
 ```
+
+`chezmoi re-add` は autoCommit／autoPush により chezmoi 既定のメッセージで commit と push まで行う。Conventional Commits のメッセージで commit するには、re-add の代わりに `cp ~/.config/mise/config.toml dot_config/mise/config.toml` と `cp ~/.config/mise/mise.lock dot_config/mise/private_mise.lock` でソースへ写し、この文書の更新と合わせて手で commit する。
 
 削除は `mise use -g --remove <tool>` の後に同じ re-add を行う。`mise prune` で実体も消える。apt パッケージは `PACKAGES` 配列を、zsh プラグインは `plugins.toml` を直接編集する。
 
