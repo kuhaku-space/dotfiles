@@ -1,6 +1,6 @@
 # Documentation index
 
-このファイルを、プロジェクト文書を探すときの入口にする。現在の挙動を調べる場合は、まず以下の対応表から必要な文書だけを読む。
+読むべき文書が分からないときの入口。以下の対応表から必要な文書だけを選ぶ。
 
 ## Current documentation
 
@@ -16,9 +16,7 @@
 
 プロジェクト全体の概要、セットアップ、日常運用、ファイル構成は [README.md](../README.md) を参照する。
 
-## Decisions
-
-現在、独立した decision record はない。継続的に有効な設計理由は、対応する `docs/current/` の文書に置く。
+設計理由は独立した decision record にせず、対応する `current/` の文書に置く。
 
 ## Archive
 

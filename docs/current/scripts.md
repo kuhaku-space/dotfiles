@@ -40,15 +40,7 @@ chezmoi が実行するスクリプトと、リポジトリ内の補助コマン
 
 [run_once_after_05-apt-packages.sh](../../run_once_after_05-apt-packages.sh) は、初回に不足している apt パッケージだけを導入する。apt がない環境では必要なパッケージ一覧を表示して正常終了する。後から一覧を変更した場合は、スクリプトを再実行するか各ディストリビューションのパッケージマネージャで追加する。
 
-パッケージの用途は次のとおり。
-
-| 用途 | パッケージ |
-| --- | --- |
-| chezmoi、Git、hook、取得処理 | `ca-certificates`, `curl`, `git`, `openssh-client`, `unzip` |
-| シェル環境 | `zsh`, `keychain`, `jq` |
-| Rust などのビルド | `build-essential`, `libssl-dev`, `libclang-dev`, `cmake` |
-| X11／Wayland クリップボード | `xclip`, `wl-clipboard` |
-| Nerd Font の登録 | `fontconfig` |
+パッケージの用途は [使用しているツール](tools.md#apt-で導入する-os-パッケージ) を参照する。
 
 非対話スクリプト向けの安定した CLI を使うため `apt` ではなく `apt-get` を呼ぶ。
 

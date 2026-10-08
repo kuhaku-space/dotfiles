@@ -82,9 +82,9 @@ Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 
 1. 最初に `chezmoi update` で pull と apply を済ませる。先に mise.lock のローカルcommitを作ると、他マシンのlock更新に対するrebase conflictを起こしやすい。
 2. aptを更新する。
-3. `mise upgrade -C "$HOME"` でグローバル設定だけを更新し、生成されたlockfileをre-addする。実行ディレクトリのプロジェクト設定を誤って更新しないため `-C` が必要である。
+3. `mise self-update` の後、`mise upgrade -C "$HOME"` でグローバル設定だけを更新して `mise prune` し、生成されたlockfileをre-addする。実行ディレクトリのプロジェクト設定を誤って更新しないため `-C` が必要である。
 4. `sheldon lock --update` で固定されたpluginを更新する。
-5. Starshipのinit cacheだけを削除する。zcompdumpは補完関数の対応表であり、ツールのversion更新だけでは古くならない。補完ファイルの増減時は補完生成側が削除する。
+5. StarshipとAtuinのinit cacheだけを削除する。zcompdumpは補完関数の対応表であり、ツールのversion更新だけでは古くならない。補完ファイルの増減時は補完生成側が削除する。
 
 `clip` はWaylandでは`wl-copy`、X11では`xclip`、表示サーバーがなければOSC 52を選ぶ。SSH越しでもOSC 52対応端末なら手元のclipboardへ送れる。
 
@@ -107,7 +107,7 @@ SSH agent初期化はprompt後へ遅延する。`ssh-add -l` の終了コード0
 3. fpath確定後にcompinitを遅延実行し、直後に生成済みのCarapace登録コードを読む。
 4. 補完を必要としない残りのpluginを遅延ロードする。
 
-inline pluginには通常のdefer templateが適用されないため、自身で`zsh-defer`を呼ぶ。compinitのdumpは変更時だけzcompileする。StarshipとAtuinは最初のpromptから必要なので遅延せず、init出力をcacheして毎回のsubprocessを避ける。`update`はツール更新後に両方のcacheを削除する。zoxideは最初に`z`を使うまでに用意できればよいので遅延する。mise補完は静的生成するため、起動時には生成しない。
+inline pluginには通常のdefer templateが適用されないため、自身で`zsh-defer`を呼ぶ。compinitのdumpは変更時だけzcompileする。各処理を遅延・cache・静的生成のどれにするかは [zsh-startup.md](zsh-startup.md) を参照する。
 
 ## Atuin
 

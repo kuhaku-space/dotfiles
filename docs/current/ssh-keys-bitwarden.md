@@ -31,15 +31,11 @@
 
 ## ssh クライアント設定
 
-非公開ホストを `~/.ssh/config.d/*.conf` に分ける方針と、`Include` を先頭に置く理由は [private_config](../../private_dot_ssh/private_config) 冒頭のコメントにある。GitHub のホスト鍵を更新するときは:
-
-```sh
-curl -fsS https://api.github.com/meta | jq -r .ssh_keys[]
-```
+設定値の意図（非公開ホストを `~/.ssh/config.d/*.conf` に分ける方針、`Include` を先頭に置く理由、ControlPath、known_hosts の更新方法）は [設定ファイルの設計](configuration.md#ssh) にある。
 
 ### 既存マシンでの注意
 
-`~/.ssh/config` が管理下に入ったので、`chezmoi apply` は既存の `~/.ssh/config` を**上書きする**。ローカルにホスト定義があるマシンでは、apply する前に退避しておく:
+`~/.ssh/config` は管理下にあるため、`chezmoi apply` は既存の `~/.ssh/config` を**上書きする**。ローカルにホスト定義があるマシンでは、apply する前に退避しておく:
 
 ```sh
 mkdir -p ~/.ssh/config.d && chmod 700 ~/.ssh/config.d

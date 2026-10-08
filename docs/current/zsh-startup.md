@@ -15,6 +15,6 @@
 | `carapace _carapace` | キャッシュ | 全completerの登録コードを更新時に生成し、`compinit`直後に読む |
 | `bindkey` | defer | widget を定義するプラグイン（zeno / autosuggestions）が defer なので、即時に張ると読み込み前の入力が `No such widget` で捨てられる |
 
-`apply = ["defer"]` は **inline プラグインには効かない**（テンプレートは `files` を展開するためのもの）。inline を遅延したいときは自分で `zsh-defer` を書く。読み込み順の約束は [plugins.toml](../../dot_config/sheldon/plugins.toml) 冒頭のコメントにまとめてある。
+`apply = ["defer"]` は **inline プラグインには効かない**（テンプレートは `files` を展開するためのもの）。inline を遅延したいときは自分で `zsh-defer` を書く。[plugins.toml](../../dot_config/sheldon/plugins.toml) の読み込み順の制約は [設定ファイルの設計](configuration.md#sheldon) にまとめてある。
 
-生成物（starship / Atuin の init 出力・補完ダンプ）はツールが入れ替わると古くなるため、[.zshrc](../../dot_config/zsh/dot_zshrc) の `update` 関数が必要なcacheを捨てる。次のシェル起動で作り直される。
+starship / Atuin の init 出力はツールが入れ替わると古くなるため、[.zshrc](../../dot_config/zsh/dot_zshrc) の `update` 関数が捨て、次のシェル起動で作り直される。補完ダンプの扱いは [`update` の手順](configuration.md#対話設定) と [refresh-zsh-completions](scripts.md#refresh-zsh-completions) を参照する。
