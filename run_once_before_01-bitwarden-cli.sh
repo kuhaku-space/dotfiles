@@ -52,8 +52,10 @@ fi
 
 if ! command -v unzip >/dev/null 2>&1 && command -v apt-get >/dev/null 2>&1; then
   printf "Installing unzip (required to extract bw)\n"
-  if sudo apt-get update -qq; then
-    sudo DEBIAN_FRONTEND=noninteractive apt-get install -y -qq unzip || true
+  SUDO=()
+  [ "$(id -u)" -eq 0 ] || SUDO=(sudo)
+  if "${SUDO[@]}" apt-get update -qq; then
+    "${SUDO[@]}" env DEBIAN_FRONTEND=noninteractive apt-get install -qq -y unzip || true
   fi
 fi
 if ! command -v unzip >/dev/null 2>&1; then
