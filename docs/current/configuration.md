@@ -71,8 +71,8 @@ Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 
 - `LANG` が未設定の最小環境だけ `C.UTF-8` にする。`ja_JP.UTF-8` は生成済みとは限らない。
 - `openssl-sys` 用の環境変数は `libssl.so` と header が実在するときだけ設定する。固定した x86_64 path を渡すと pkg-config が使われず他アーキテクチャでリンクに失敗する。include path は `openssl/` の親を指す。
-- zsh では `typeset -U` で PATH と fpath の重複を除き、静的補完を compinit より前に登録する。bootstrap から bash で source される場合は zsh 専用構文を避ける。
-- editor は PATH 確定後に選び、nvim があれば `$EDITOR=nvim`、VS Code があれば `$VISUAL='code --wait'` とする。Git はこの一箇所へ委ねる。
+- zsh では `typeset -U` で PATH と fpath の重複を除き、静的補完を compinit より前に登録する。WSL が追加する Windows 側のディレクトリ（`/mnt/[a-z]/*`）は PATH から外す。理由は [zsh の起動時間](zsh-startup.md#windows-側の-path) を参照する。bootstrap から bash で source される場合は zsh 専用構文を避ける。
+- editor は PATH 確定後に選び、nvim があれば `$EDITOR=nvim`、VS Code があれば `$VISUAL='code --wait'` とする（Windows 側の PATH を外すため、`code` は VS Code 統合ターミナルの remote-cli だけが該当する）。Git はこの一箇所へ委ねる。
 
 ### 対話設定
 

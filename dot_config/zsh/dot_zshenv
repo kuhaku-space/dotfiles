@@ -43,6 +43,13 @@ skip_global_compinit=1
 
 if [ -n "$ZSH_VERSION" ]; then
   typeset -U path
+  # WSL appends Windows directories (/mnt/c/...); every lookup through them
+  # crosses 9P, and mise rescans PATH on activate and on every prompt.
+  path=(${path:#/mnt/[a-z]/*})
+  # mise rebuilds PATH from this when inherited from an activated parent.
+  if [[ -n ${__MISE_ORIG_PATH-} ]]; then
+    export __MISE_ORIG_PATH=${(j.:.)${${(s.:.)__MISE_ORIG_PATH}:#/mnt/[a-z]/*}}
+  fi
   path+=("$XDG_DATA_HOME/mise/shims" "$HOME/.local/bin" "$CARGO_HOME/bin")
   typeset -U fpath
   fpath=("$XDG_DATA_HOME/zsh/completions" $fpath)
