@@ -58,6 +58,7 @@ unset _atuin_cache
 inline = '''
 _starship_cache="${XDG_CACHE_HOME:-$HOME/.cache}/zsh/starship-init.zsh"
 if [[ ! -s $_starship_cache ]] && (( $+commands[starship] )); then
+  mkdir -p "${_starship_cache:h}"
   starship init zsh >| $_starship_cache
 fi
 [[ -s $_starship_cache ]] && source $_starship_cache
