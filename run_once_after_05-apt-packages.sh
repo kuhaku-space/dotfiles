@@ -13,7 +13,6 @@ PACKAGES=(
   "build-essential"
   "pkgconf"
   "libssl-dev"
-  "libclang-dev"
   "cmake"
   "xclip"
   "wl-clipboard"

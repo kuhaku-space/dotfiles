@@ -67,7 +67,7 @@
 - **bootstrap と chezmoi**: `ca-certificates`、`curl`、`git`、`openssh-client`、`unzip`。chezmoi の導入、mise と bw の取得、リポジトリの操作に使う。
 - **shell**: `zsh`（login shell）、`keychain`（既存の desktop agent がない場合の SSH agent）。
 - **clipboard**: Wayland の `wl-clipboard` と X11 の `xclip`。`.zshrc` の `clip` がどちらかを選ぶ。
-- **ビルド**: `build-essential`、`pkgconf`、`libssl-dev`、`libclang-dev`、`cmake`。Rust などを source から build する場合に必要で、`.zshenv` の `OPENSSL_LIB_DIR` は `libssl.so` の実在を確認してから設定する。設定されない環境では `openssl-sys` が pkg-config で探すため `pkgconf` も入れる。
+- **ビルド**: `build-essential`、`pkgconf`、`libssl-dev`、`cmake`。Rust などを source から build する場合に必要で、`.zshenv` の `OPENSSL_LIB_DIR` は `libssl.so` の実在を確認してから設定する。設定されない環境では `openssl-sys` が pkg-config で探すため `pkgconf` も入れる。
 - **その他**: `jq`、`fontconfig`（Nerd Font の導入と cache 更新）。
 
 apt がない環境では導入せず、同等のパッケージ名を表示して終了する。実機 Linux 固有の注意点は [bare-metal-linux.md](bare-metal-linux.md) を参照する。
