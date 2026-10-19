@@ -14,7 +14,7 @@ bat = "latest"
 bitwarden = "latest"
 carapace = "latest"
 chezmoi = "latest"
-claude = { version = "latest", exe = "claude" }
+claude = "latest"
 deno = "latest"
 eza = "latest"
 fzf = "latest"
