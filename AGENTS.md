@@ -32,8 +32,4 @@ Minimize unnecessary context and tool calls without compromising correctness, co
 
 - Commit directly to `main`. Do not create feature branches.
 - Commit after every change. Do not leave completed changes uncommitted; keep each commit focused on a single logical change.
-- Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) for every commit message:
-  - Format: `<type>(<optional scope>): <description>`, e.g. `feat(contests): allow reordering problems`.
-  - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`, `revert`.
-  - Write the description in the imperative mood, lowercase, without a trailing period.
-  - Mark breaking changes with `!` after the type/scope (e.g. `feat(auth)!: ...`) and a `BREAKING CHANGE:` footer explaining the migration.
+- Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), e.g. `feat(zsh): add alias`.
