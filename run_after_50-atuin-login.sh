@@ -5,8 +5,7 @@ if [ -n "${CI:-}" ]; then
   exit 0
 fi
 
-LOGIN_ITEM="37b0c493-58d7-4b02-87dc-b4c400b57caf"
-KEY_ITEM="6e720ed5-807a-411d-bc28-b4c400d0d13c"
+ITEM="37b0c493-58d7-4b02-87dc-b4c400b57caf"
 
 ATUIN="$(command -v atuin || true)"
 if [ -z "$ATUIN" ] && command -v mise >/dev/null 2>&1; then
@@ -47,9 +46,9 @@ case "$STATUS" in
     ;;
 esac
 
-USERNAME="$("$BW" get username "$LOGIN_ITEM")"
-ATUIN_PASSWORD="$("$BW" get password "$LOGIN_ITEM")"
-ATUIN_ENCRYPTION_KEY="$("$BW" get notes "$KEY_ITEM")"
+USERNAME="$("$BW" get username "$ITEM")"
+ATUIN_PASSWORD="$("$BW" get password "$ITEM")"
+ATUIN_ENCRYPTION_KEY="$("$BW" get notes "$ITEM")"
 export ATUIN_PASSWORD ATUIN_ENCRYPTION_KEY
 
 printf "\e[1;36mLog in to Atuin as %s\e[m\n" "$USERNAME"
