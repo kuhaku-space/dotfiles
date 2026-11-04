@@ -50,6 +50,10 @@ USERNAME="$("$BW" get username "$ITEM")"
 ATUIN_PASSWORD="$("$BW" get password "$ITEM")"
 ATUIN_ENCRYPTION_KEY="$("$BW" get notes "$ITEM")"
 export ATUIN_PASSWORD ATUIN_ENCRYPTION_KEY
+if [ -z "$USERNAME" ] || [ -z "$ATUIN_PASSWORD" ] || [ -z "$ATUIN_ENCRYPTION_KEY" ]; then
+  printf "Bitwarden item %s needs a username, password, and the key in notes.\n" "$ITEM" >&2
+  exit 1
+fi
 
 printf "\e[1;36mLog in to Atuin as %s\e[m\n" "$USERNAME"
 "$ATUIN" login -u "$USERNAME"
