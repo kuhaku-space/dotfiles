@@ -122,12 +122,9 @@ inline pluginには通常のdefer templateが適用されないため、自身�
 
 正規表現はunanchoredなので、`^`を付けないものはコマンド中のどこに現れても一致する。`grep password= .`のような無害なコマンドも巻き添えで落ちるが、cloudへ送る以上は記録しない側に倒す。機密を扱うworking directoryは現状ないため`cwd_filter`は設定しない。必要になった時点で追加する。
 
-暗号鍵`~/.local/share/atuin/key`はBitwardenのSecure Note item 1件に保存する。鍵はサーバーに渡らないので、失うとサーバー側の履歴を復号できなくなる。新しい端末では`atuin login`にこの鍵を渡して既存の履歴に合流する。SSH鍵と違いchezmoiのtemplateでは展開しない。展開するにはログインにpasswordも要るので、鍵だけ自動で置いても無人化にはならないためである。
+暗号鍵`~/.local/share/atuin/key`はBitwardenのSecure Note item（notes欄）に、usernameとpasswordは別のLogin itemに保存する。鍵はサーバーに渡らないので、失うとサーバー側の履歴を復号できなくなる。新しい端末では [run_after_50-atuin-login.sh](../../run_after_50-atuin-login.sh) がこの2件を取り出して`atuin login`し、既存の履歴に合流する。
 
-```sh
-atuin login -u <username>   # password と key を対話で入力
-atuin sync
-```
+SSH鍵と違いchezmoiのtemplateでは展開しない。鍵だけを置いてもログインにはpasswordが要り、ログインまで自動化するならtemplateを経由する必要がないためである。秘密は環境変数`ATUIN_PASSWORD`と`ATUIN_ENCRYPTION_KEY`で渡し、引数やレンダリング済みスクリプトには載せない。
 
 ## SSH
 

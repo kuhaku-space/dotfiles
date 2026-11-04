@@ -82,6 +82,16 @@ apt がない環境、または root 権限を得られない環境（sudo が�
 
 [run_onchange_after_40-zsh-completions.sh.tmpl](../../run_onchange_after_40-zsh-completions.sh.tmpl) は、補完生成コマンド本体の内容ハッシュが変わったときに再実行される。mise の `postinstall` hook は全ツールが導入済みだと発火しないため、`apply` からも補完状態を収束させる。ハッシュコメントは変更検知に必要である。
 
+### `run_after_50-atuin-login.sh`
+
+[run_after_50-atuin-login.sh](../../run_after_50-atuin-login.sh) は、Atuinが同期サーバーに未ログインのときだけBitwardenからusername、password、暗号鍵を取得して`atuin login`と`atuin sync`を行う。保存先と秘密の渡し方は [Atuin の設定](configuration.md#atuin) を参照する。
+
+- ログアウトや鍵の紛失からも`apply`で復帰できるよう、`run_once_`ではなく毎回実行する。ログイン済みなら`atuin status`だけで終わるので、Bitwardenのアンロックは求めない。
+- 判定は`atuin status`の未ログインのメッセージに限る。ネットワーク障害などの失敗ではログインを試みない。
+- miseが導入した直後のatuinを使うため、30より後に実行する。
+- chezmoiのアンロックはtemplate評価用なので、スクリプト内で`bw login --raw`または`bw unlock --raw`を実行してsessionを得る。SSH鍵の取得と重なる初回は、マスターパスワードの入力がもう一度求められることがある。
+- CIでは認証できないため何もしない。
+
 ## 手動コマンドと検証スクリプト
 
 ### `refresh-zsh-completions`
