@@ -2,34 +2,17 @@
 
 ## Documentation
 
-### Reading
-
-- Read only documentation relevant to the current task.
-- Access known files directly; use `docs/INDEX.md` only when locating documentation.
-- Prefer targeted searches and relevant sections over entire files.
-- Reuse information already available in the current context.
-- Check related documentation when changes may affect other components.
-- Prioritize current specifications and source code over outdated documentation.
-
-### Writing
-
-- Keep documentation concise, accurate, and nonredundant.
-- Organize documents by topic with descriptive headings.
-- Maintain a single source of truth; link instead of duplicating content.
-- Separate current specifications from historical decisions.
-- Update the relevant documentation when behavior, architecture, commands, or conventions change.
-- Update `docs/INDEX.md` when the documentation structure changes.
-
-### Principle
-
-Minimize unnecessary context and tool calls without compromising correctness, completeness, or verification.
+- Locate documentation via `docs/INDEX.md`; read only what the task needs.
+- Trust current source code over outdated documentation.
+- Keep docs concise with a single source of truth; link instead of duplicating.
+- Keep current docs in `docs/current`; move completed migration records to `docs/archive`.
+- Update relevant docs when behavior, commands, or conventions change, and `docs/INDEX.md` when the structure changes.
 
 ## Verification
 
-- Run the relevant checks documented for the project after making changes.
+- Run the relevant checks in `docs/commands.md` after making changes.
 
 ## Git
 
-- Commit directly to `main`. Do not create feature branches.
-- Commit after every change. Do not leave completed changes uncommitted; keep each commit focused on a single logical change.
+- Commit directly to `main` after every change, one logical change per commit.
 - Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/), e.g. `feat(zsh): add alias`.
