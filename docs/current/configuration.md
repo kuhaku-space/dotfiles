@@ -78,7 +78,7 @@ Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 
 `update` は次の順で実行する。
 
-1. 最初に `chezmoi update` で pull と apply を済ませる。先に mise.lock のローカルcommitを作ると、他マシンのlock更新に対するrebase conflictを起こしやすい。
+1. 最初に `chezmoi update` で pull と apply を済ませる。先に mise.lock のローカルcommitを作ると、他マシンのlock更新に対するrebase conflictを起こしやすい。失敗した場合は以降の手順を実行せずに中断する。rebase途中のまま `mise.lock` を re-add すると、競合をさらに複雑にするためである。
 2. aptを更新する。
 3. `mise self-update` の後、`mise upgrade -C "$HOME"` でグローバル設定だけを更新して `mise prune` し、生成されたlockfileをre-addする。実行ディレクトリのプロジェクト設定を誤って更新しないため `-C` が必要である。
 4. `sheldon lock --update` で固定されたpluginを更新する。
