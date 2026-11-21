@@ -5,13 +5,14 @@ lockfile = true
 postinstall = "~/.local/bin/refresh-zsh-completions"
 
 [tool_alias]
+bitwarden = "github:bitwarden/clients"
 claude = "github:anthropics/claude-code"
 
 [tools]
 actionlint = "latest"
 atuin = "latest"
 bat = "latest"
-bitwarden = "latest"
+bitwarden = { version = "latest", version_prefix = "cli-v" }
 carapace = "latest"
 chezmoi = "latest"
 claude = "latest"

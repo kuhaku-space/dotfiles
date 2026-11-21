@@ -51,7 +51,7 @@ CI は Bitwarden 認証を利用できないため秘密鍵と公開鍵を除外
 
 Claude Code は aqua backend ではなく GitHub Releases から取得する。mise 2026.8.4 では aqua registry の backend type override が反映されず、空 URL によってインストールと lockfile が壊れたためである。アーカイブ内の実行ファイル名は `claude-code` ではなく `claude` なので明示する。aqua 側の問題が解消した場合は通常の `latest` 指定へ戻せる。
 
-Bitwarden は公式ネイティブバイナリを使い、初回に先行導入するものと同じ成果物を mise で継続管理する。ShellCheck と actionlint は CI と同じ検査をローカルでも実行するために含める。
+Bitwarden は公式ネイティブバイナリを使い、初回に先行導入するものと同じ成果物を mise で継続管理する。2026.11.0 で商用版 zip が `bw-<os>-*` から `bw-bit-<os>-*` に改名され、aqua registry の定義が旧名のままでインストールに失敗したため、GitHub Releases から取得する。`bitwarden/clients` は Web やデスクトップ版も同じ repository でリリースするので、`version_prefix = "cli-v"` で CLI のタグだけに絞る。`asset_pattern` を指定すると OS と arch の自動判定が無効になり全 platform が同じ zip を指すため、asset は自動判定に任せる。自動判定は `bw-bit-*` を選ぶ（lockfile の URL で確認できる）。ShellCheck と actionlint は CI と同じ検査をローカルでも実行するために含める。
 
 Rust、Node.js、Typst は意図的にグローバル設定へ含めない。
 

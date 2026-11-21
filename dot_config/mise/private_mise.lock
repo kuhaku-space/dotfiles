@@ -126,43 +126,52 @@ url = "https://github.com/sharkdp/bat/releases/download/v0.26.1/bat-v0.26.1-x86_
 url_api = "https://api.github.com/repos/sharkdp/bat/releases/assets/323549116"
 
 [[tools.bitwarden]]
-version = "2026.10.1"
-backend = "aqua:bitwarden/clients"
+version = "2026.11.0"
+backend = "github:bitwarden/clients"
+
+[tools.bitwarden.options]
+version_prefix = "cli-v"
 
 [tools.bitwarden."platforms.linux-arm64"]
-checksum = "sha256:79ecb3293fb259660961c949d3e32fdab8682b2bcff0f6764ce38a411ca1ac5d"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-linux-arm64-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476446"
+checksum = "sha256:39e8336376739bbe5306471df0667793757ef1e243df3846461f66be9166e9d8"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-arm64-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720862"
 
 [tools.bitwarden."platforms.linux-arm64-musl"]
-checksum = "sha256:79ecb3293fb259660961c949d3e32fdab8682b2bcff0f6764ce38a411ca1ac5d"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-linux-arm64-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476446"
+checksum = "sha256:39e8336376739bbe5306471df0667793757ef1e243df3846461f66be9166e9d8"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-arm64-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720862"
 
 [tools.bitwarden."platforms.linux-x64"]
-checksum = "sha256:eb09c3715291c21cf744819b873a255c1247b1b8b45bae138621a644ec7ad8f5"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-linux-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476344"
+checksum = "sha256:bfc7643cbc20f970bf04b994f96489703fcf77217a2384f1743e43848363b0ba"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720724"
 
 [tools.bitwarden."platforms.linux-x64-musl"]
-checksum = "sha256:eb09c3715291c21cf744819b873a255c1247b1b8b45bae138621a644ec7ad8f5"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-linux-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476344"
+checksum = "sha256:bfc7643cbc20f970bf04b994f96489703fcf77217a2384f1743e43848363b0ba"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720724"
 
 [tools.bitwarden."platforms.macos-arm64"]
-checksum = "sha256:4e595f9da80ef8b30abca808d0c78a1560d9589466d1bccd2b3e70f321fb12bf"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-macos-arm64-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688476006"
+checksum = "sha256:d0e50916faa4bbc26d6f59bbd8986ea0d2f42a5b3a6180d422852ff6a965ee25"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-macos-arm64-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720318"
 
 [tools.bitwarden."platforms.macos-x64"]
-checksum = "sha256:0f96f40975972dc0ec568e689d21cdb3cb8caa30ec9bb066a55bf254512fb3c7"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-macos-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688475897"
+checksum = "sha256:56a2e93edeadcb3a2b7dc109a237261f340a4b50da54b4e637e08a60196eb962"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-macos-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720211"
 
 [tools.bitwarden."platforms.windows-x64"]
-checksum = "sha256:5043129ffbad5fa494b387ccd5e14e19ec9411b3dfc7f75c276aadc9f070e7f1"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.10.1/bw-windows-2026.10.1.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/688475674"
+checksum = "sha256:44a22b3f81cbb595c2d591d942be73ecbc5252d9a80471906c60823ac00f9abf"
+checksum_source = "mise-versions"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-windows-2026.11.0.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768719820"
 
 [[tools.carapace]]
 version = "1.8.2"
