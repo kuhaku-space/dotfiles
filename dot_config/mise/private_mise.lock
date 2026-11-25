@@ -49,6 +49,7 @@ provenance = "github-attestations"
 [[tools.atuin]]
 version = "18.25.1"
 backend = "aqua:atuinsh/atuin"
+unsupported_platforms = ["macos-x64"]
 
 [tools.atuin."platforms.linux-arm64"]
 checksum = "sha256:19713ba9447f6429412c349379a62b98f519bc311b38c31c95c06bdbfceb4ed8"
@@ -126,52 +127,52 @@ url = "https://github.com/sharkdp/bat/releases/download/v0.26.1/bat-v0.26.1-x86_
 url_api = "https://api.github.com/repos/sharkdp/bat/releases/assets/323549116"
 
 [[tools.bitwarden]]
-version = "2026.11.0"
+version = "2026.11.1"
 backend = "github:bitwarden/clients"
 
 [tools.bitwarden.options]
 version_prefix = "cli-v"
 
 [tools.bitwarden."platforms.linux-arm64"]
-checksum = "sha256:39e8336376739bbe5306471df0667793757ef1e243df3846461f66be9166e9d8"
+checksum = "sha256:6e85ed7939414a768a58aa40fff53e2ba79584bb7de73e47b97b206bfb532497"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-arm64-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720862"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-linux-arm64-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788252488"
 
 [tools.bitwarden."platforms.linux-arm64-musl"]
-checksum = "sha256:39e8336376739bbe5306471df0667793757ef1e243df3846461f66be9166e9d8"
+checksum = "sha256:6e85ed7939414a768a58aa40fff53e2ba79584bb7de73e47b97b206bfb532497"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-arm64-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720862"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-linux-arm64-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788252488"
 
 [tools.bitwarden."platforms.linux-x64"]
-checksum = "sha256:bfc7643cbc20f970bf04b994f96489703fcf77217a2384f1743e43848363b0ba"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720724"
+checksum = "sha256:4c074b8d7a4365075d6628a224f65f29e6797d806b0896850973997464346622"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-linux-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788252334"
 
 [tools.bitwarden."platforms.linux-x64-musl"]
-checksum = "sha256:bfc7643cbc20f970bf04b994f96489703fcf77217a2384f1743e43848363b0ba"
+checksum = "sha256:4c074b8d7a4365075d6628a224f65f29e6797d806b0896850973997464346622"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-linux-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720724"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-linux-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788252334"
 
 [tools.bitwarden."platforms.macos-arm64"]
-checksum = "sha256:d0e50916faa4bbc26d6f59bbd8986ea0d2f42a5b3a6180d422852ff6a965ee25"
+checksum = "sha256:0447a5c94b5893deb3fbe4f4ac02e8d811e2f9815c27d567d08b4fc70486cff1"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-macos-arm64-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720318"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-macos-arm64-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788251933"
 
 [tools.bitwarden."platforms.macos-x64"]
-checksum = "sha256:56a2e93edeadcb3a2b7dc109a237261f340a4b50da54b4e637e08a60196eb962"
+checksum = "sha256:3a6960251682d428ca35bb74ebb43f80ae061a5df21651141aa23a8e0b90d0c5"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-macos-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768720211"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-macos-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788251820"
 
 [tools.bitwarden."platforms.windows-x64"]
-checksum = "sha256:44a22b3f81cbb595c2d591d942be73ecbc5252d9a80471906c60823ac00f9abf"
+checksum = "sha256:23a3e34fdd11ec30ad0f5c9f3f89275f26567c64b2cbf7bb9b3d059805afedd4"
 checksum_source = "mise-versions"
-url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.0/bw-bit-windows-2026.11.0.zip"
-url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/768719820"
+url = "https://github.com/bitwarden/clients/releases/download/cli-v2026.11.1/bw-bit-windows-2026.11.1.zip"
+url_api = "https://api.github.com/repos/bitwarden/clients/releases/assets/788251530"
 
 [[tools.carapace]]
 version = "1.8.5"
@@ -179,13 +180,11 @@ backend = "aqua:carapace-sh/carapace-bin"
 
 [tools.carapace."platforms.linux-arm64"]
 checksum = "sha256:20e535215f9eeeb8257b3a2d5e9be909e676ca8bdb54cf2b26c03542337fe3c2"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_linux_arm64.tar.gz"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913291"
 
 [tools.carapace."platforms.linux-arm64-musl"]
 checksum = "sha256:20e535215f9eeeb8257b3a2d5e9be909e676ca8bdb54cf2b26c03542337fe3c2"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_linux_arm64.tar.gz"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913291"
 
@@ -196,25 +195,21 @@ url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets
 
 [tools.carapace."platforms.linux-x64-musl"]
 checksum = "sha256:e0543a02199ecec90fc4f0dc2c5bd52bdc995b72a9f3c4788f82b13d62669436"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_linux_amd64.tar.gz"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913494"
 
 [tools.carapace."platforms.macos-arm64"]
 checksum = "sha256:570917704105be2a2bb0f3d436bf13f772a151ddeb6d644767caba932598a28f"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_darwin_arm64.tar.gz"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913396"
 
 [tools.carapace."platforms.macos-x64"]
 checksum = "sha256:0c31620c56d1814e4a433a8403e3ff0e12f9c09ef6fbe3a937aca9e2ada973e7"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_darwin_amd64.tar.gz"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913294"
 
 [tools.carapace."platforms.windows-x64"]
 checksum = "sha256:d8886fddfbd679d0acc9086abc77556649f3170f339bae0b91d3f591af19ec9e"
-checksum_source = "mise-versions"
 url = "https://github.com/carapace-sh/carapace-bin/releases/download/v1.8.5/carapace-bin_1.8.5_windows_amd64.zip"
 url_api = "https://api.github.com/repos/carapace-sh/carapace-bin/releases/assets/782913452"
 
@@ -618,13 +613,11 @@ backend = "aqua:BurntSushi/ripgrep"
 
 [tools.ripgrep."platforms.linux-arm64"]
 checksum = "sha256:0b0bddcfaf42be1f3c56bf929d70defd1a2d96f2577aecbd7029a3734ddb4740"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-aarch64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780739969"
 
 [tools.ripgrep."platforms.linux-arm64-musl"]
 checksum = "sha256:0b0bddcfaf42be1f3c56bf929d70defd1a2d96f2577aecbd7029a3734ddb4740"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-aarch64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780739969"
 
@@ -635,31 +628,31 @@ url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/78073
 
 [tools.ripgrep."platforms.linux-x64-musl"]
 checksum = "sha256:54268ab4643c00a290a29b0086066d64b3f56236dd805ec64629a86f9bd29fd0"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-x86_64-unknown-linux-musl.tar.gz"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780740424"
 
 [tools.ripgrep."platforms.macos-arm64"]
 checksum = "sha256:5a145656d5067144001bfce6648767fd3254599aa736f1ffdb7fb907760b8ca1"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-aarch64-apple-darwin.tar.gz"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780739338"
 
 [tools.ripgrep."platforms.macos-x64"]
 checksum = "sha256:aa9183b0e0bfac03c5818895ad18b75001c402d230063898abfe5a58cd413caa"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-x86_64-apple-darwin.tar.gz"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780739975"
 
 [tools.ripgrep."platforms.windows-x64"]
 checksum = "sha256:f418ae83e63046a94a7b5f3a44bf3a169f66e689164856ecee02547131c73931"
-checksum_source = "mise-versions"
 url = "https://github.com/BurntSushi/ripgrep/releases/download/16.0.0/ripgrep-16.0.0-x86_64-pc-windows-msvc.zip"
 url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/780739355"
 
 [[tools.sheldon]]
 version = "0.8.5"
 backend = "aqua:rossmacarthur/sheldon"
+unsupported_platforms = [
+    "macos-x64",
+    "windows-x64",
+]
 
 [tools.sheldon."platforms.linux-arm64"]
 checksum = "sha256:1f6b792e49e259f7c313e9921c8d4ad638d827abc2c023efe0588a55678f9a3e"
@@ -770,13 +763,11 @@ backend = "aqua:jdx/usage"
 
 [tools.usage."platforms.linux-arm64"]
 checksum = "sha256:c2a8631b5c0601580a3d0908ac1dfddcee5e45f27f35981bf9f09c653c7608cd"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-aarch64-unknown-linux-gnu.tar.gz"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784695665"
 
 [tools.usage."platforms.linux-arm64-musl"]
 checksum = "sha256:9683435e8c77ed19413e10556e2ad4e97a2e780c59ef7408992eba4b631c3403"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-aarch64-unknown-linux-musl.tar.gz"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784696375"
 
@@ -787,66 +778,68 @@ url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784693934"
 
 [tools.usage."platforms.linux-x64-musl"]
 checksum = "sha256:5b2ff85406de4a7e13ccac16f26a40df86b9e85ab6d96b098a4b725eeef889d7"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-x86_64-unknown-linux-musl.tar.gz"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784696194"
 
 [tools.usage."platforms.macos-arm64"]
 checksum = "sha256:c10054cc2649a25c9a88522f8c891166f3a3151fe2cd1b20ebde3194a938ae91"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-universal-apple-darwin.tar.gz"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784701238"
 
 [tools.usage."platforms.macos-x64"]
 checksum = "sha256:c10054cc2649a25c9a88522f8c891166f3a3151fe2cd1b20ebde3194a938ae91"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-universal-apple-darwin.tar.gz"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784701238"
 
 [tools.usage."platforms.windows-x64"]
 checksum = "sha256:ee863aa1a1173fa84dbaa9707f52c14fcc3115e283eb6b842979cc5a38ba6fc8"
-checksum_source = "mise-versions"
 url = "https://github.com/jdx/usage/releases/download/v7.4.1/usage-x86_64-pc-windows-msvc.zip"
 url_api = "https://api.github.com/repos/jdx/usage/releases/assets/784704155"
 
 [[tools.zellij]]
-version = "0.46.0"
+version = "0.46.1"
 backend = "aqua:zellij-org/zellij"
 
 [tools.zellij."platforms.linux-arm64"]
-checksum = "sha256:7ce8501136dab30767fea809191f39ca41d66d100082a96534539f49c7a53f0d"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-aarch64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734910083"
+checksum = "sha256:f2ff1bc9dddda79d7c019dfb17f95b3c8a180b1fb2011ee339c6882711ae9bbd"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-aarch64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786102743"
 
 [tools.zellij."platforms.linux-arm64-musl"]
-checksum = "sha256:c416b3d29ec9c71baf8754fe66663afe4f615395895e3f9b8b6e3bd0f7042427"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-aarch64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734791836"
+checksum = "sha256:5371af1eae34a22da0fdc0a2d4c4bff648e3e75345adb341f14d93d678487c5c"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-aarch64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786106198"
 
 [tools.zellij."platforms.linux-x64"]
-checksum = "sha256:0940e467f99ca57aec5a63edcad633450d49cd6f22e8a7d9c686771a0d9f86ae"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-x86_64-unknown-linux-gnu.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734911871"
+checksum = "sha256:5bbfb977f383b78e9c3cc9342511f9a84d05f2283fb53f158737dcea2d59e2a6"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-x86_64-unknown-linux-gnu.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786116478"
 
 [tools.zellij."platforms.linux-x64-musl"]
-checksum = "sha256:a8ee599eb357b6142443c91506a4ece3aa8811cb75dcf2b28d194bd66853c79d"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-x86_64-unknown-linux-musl.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734781481"
+checksum = "sha256:1633211357c236053b51d1ae6415c23f7ff71aaae8e087315e499ceca1b17fa4"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-x86_64-unknown-linux-musl.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786103951"
 
 [tools.zellij."platforms.macos-arm64"]
-checksum = "sha256:716a1c7887be83cc813900012a156a4d8e0ee1468ac56c58a299c9d8898cdc90"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-aarch64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734814747"
+checksum = "sha256:97ace8e179b98576debd963870424cf208e1ef4fc9bd6180e3c73ff1d798087d"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-aarch64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786127642"
 
 [tools.zellij."platforms.macos-x64"]
-checksum = "sha256:e3b6197af04b286f74f7a9f5f519e5a8cf048be65f0371a32b0d60abac97384a"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-x86_64-apple-darwin.tar.gz"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734809396"
+checksum = "sha256:39230d4f8306643c6051e76884bb5b1f038e0d41291862da62c9b1830c9a1504"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-x86_64-apple-darwin.tar.gz"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786140022"
 
 [tools.zellij."platforms.windows-x64"]
-checksum = "sha256:be19eed784ed3dd22a3b179b8b79086c0e3ee67ddc836092a1ea9d4306dfd934"
-url = "https://github.com/zellij-org/zellij/releases/download/v0.46.0/zellij-x86_64-pc-windows-msvc.zip"
-url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/734819371"
+checksum = "sha256:a2fe1b52ba8cd08d75a3a7ee8b9ecf66d8a8bbaf65ed6096a506f65a69a2c77b"
+checksum_source = "mise-versions"
+url = "https://github.com/zellij-org/zellij/releases/download/v0.46.1/zellij-x86_64-pc-windows-msvc.zip"
+url_api = "https://api.github.com/repos/zellij-org/zellij/releases/assets/786157533"
 
 [[tools.zoxide]]
 version = "0.10.0"
