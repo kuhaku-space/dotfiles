@@ -49,7 +49,6 @@ provenance = "github-attestations"
 [[tools.atuin]]
 version = "18.25.1"
 backend = "aqua:atuinsh/atuin"
-unsupported_platforms = ["macos-x64"]
 
 [tools.atuin."platforms.linux-arm64"]
 checksum = "sha256:19713ba9447f6429412c349379a62b98f519bc311b38c31c95c06bdbfceb4ed8"
@@ -661,10 +660,6 @@ url_api = "https://api.github.com/repos/BurntSushi/ripgrep/releases/assets/78073
 [[tools.sheldon]]
 version = "0.8.5"
 backend = "aqua:rossmacarthur/sheldon"
-unsupported_platforms = [
-    "macos-x64",
-    "windows-x64",
-]
 
 [tools.sheldon."platforms.linux-arm64"]
 checksum = "sha256:1f6b792e49e259f7c313e9921c8d4ad638d827abc2c023efe0588a55678f9a3e"
